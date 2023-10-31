@@ -1,0 +1,119 @@
+package com.gianfro.games.solving.techniques;
+
+import com.gianfro.games.entities.*;
+import com.gianfro.games.explainers.SudokuExplainer;
+import com.gianfro.games.utils.SudokuList;
+import com.gianfro.games.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Naked3 {
+
+    /**
+     * If you can find three cells, all in the same house, that have only the same three candidates left,
+     * you can eliminate that candidates from all other cells in that house.
+     * It is important to note that not all cells must contain all three candidates,
+     * but there must not be more than three candidates in the three cells all together.
+     */
+
+    public static final String NAKED_TRIPLE = "NAKED TRIPLE";
+
+    public static SkimmingResult check(List<Tab> tabs) {
+        SkimmingResult result;
+        List<ChangeLog> changeLogs = new LinkedList<>();
+
+        result = nakedTriples(House.BOX, tabs);
+        changeLogs.addAll(result.getChangeLogs());
+        tabs = result.getTabs();
+
+        result = nakedTriples(House.ROW, tabs);
+        changeLogs.addAll(result.getChangeLogs());
+        tabs = result.getTabs();
+
+        result = nakedTriples(House.COL, tabs);
+        changeLogs.addAll(result.getChangeLogs());
+        tabs = result.getTabs();
+
+        return new SkimmingResult(tabs, changeLogs);
+    }
+
+    private static SkimmingResult nakedTriples(House house, List<Tab> tabs) {
+        try {
+            List<ChangeLog> changeLogs = new LinkedList<>();
+            for (int houseNumber : Utils.NUMBERS) {
+
+                List<Integer> candidatesWithAtLeastTwoOccurences = new ArrayList<>();
+                for (int number : Utils.NUMBERS) {
+                    int occurences = 0;
+                    List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
+                    for (Tab tab : houseTabs) {
+                        if (tab.getNumbers().contains(number)) {
+                            occurences++;
+                        }
+                    }
+                    if (occurences >= 2) {
+                        candidatesWithAtLeastTwoOccurences.add(number);
+                    }
+                }
+                if (candidatesWithAtLeastTwoOccurences.size() >= 3) {
+                    List<List<Integer>> possibleTriples = Utils.findAllPossibleTuples(candidatesWithAtLeastTwoOccurences, 3);
+                    for (List<Integer> possibleTriple : possibleTriples) {
+                        List<ChangeLogUnitMember> tripleTabs = new ArrayList<>();
+                        List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
+                        List<Change> unitSkimmings = new ArrayList<>();
+                        boolean deductionsDone = false;
+                        for (Tab tab : houseTabs) {
+                            if (Utils.candidatesAreSameOrSubset(tab, possibleTriple)
+                                    && Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleTriple, 2)) {
+                                tripleTabs.add((ChangeLogUnitMember) tab);
+                            }
+                        }
+                        if (tripleTabs.size() == 3) {
+                            for (Tab tab : houseTabs) {
+                                if (!tripleTabs.contains((ChangeLogUnitMember) tab)) {
+                                    List<Integer> candidatesToBeRemoved = possibleTriple.stream().filter(x -> tab.getNumbers().remove(x)).collect(Collectors.toList());
+                                    if (!candidatesToBeRemoved.isEmpty()) {
+                                        Skimming skimming = new Skimming(NAKED_TRIPLE, house, tab, candidatesToBeRemoved);
+                                        unitSkimmings.add(skimming);
+                                        deductionsDone = true;
+                                    }
+                                }
+                            }
+                            if (deductionsDone) {
+                                changeLogs.add(new ChangeLog(possibleTriple, house, houseNumber, tripleTabs, NAKED_TRIPLE, null, unitSkimmings));
+                            }
+                        }
+                    }
+                }
+            }
+            return new SkimmingResult(tabs, changeLogs);
+        } catch (Exception e) {
+            System.out.println("Exception in NAKED TRIPLE " + house + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("------------------------------------- TEST NAKED TRIPLE -----------------------------------------");
+
+        Sudoku sudoku = SudokuList.TEST_NAKED_3_ROW;
+//		Sudoku sudoku = SudokuList.TEST_NAKED_3_COL;
+        Utils.grid(sudoku);
+
+        List<Tab> tabs = Utils.getBasicTabs(sudoku);
+        SkimmingResult result = check(tabs);
+        List<ChangeLog> changeLogs =
+                result.getChangeLogs()
+                        .stream()
+                        .filter(x -> x.getSolvingTechnique().equals(NAKED_TRIPLE))
+                        .collect(Collectors.toList());
+
+        for (ChangeLog changeLog : changeLogs) {
+            SudokuExplainer.explainChange(changeLog);
+            System.out.println();
+        }
+    }
+}

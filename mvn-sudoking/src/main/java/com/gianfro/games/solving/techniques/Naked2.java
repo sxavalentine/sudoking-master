@@ -53,8 +53,8 @@ public class Naked2 {
                     List<ChangeLogUnitMember> pairTabs = new ArrayList<>();
                     if (Collections.frequency(pairsList, pair) == 2) {
                         List<Tab> houseTabs2 = Utils.getHouseTabs(house, houseNumber, tabs);
-                        List<Change> unitSkimmings = new ArrayList<>();
                         boolean deductionsDone = false;
+                        List<Change> unitSkimmings = new ArrayList<>();
                         for (Tab tab : houseTabs2) {
                             if (!tab.getNumbers().equals(pair)) {
                                 List<Integer> candidatesToBeRemoved = pair.stream().filter(x -> tab.getNumbers().remove(x)).collect(Collectors.toList());
@@ -68,7 +68,14 @@ public class Naked2 {
                             }
                         }
                         if (deductionsDone) {
-                            changeLogs.add(new ChangeLog(pair, house, houseNumber, pairTabs, NAKED_PAIR, null, unitSkimmings));
+                            changeLogs.add(new ChangeLog(
+                                    pair,
+                                    house,
+                                    houseNumber,
+                                    pairTabs,
+                                    NAKED_PAIR,
+                                    null,
+                                    unitSkimmings));
                         }
                     }
                 }

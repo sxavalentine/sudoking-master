@@ -65,7 +65,14 @@ public class Naked4 {
                             }
                         }
                         if (deductionsDone) {
-                            changeLogs.add(new ChangeLog(quad, house, houseNumber, quadTabs, NAKED_QUAD, null, unitSkimmings));
+                            changeLogs.add(new ChangeLog(
+                                    quad,
+                                    house,
+                                    houseNumber,
+                                    quadTabs,
+                                    NAKED_QUAD,
+                                    null,
+                                    unitSkimmings));
                         }
                     }
                 }

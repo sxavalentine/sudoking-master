@@ -87,7 +87,7 @@ public class Chain {
                             chain = findNegativeChain(chain, link2, link1, tabs, number);
                             if (chain.get(chain.size() - 1).getTab() == link1.getTab()) {
                                 for (Link link : chain) {
-                                    unitMembers.add((ChangeLogUnitMember) link.getTab());
+                                    unitMembers.add(link.getTab());
                                 }
                                 Change change = new Change(CHAIN, house, tab1.getRow(), tab1.getCol(), number);
                                 ChangeLog changeLog = new ChangeLog(
@@ -98,21 +98,13 @@ public class Chain {
                                         CHAIN,
                                         DISCONTINUOUS_NICE_LOOP_FALSE,
                                         Collections.singletonList(change));
-                                ///
-                                //							String cell = Utils.ROWS_LETTERS.get(tab1.getRow() - 1) + tab1.getCol();
-                                //							System.out.println("CONTRADICTION: IN THE CHAIN THE CELL " + cell + " WITH THE CANDIDATE " + number + " STARTS FALSE AND ENDS TRUE");
-                                //							System.out.println("SO IT MUST BE TRUE");
-                                //							for (Link link : chain) {
-                                //								System.out.println(link);
-                                //							}
-                                ///
                                 changeLogs.add(changeLog);
                                 return new SkimmingResult(tabs, changeLogs);
                             }
                         } catch (XChainException xce) {
                             List<Change> skimmings = new ArrayList<>();
                             for (Link link : xce.getChain()) {
-                                unitMembers.add((ChangeLogUnitMember) link.getTab());
+                                unitMembers.add(link.getTab());
                             }
 
                             for (Tab tab : xce.getTabs()) {
@@ -128,20 +120,11 @@ public class Chain {
                                     CHAIN,
                                     DISCONTINUOUS_NICE_LOOP_FALSE,
                                     skimmings);
-                            ///
-                            //						System.out.println("I FOUND AN X CHAIN");
-                            //						for (Link link : xce.getChain()) {
-                            //							System.out.println(link);
-                            //						}
-                            //						for (tab tab : xce.getTabs()) {
-                            //							System.out.println(number + " CAN BE REMOVED FROM " + tab);
-                            //						}
-                            ///
                             changeLogs.add(changeLog);
                             return new SkimmingResult(tabs, changeLogs);
 
                         } catch (NoPossibleChainException npce) {
-                            //TODO che si fa in caso di eccezione?
+                            //TODO che si fa in tal caso?
                         }
                     }
                 }
@@ -220,14 +203,6 @@ public class Chain {
                                     CHAIN,
                                     DISCONTINUOUS_NICE_LOOP_TRUE,
                                     Collections.singletonList(skimming));
-                            ///
-//							String cell = Utils.ROWS_LETTERS.get(tab.getRow() - 1) + tab.getCol();
-//							System.out.println("CONTRADICTION: IN THE CHAIN THE CELL " + cell + " WITH THE CANDIDATE " + number + " STARTS TRUE AND ENDS FALSE");
-//							System.out.println("SO IT CAN'T CONTAIN " + number);
-//							for (Link link : chain) {
-//								System.out.println(link);
-//							}
-                            ///
                             changeLogs.add(changeLog);
                         }
                     } catch (NoPossibleChainException npce) {
@@ -270,14 +245,7 @@ public class Chain {
                             clonedChain = findPositiveChain(clonedChain, nextLink, newLink, tabs, candidate);
                             return clonedChain;
                         } catch (NoPossibleChainException npce) {
-                            ///
-//							System.out.println("NON HO TROVATO IL PROSEGUO DELLA CATENA");
-//							for (Link l : clonedChain) {
-//								System.out.println(l);
-//							}
-//							System.out.println("TAB ANALIZZATO: " + tab);
-//							System.out.println();
-                            ///
+                            //TODO che si fa in tal caso?
                         }
                     }
                 }

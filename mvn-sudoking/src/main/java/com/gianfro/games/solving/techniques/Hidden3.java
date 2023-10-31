@@ -80,7 +80,14 @@ public class Hidden3 {
                                 }
                             }
                             if (!unitSkimmings.isEmpty()) {
-                                changeLogs.add(new ChangeLog(possibleTriple, house, houseNumber, tripleTabs, HIDDEN_TRIPLE, null, unitSkimmings));
+                                changeLogs.add(new ChangeLog(
+                                        possibleTriple,
+                                        house,
+                                        houseNumber,
+                                        tripleTabs,
+                                        HIDDEN_TRIPLE,
+                                        null,
+                                        unitSkimmings));
                             }
                         }
                     }

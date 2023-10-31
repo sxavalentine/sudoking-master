@@ -30,12 +30,12 @@ public class XYChain {
         List<ChangeLog> changeLogs = new LinkedList<>();
         try {
 
-            List<Tab> biValueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
+            List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
 
-            for (Tab tab : biValueCells) {
+            for (Tab tab : bivalueCells) {
                 // if importante, perchè nel mentre i suoi candidati potrebbero essere stati rimossi dalle precedenti iterazioni del ciclo
                 if (tab.getNumbers().size() == 2) {
-                    List<Tab> seenTabs = ChainUtils.getSeenCells(tab, biValueCells);
+                    List<Tab> seenTabs = ChainUtils.getSeenCells(tab, bivalueCells);
                     if (seenTabs.size() >= 2) {
                         for (Integer candidate : tab.getNumbers()) {
                             for (Tab t : seenTabs) {
@@ -52,7 +52,7 @@ public class XYChain {
                                     chain.add(firstLink);
                                     chain.add(secondLink);
 
-                                    ChangeLog changelog = findChain(chain, biValueCells, tabs);
+                                    ChangeLog changelog = findChain(chain, bivalueCells, tabs);
                                     if (changelog != null) {
                                         changeLogs.add(changelog);
                                     }
@@ -101,7 +101,7 @@ public class XYChain {
                                 List<Integer> sharedCandidates = ChainUtils.getSharedCandidates(firstLink.getTab(), tabOff);
                                 if (!sharedCandidates.isEmpty()
                                         && firstLink.getNumber() != linkOff.getNumber()
-                                        //TODO testare fix (controlla che il numero off del primo link sia uguale al numero on dell'ultimo)
+                                        // TODO testare fix (controlla che il numero off del primo link sia uguale al numero on dell'ultimo)
                                         // si può scrivere meglio e più leggibile però
                                         && firstLink.getTab().getNumbers().stream().filter(x -> x != firstLink.getNumber()).collect(Collectors.toList()).get(0).equals(linkOff.getNumber())
                                         //

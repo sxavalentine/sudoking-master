@@ -18,20 +18,20 @@ public class FiftyFifty {
     public static SolutionStep check(Sudoku sudoku, List<Tab> tabs, int cyclesCount) {
 
         List<ChangeLog> changeLogs = new LinkedList<>();
-        List<Tab> biValueCells = tabs.stream().filter(tab -> tab.getNumbers().size() == 2).collect(Collectors.toList());
-        Tab biValueCell = null;
+        List<Tab> bivalueCells = tabs.stream().filter(tab -> tab.getNumbers().size() == 2).collect(Collectors.toList());
+        Tab bivalueCell = null;
         try {
             int index = 0; // in futuro si potrebbe fare che prova tutte le possibili caselle 5050 se la prima (come ora, con l'indice fisso a 0) non porta a risultati
-            biValueCell = biValueCells.get(index);
+            bivalueCell = bivalueCells.get(index);
         } catch (IndexOutOfBoundsException ioobe) {
             NoFiftyFiftyException nffe = new NoFiftyFiftyException(sudoku, tabs);
             nffe.getMessage();
             throw nffe;
         }
-        int speculationRow = biValueCell.getRow();
-        int speculationCol = biValueCell.getCol();
-        int optionA = biValueCell.getNumbers().get(0);
-        int optionB = biValueCell.getNumbers().get(1);
+        int speculationRow = bivalueCell.getRow();
+        int speculationCol = bivalueCell.getCol();
+        int optionA = bivalueCell.getNumbers().get(0);
+        int optionB = bivalueCell.getNumbers().get(1);
 
         List<Integer> hypotheticalSequenceNumbers = new ArrayList<>(sudoku.getNumbers());
         hypotheticalSequenceNumbers.set(((9 * (speculationRow - 1)) + (speculationCol - 1)), optionA);

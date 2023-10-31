@@ -49,7 +49,14 @@ public class Hidden1 {
 
                             Tab tab = welcomingTabs.get(0);
                             Change change = new Change(HIDDEN_SINGLE, house, tab.getRow(), tab.getCol(), number);
-                            changeLogs.add(new ChangeLog(null, house, houseNumber, Arrays.asList((ChangeLogUnitMember) tab), HIDDEN_SINGLE, null, Arrays.asList(change)));
+                            changeLogs.add(new ChangeLog(
+                                    null,
+                                    house,
+                                    houseNumber,
+                                    Arrays.asList(tab),
+                                    HIDDEN_SINGLE,
+                                    null,
+                                    Arrays.asList(change)));
                         }
                     }
                 }

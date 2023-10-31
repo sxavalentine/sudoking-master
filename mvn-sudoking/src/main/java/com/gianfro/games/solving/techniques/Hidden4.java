@@ -80,7 +80,14 @@ public class Hidden4 {
                                 }
                             }
                             if (!unitSkimmings.isEmpty()) {
-                                changeLogs.add(new ChangeLog(possibleQuad, house, houseNumber, quadTabs, HIDDEN_QUAD, null, unitSkimmings));
+                                changeLogs.add(new ChangeLog(
+                                        possibleQuad,
+                                        house,
+                                        houseNumber,
+                                        quadTabs,
+                                        HIDDEN_QUAD,
+                                        null,
+                                        unitSkimmings));
                             }
                         }
                     }

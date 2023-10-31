@@ -62,8 +62,8 @@ public class Naked3 {
                     for (List<Integer> possibleTriple : possibleTriples) {
                         List<ChangeLogUnitMember> tripleTabs = new ArrayList<>();
                         List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                        List<Change> unitSkimmings = new ArrayList<>();
                         boolean deductionsDone = false;
+                        List<Change> unitSkimmings = new ArrayList<>();
                         for (Tab tab : houseTabs) {
                             if (Utils.candidatesAreSameOrSubset(tab, possibleTriple)
                                     && Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleTriple, 2)) {
@@ -82,7 +82,14 @@ public class Naked3 {
                                 }
                             }
                             if (deductionsDone) {
-                                changeLogs.add(new ChangeLog(possibleTriple, house, houseNumber, tripleTabs, NAKED_TRIPLE, null, unitSkimmings));
+                                changeLogs.add(new ChangeLog(
+                                        possibleTriple,
+                                        house,
+                                        houseNumber,
+                                        tripleTabs,
+                                        NAKED_TRIPLE,
+                                        null,
+                                        unitSkimmings));
                             }
                         }
                     }

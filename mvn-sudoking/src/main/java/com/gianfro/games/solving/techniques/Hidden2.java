@@ -63,7 +63,7 @@ public class Hidden2 {
                         for (Tab tab : houseTabs) {
                             if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possiblePair, 1)) {
                                 if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possiblePair, 2)) {
-                                    pairTabs.add((ChangeLogUnitMember) tab);
+                                    pairTabs.add(tab);
                                 } else {
                                     shamTabs.add(tab);
                                 }
@@ -81,7 +81,14 @@ public class Hidden2 {
                                 }
                             }
                             if (!unitSkimmings.isEmpty()) {
-                                changeLogs.add(new ChangeLog(possiblePair, house, houseNumber, pairTabs, HIDDEN_PAIR, null, unitSkimmings));
+                                changeLogs.add(new ChangeLog(
+                                        possiblePair,
+                                        house,
+                                        houseNumber,
+                                        pairTabs,
+                                        HIDDEN_PAIR,
+                                        null,
+                                        unitSkimmings));
                             }
                         }
                     }

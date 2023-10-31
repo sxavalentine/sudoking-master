@@ -99,7 +99,14 @@ public class XWing {
                                 }
                             }
                             if (!unitSkimmings.isEmpty()) {
-                                changeLogs.add(new ChangeLog(Collections.singletonList(number), null, 0, xWingMembers, X_WING, null, unitSkimmings));
+                                changeLogs.add(new ChangeLog(
+                                        Collections.singletonList(number),
+                                        null,
+                                        0,
+                                        xWingMembers,
+                                        X_WING,
+                                        null,
+                                        unitSkimmings));
                             }
                         }
                     }
@@ -111,7 +118,9 @@ public class XWing {
         return new SkimmingResult(tabs, changeLogs);
     }
 
-    // data una lista di liste di liste di tabs e un numero N, restituisce tutte le possibili tuple di N elementi che si possono ottenere con quel set
+    /**
+     * Given a list of list of tabs and an N number, returns all the possible tuples of N elements obtainable with that set
+     */
     private static List<List<List<Tab>>> findAllPossibleTabsTuples(List<List<Tab>> tabsList, int n) {
         List<List<List<Tab>>> subsets =
                 Generator

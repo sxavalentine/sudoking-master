@@ -19,10 +19,9 @@ public class Naked2 {
 
     public static SkimmingResult check(List<Tab> tabs) {
         SkimmingResult result;
-        List<ChangeLog> changeLogs = new LinkedList<>();
 
         result = nakedPairs(House.BOX, tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = nakedPairs(House.ROW, tabs);

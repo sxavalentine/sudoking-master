@@ -21,10 +21,9 @@ public class XWing {
 
     public static SkimmingResult check(List<Tab> tabs) {
         SkimmingResult result;
-        List<ChangeLog> changeLogs = new LinkedList<>();
 
         result = xWing(House.ROW, tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = xWing(House.COL, tabs);

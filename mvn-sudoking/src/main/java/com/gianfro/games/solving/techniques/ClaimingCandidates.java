@@ -19,10 +19,9 @@ public class ClaimingCandidates {
 
     public static SkimmingResult check(List<Tab> tabs) {
         SkimmingResult result;
-        List<ChangeLog> changeLogs = new LinkedList<>();
 
         result = boxLineReduction(House.ROW, tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = boxLineReduction(House.COL, tabs);

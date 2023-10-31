@@ -20,10 +20,9 @@ public class Hidden1 {
 
     public static SkimmingResult check(List<Tab> tabs) {
         SkimmingResult result;
-        Set<ChangeLog> changeLogs = new HashSet<>();
 
         result = hiddenSingle(House.BOX, tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        Set<ChangeLog> changeLogs = new HashSet<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = hiddenSingle(House.ROW, tabs);

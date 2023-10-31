@@ -21,10 +21,9 @@ public class PointingCandidates {
 
     public static SkimmingResult check(List<Tab> tabs) {
         SkimmingResult result;
-        List<ChangeLog> changeLogs = new LinkedList<>();
 
         result = pointingCandidates(House.ROW, tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = pointingCandidates(House.COL, tabs);
@@ -56,8 +55,8 @@ public class PointingCandidates {
                         String method = welcomingTabs.size() == 2 ? POINTING_PAIR : POINTING_TRIPLE;
                         int welcomingHouse = new ArrayList<>(welcomingHouses).get(0);
                         List<Tab> houseTabs = Utils.getHouseTabs(house, welcomingHouse, tabs);
-                        List<Change> unitSkimmings = new ArrayList<>();
                         boolean deductionsDone = false;
+                        List<Change> unitSkimmings = new ArrayList<>();
                         for (Tab tab : houseTabs) {
                             if (tab.getBox() != boxNumber && tab.getNumbers().contains(number)) {
                                 tab.getNumbers().remove(Integer.valueOf(number));
@@ -67,7 +66,14 @@ public class PointingCandidates {
                             }
                         }
                         if (deductionsDone) {
-                            changeLogs.add(new ChangeLog(Collections.singletonList(number), House.BOX, boxNumber, welcomingTabs, POINTING_CANDIDATES, method, unitSkimmings));
+                            changeLogs.add(new ChangeLog(
+                                    Collections.singletonList(number),
+                                    House.BOX,
+                                    boxNumber,
+                                    welcomingTabs,
+                                    POINTING_CANDIDATES,
+                                    method,
+                                    unitSkimmings));
                         }
                     }
                 }

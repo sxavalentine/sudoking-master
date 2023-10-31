@@ -21,10 +21,9 @@ public class Naked4 {
 
     public static SkimmingResult check(List<Tab> tabs) {
         SkimmingResult result;
-        List<ChangeLog> changeLogs = new LinkedList<>();
 
         result = nakedQuadruples(House.BOX, tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = nakedQuadruples(House.ROW, tabs);

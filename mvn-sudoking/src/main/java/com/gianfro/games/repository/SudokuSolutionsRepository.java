@@ -7,9 +7,6 @@ public interface SudokuSolutionsRepository extends MongoRepository<SolutionOutpu
 
     SolutionOutput findItemByStartingNumbers(String startingNumbers);
 
-//    @Query(value="{category:'?0'}", fields="{'name' : 1, 'quantity' : 1}")
-//    List<SolutionOutput> findAll(String category);
-
     public long count();
 
 }

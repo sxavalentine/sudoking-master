@@ -23,7 +23,7 @@ public enum StandardSolvingTechnique {
 
     int index;
 
-    private StandardSolvingTechnique(int index) {
+    StandardSolvingTechnique(int index) {
         this.index = index;
     }
 

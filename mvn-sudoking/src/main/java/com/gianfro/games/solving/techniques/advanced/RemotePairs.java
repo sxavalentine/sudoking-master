@@ -25,17 +25,17 @@ public class RemotePairs {
         List<ChangeLog> changeLogs = new LinkedList<>();
         try {
 
-            List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
-            List<List<Integer>> bivaluePairs = new ArrayList<>();
+            List<Tab> biValueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
+            List<List<Integer>> biValuePairs = new ArrayList<>();
 
-            for (Tab tab : bivalueCells) {
-                if (!bivaluePairs.contains(tab.getNumbers())) {
-                    bivaluePairs.add(tab.getNumbers());
+            for (Tab tab : biValueCells) {
+                if (!biValuePairs.contains(tab.getNumbers())) {
+                    biValuePairs.add(tab.getNumbers());
                 }
             }
 
-            for (List<Integer> pair : bivaluePairs) {
-                List<Tab> pairTabs = bivalueCells.stream().filter(x -> x.getNumbers().equals(pair)).collect(Collectors.toList());
+            for (List<Integer> pair : biValuePairs) {
+                List<Tab> pairTabs = biValueCells.stream().filter(x -> x.getNumbers().equals(pair)).collect(Collectors.toList());
 
                 // CHAIN MUST HAVE AT LEAST 4 LINKS TO ELIMINATE SOMETHING
                 if (pairTabs.size() >= 4) {

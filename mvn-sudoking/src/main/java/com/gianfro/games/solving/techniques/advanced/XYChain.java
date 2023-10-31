@@ -30,12 +30,12 @@ public class XYChain {
         List<ChangeLog> changeLogs = new LinkedList<>();
         try {
 
-            List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
+            List<Tab> biValueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
 
-            for (Tab tab : bivalueCells) {
+            for (Tab tab : biValueCells) {
                 // if importante, perchè nel mentre i suoi candidati potrebbero essere stati rimossi dalle precedenti iterazioni del ciclo
                 if (tab.getNumbers().size() == 2) {
-                    List<Tab> seenTabs = ChainUtils.getSeenCells(tab, bivalueCells);
+                    List<Tab> seenTabs = ChainUtils.getSeenCells(tab, biValueCells);
                     if (seenTabs.size() >= 2) {
                         for (Integer candidate : tab.getNumbers()) {
                             for (Tab t : seenTabs) {
@@ -52,7 +52,7 @@ public class XYChain {
                                     chain.add(firstLink);
                                     chain.add(secondLink);
 
-                                    ChangeLog changelog = findChain(chain, bivalueCells, tabs);
+                                    ChangeLog changelog = findChain(chain, biValueCells, tabs);
                                     if (changelog != null) {
                                         changeLogs.add(changelog);
                                     }

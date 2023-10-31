@@ -40,8 +40,8 @@ public class Naked4 {
 
     // TODO algoritmo SICURAMENTE da modificare: non e' detto che tutti i membri di una quadrupla siano in una singola casella
     private static SkimmingResult nakedQuadruples(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                 Set<List<Integer>> quadruples = new HashSet<>();
@@ -56,7 +56,7 @@ public class Naked4 {
                     List<ChangeLogUnitMember> quadTabs = houseTabs.stream().filter(tab -> Utils.candidatesAreSameOrSubset(tab, quad)).collect(Collectors.toList());
                     if (quadTabs.size() == 4) {
                         for (Tab tab : houseTabs) {
-                            if (!quadTabs.contains((ChangeLogUnitMember) tab)) {
+                            if (!quadTabs.contains(tab)) {
                                 List<Integer> candidatesToBeRemoved = quad.stream().filter(x -> tab.getNumbers().remove(x)).collect(Collectors.toList());
                                 if (!candidatesToBeRemoved.isEmpty()) {
                                     Skimming skimming = new Skimming(NAKED_QUAD, house, tab, candidatesToBeRemoved);
@@ -71,11 +71,10 @@ public class Naked4 {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in NAKED QUADRUPLE " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     public static void main(String[] args) {

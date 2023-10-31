@@ -7,7 +7,7 @@ import com.gianfro.games.sudoku.solver.SudokuSolver;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,8 +27,8 @@ public class XYChain {
     }
 
     private static SkimmingResult chain(List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
 
             List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
 
@@ -40,7 +40,7 @@ public class XYChain {
                         for (Integer candidate : tab.getNumbers()) {
                             for (Tab t : seenTabs) {
                                 List<Integer> nextLinkCandidates = new ArrayList<>(t.getNumbers());
-                                nextLinkCandidates.remove(Integer.valueOf(candidate));
+                                nextLinkCandidates.remove(candidate);
                                 if (nextLinkCandidates.size() == 1) {
 
                                     int nextLinkCandidate = nextLinkCandidates.get(0);
@@ -62,11 +62,10 @@ public class XYChain {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in XY CHAIN: " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     private static ChangeLog findChain(List<Link> chain, List<Tab> tabs, List<Tab> allTabs) {
@@ -79,7 +78,7 @@ public class XYChain {
             if (!ChainUtils.chainContainsTab(chain, tabOn) && ChainUtils.cellsSeeEachOther(tabOn, lastLink.getTab())) {
 
                 List<Integer> tabOnCandidates = new ArrayList<>(tabOn.getNumbers());
-                tabOnCandidates.remove(new Integer(candidateOff));
+                tabOnCandidates.remove(Integer.valueOf(candidateOff));
                 if (tabOnCandidates.size() == 1) {
                     int candidateOn = tabOnCandidates.get(0);
 
@@ -88,15 +87,6 @@ public class XYChain {
                         if (!ChainUtils.chainContainsTab(chain, tabOff) && ChainUtils.cellsSeeEachOther(tabOff, tabOn)) {
 
                             List<Integer> tabOffCandidates = new ArrayList<>(tabOff.getNumbers());
-
-                            //TODO REMOVE AFTER FIXING ERROR
-                            if (chain.get(0).getTab().getRow() == 1 &&
-                                    chain.get(0).getTab().getCol() == 2 &&
-                                    chain.get(0).getNumber() == 9 &&
-                                    tabOff.getCol() == 5 &&
-                                    tabOff.getRow() == 7) {
-                                System.out.println("ECCOTI BASTARDO");
-                            }
 
                             tabOffCandidates.remove(Integer.valueOf(candidateOn));
                             if (tabOffCandidates.size() == 1) {
@@ -121,20 +111,18 @@ public class XYChain {
 
                                         List<Change> skimmings = new ArrayList<>();
                                         for (Tab tab : commonCells) {
-                                            tab.getNumbers().remove(Integer.valueOf(sharedCandidates.get(0)));
-                                            Skimming skimming = new Skimming(XY_CHAIN, null, tab, Arrays.asList(sharedCandidates.get(0)));
+                                            tab.getNumbers().remove(sharedCandidates.get(0));
+                                            Skimming skimming = new Skimming(XY_CHAIN, null, tab, Collections.singletonList(sharedCandidates.get(0)));
                                             skimmings.add(skimming);
                                         }
 
-                                        ChangeLog changelog = new ChangeLog(
-                                                Arrays.asList(sharedCandidates.get(0)),
+                                        return new ChangeLog(
+                                                Collections.singletonList(sharedCandidates.get(0)),
                                                 null,
                                                 0,
                                                 new ArrayList<>(chain),
                                                 XY_CHAIN, null,
                                                 skimmings);
-
-                                        return changelog;
                                     }
                                 }
                                 return findChain(chain, tabs, allTabs);

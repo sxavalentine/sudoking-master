@@ -38,8 +38,8 @@ public class Hidden4 {
     }
 
     private static SkimmingResult hiddenQuadruples(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 List<Integer> candidatesWithAtLeastTwoOccurences = new ArrayList<>();
                 for (int number : Utils.NUMBERS) {
@@ -63,7 +63,7 @@ public class Hidden4 {
                         for (Tab tab : houseTabs) {
                             if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleQuad, 1)) {
                                 if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleQuad, 2)) {
-                                    quadTabs.add((ChangeLogUnitMember) tab);
+                                    quadTabs.add(tab);
                                 } else {
                                     shamTabs.add(tab);
                                 }
@@ -87,11 +87,10 @@ public class Hidden4 {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in HIDDEN QUADRUPLE " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     public static void main(String[] args) {

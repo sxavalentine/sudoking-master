@@ -39,8 +39,8 @@ public class Hidden3 {
     }
 
     private static SkimmingResult hiddenTriples(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 List<Integer> candidatesWithAtLeastTwoOccurences = new ArrayList<>();
                 for (int number : Utils.NUMBERS) {
@@ -64,7 +64,7 @@ public class Hidden3 {
                         for (Tab tab : houseTabs) {
                             if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleTriple, 1)) {
                                 if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleTriple, 2)) {
-                                    tripleTabs.add((ChangeLogUnitMember) tab);
+                                    tripleTabs.add(tab);
                                 } else {
                                     shamTabs.add(tab);
                                 }
@@ -87,11 +87,10 @@ public class Hidden3 {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in HIDDEN TRIPLE " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     public static void main(String[] args) {

@@ -10,7 +10,7 @@ import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,8 +60,8 @@ public class Chain {
     // prova a formare una catena partendo da una casa (BOX, ROW o COL) che ha solo due celle candidate a ospitare un numero.
     // Essi saranno primo e secondo anello della catena (rispettivamente false e true)
     private static SkimmingResult chain(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             List<ChangeLogUnitMember> unitMembers = new ArrayList<>();
             for (int number : Utils.NUMBERS) {
                 for (int houseNumber : Utils.NUMBERS) {
@@ -92,13 +92,13 @@ public class Chain {
                                 }
                                 Change change = new Change(CHAIN, house, tab1.getRow(), tab1.getCol(), number);
                                 ChangeLog changeLog = new ChangeLog(
-                                        Arrays.asList(number),
+                                        Collections.singletonList(number),
                                         house,
                                         houseNumber,
                                         unitMembers,
                                         CHAIN,
                                         DISCONTINUOUS_NICE_LOOP_FALSE,
-                                        Arrays.asList(change));
+                                        Collections.singletonList(change));
                                 ///
                                 //							String cell = Utils.ROWS_LETTERS.get(tab1.getRow() - 1) + tab1.getCol();
                                 //							System.out.println("CONTRADICTION: IN THE CHAIN THE CELL " + cell + " WITH THE CANDIDATE " + number + " STARTS FALSE AND ENDS TRUE");
@@ -117,12 +117,12 @@ public class Chain {
                             }
 
                             for (Tab tab : xce.getTabs()) {
-                                tab.getNumbers().remove(new Integer(number));
-                                Skimming skimming = new Skimming(X_CHAIN, house, tab, Arrays.asList(number));
+                                tab.getNumbers().remove(Integer.valueOf(number));
+                                Skimming skimming = new Skimming(X_CHAIN, house, tab, Collections.singletonList(number));
                                 skimmings.add(skimming);
                             }
                             ChangeLog changeLog = new ChangeLog(
-                                    Arrays.asList(number),
+                                    Collections.singletonList(number),
                                     house,
                                     houseNumber,
                                     unitMembers,
@@ -147,11 +147,10 @@ public class Chain {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in CHAIN " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
 
@@ -210,18 +209,18 @@ public class Chain {
                         chain = findPositiveChain(chain, link1, null, tabs, number);
                         if (chain.get(chain.size() - 1).getTab() == link1.getTab()) {
                             for (Link link : chain) {
-                                unitMembers.add((ChangeLogUnitMember) link.getTab());
+                                unitMembers.add(link.getTab());
                             }
-                            tab.getNumbers().remove(new Integer(number));
-                            Skimming skimming = new Skimming(CHAIN, House.BOX, tab, Arrays.asList(number));
+                            tab.getNumbers().remove(Integer.valueOf(number));
+                            Skimming skimming = new Skimming(CHAIN, House.BOX, tab, Collections.singletonList(number));
                             ChangeLog changeLog = new ChangeLog(
-                                    Arrays.asList(number),
+                                    Collections.singletonList(number),
                                     House.BOX,
                                     0,
                                     unitMembers,
                                     CHAIN,
                                     DISCONTINUOUS_NICE_LOOP_TRUE,
-                                    Arrays.asList(skimming));
+                                    Collections.singletonList(skimming));
                             ///
 //							String cell = Utils.ROWS_LETTERS.get(tab.getRow() - 1) + tab.getCol();
 //							System.out.println("CONTRADICTION: IN THE CHAIN THE CELL " + cell + " WITH THE CANDIDATE " + number + " STARTS TRUE AND ENDS FALSE");
@@ -233,6 +232,7 @@ public class Chain {
                             changeLogs.add(changeLog);
                         }
                     } catch (NoPossibleChainException npce) {
+                        //TODO che si fa in tal caso?
                     }
                 }
             }

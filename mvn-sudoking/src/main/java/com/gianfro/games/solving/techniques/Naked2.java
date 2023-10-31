@@ -37,8 +37,8 @@ public class Naked2 {
     }
 
     private static SkimmingResult nakedPairs(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 Set<List<Integer>> pairsSet = new HashSet<>();
                 List<List<Integer>> pairsList = new ArrayList<>();
@@ -65,7 +65,7 @@ public class Naked2 {
                                     deductionsDone = true;
                                 }
                             } else {
-                                pairTabs.add((ChangeLogUnitMember) tab);
+                                pairTabs.add(tab);
                             }
                         }
                         if (deductionsDone) {
@@ -74,11 +74,10 @@ public class Naked2 {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in NAKED PAIR " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     public static void main(String[] args) {

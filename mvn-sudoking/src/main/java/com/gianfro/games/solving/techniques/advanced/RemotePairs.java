@@ -22,8 +22,8 @@ public class RemotePairs {
 
 
     private static SkimmingResult chain(List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
 
             List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
             List<List<Integer>> bivaluePairs = new ArrayList<>();
@@ -91,11 +91,10 @@ public class RemotePairs {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in REMOTE PAIRS: " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
 

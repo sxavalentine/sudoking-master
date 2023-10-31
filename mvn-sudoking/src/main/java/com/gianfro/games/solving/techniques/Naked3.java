@@ -41,8 +41,8 @@ public class Naked3 {
     }
 
     private static SkimmingResult nakedTriples(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int houseNumber : Utils.NUMBERS) {
 
                 List<Integer> candidatesWithAtLeastTwoOccurences = new ArrayList<>();
@@ -68,12 +68,12 @@ public class Naked3 {
                         for (Tab tab : houseTabs) {
                             if (Utils.candidatesAreSameOrSubset(tab, possibleTriple)
                                     && Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleTriple, 2)) {
-                                tripleTabs.add((ChangeLogUnitMember) tab);
+                                tripleTabs.add(tab);
                             }
                         }
                         if (tripleTabs.size() == 3) {
                             for (Tab tab : houseTabs) {
-                                if (!tripleTabs.contains((ChangeLogUnitMember) tab)) {
+                                if (!tripleTabs.contains(tab)) {
                                     List<Integer> candidatesToBeRemoved = possibleTriple.stream().filter(x -> tab.getNumbers().remove(x)).collect(Collectors.toList());
                                     if (!candidatesToBeRemoved.isEmpty()) {
                                         Skimming skimming = new Skimming(NAKED_TRIPLE, house, tab, candidatesToBeRemoved);
@@ -89,11 +89,10 @@ public class Naked3 {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in NAKED TRIPLE " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     public static void main(String[] args) {

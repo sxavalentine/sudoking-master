@@ -33,8 +33,8 @@ public class ClaimingCandidates {
     }
 
     private static SkimmingResult boxLineReduction(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 for (int number : Utils.NUMBERS) {
                     List<ChangeLogUnitMember> welcomingTabs = new ArrayList<>();
@@ -52,23 +52,22 @@ public class ClaimingCandidates {
                         boolean deductionsDone = false;
                         for (Tab tab : tabs) {
                             if (tab.getHouseNumber(house) != houseNumber && tab.getBox() == welcomingBox && tab.getNumbers().contains(number)) {
-                                tab.getNumbers().remove(new Integer(number));
-                                Skimming s = new Skimming(CLAIMING_CANDIDATES, house, tab, Arrays.asList(number));
+                                tab.getNumbers().remove(Integer.valueOf(number));
+                                Skimming s = new Skimming(CLAIMING_CANDIDATES, house, tab, Collections.singletonList(number));
                                 unitSkimmings.add(s);
                                 deductionsDone = true;
                             }
                         }
                         if (deductionsDone) {
-                            changeLogs.add(new ChangeLog(Arrays.asList(number), house, houseNumber, welcomingTabs, CLAIMING_CANDIDATES, null, unitSkimmings));
+                            changeLogs.add(new ChangeLog(Collections.singletonList(number), house, houseNumber, welcomingTabs, CLAIMING_CANDIDATES, null, unitSkimmings));
                         }
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in CLAIMING CANDIDATES " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     public static void main(String[] args) {

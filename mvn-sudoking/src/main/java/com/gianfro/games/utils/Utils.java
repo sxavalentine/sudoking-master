@@ -17,7 +17,9 @@ public class Utils {
     public static final List<Integer> INDEXES_02 = Arrays.asList(0, 1, 2);
     private static final List<Character> CHARACTERS = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
-    // data una stringa, costruisce un Sudoku. Se questa non rispetta il pattern lancia una RuntimeException SudokuBuildException
+    /**
+     * Given a string, check if it's a valid string to build a Sudoku. If it is, return a Sudoku object, if not throws a SudokuBuildException
+     */
     public static Sudoku buildSudoku(String stringNumbers) {
         if (!sudokuStringMatchesPattern(stringNumbers)) {
             throw new SudokuBuildException(stringNumbers);
@@ -30,7 +32,9 @@ public class Utils {
     }
 
 
-    // data una stringa, stabilisce se è una stringa valida per costruire un Sudoku (usato da buildSudoku(String stringNumbers))
+    /**
+     * Given a string, check if it's a valid string to build a sudoku (used by buildSudoku(String stringNumbers))
+     */
     private static boolean sudokuStringMatchesPattern(String sudokuString) {
         if (sudokuString.length() != 81) {
             return false;
@@ -44,14 +48,16 @@ public class Utils {
     }
 
 
-    // stampa in console un'immagine della grid del Sudoku
+    /**
+     * Prints on console an image of sudoku's grid
+     */
     public static void grid(Sudoku sudoku) {
         System.out.println("    1 2 3   4 5 6   7 8 9");
         System.out.println("  +-------+-------+-------+");
         for (int i = 0; i < 9; i++) {
             List<Integer> row = sudoku.getRows().get(i);
             System.out.println(
-                    "" + (ROWS_LETTERS.get(i)) + " " +
+                    (ROWS_LETTERS.get(i)) + " " +
                             "| " + printIfFilled(row.get(0)) + " " + printIfFilled(row.get(1)) + " " + printIfFilled(row.get(2)) +
                             " | " + printIfFilled(row.get(3)) + " " + printIfFilled(row.get(4)) + " " + printIfFilled(row.get(5)) +
                             " | " + printIfFilled(row.get(6)) + " " + printIfFilled(row.get(7)) + " " + printIfFilled(row.get(8)) + " |");
@@ -64,7 +70,7 @@ public class Utils {
 
     // stampa un numero solo se diverso da 0 (usato da gid(Sudoku sudoku))
     private static String printIfFilled(int number) {
-        return number != 0 ? "" + number : " ";
+        return number != 0 ? String.valueOf(number) : " ";
     }
 
 
@@ -153,29 +159,7 @@ public class Utils {
         return true;
     }
 
-
-    // NON USATO
-//	public static boolean seesCell(tab tab, tab toBeSeen, List<Integer> candidates) {
-//		if (containsAtLeastOneCandidate(tab, candidates) && tab != toBeSeen) {
-//			return 
-//					tab.getBox() == toBeSeen.getBox() ||
-//					tab.getRow() == toBeSeen.getRow() ||
-//					tab.getCol() == toBeSeen.getCol();
-//		}
-//		return false;
-//	}
-
-//	private static boolean containsAtLeastOneCandidate(tab tab, List<Integer> candidates) {
-//		for (Integer i : candidates) {
-//			if (tab.getNumbers().contains(i)) {
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-
-
-    // restituisce l'array delle tre righe da 3 elementi del quadrato (da scartare in futuro)
+    // restituisce l'array delle tre righe da 3 elementi del quadrato (TODO da scartare in futuro)
     public static List<List<Integer>> getBoxRows(List<Integer> box) {
         List<List<Integer>> boxRows = new ArrayList<>();
         for (int i : INDEXES_02) {
@@ -185,7 +169,7 @@ public class Utils {
     }
 
 
-    // restituisce l'array delle tre colonne da 3 elementi del quadrato (da scartare in futuro)
+    // restituisce l'array delle tre colonne da 3 elementi del quadrato (TODO da scartare in futuro)
     public static List<List<Integer>> getBoxColumns(List<Integer> box) {
         List<List<Integer>> boxColumns = new ArrayList<>();
         for (int i : INDEXES_02) {
@@ -199,13 +183,13 @@ public class Utils {
     }
 
 
-    // restituisce l'array dei quadrati del terzetto righe (indice terzetto tra 0 e 2) (da scartare in futuro)
+    // restituisce l'array dei quadrati del terzetto righe (indice terzetto tra 0 e 2) (TODO da scartare in futuro)
     public static List<List<Integer>> getRowsTrioBoxes(Sudoku sudoku, int indexRowsTrio) {
         return sudoku.getBoxes().subList(indexRowsTrio * 3, 3 + (indexRowsTrio * 3));
     }
 
 
-    // restituisce l'array dei quadrati del terzetto colonne (indice terzetto tra 0 e 2) (da scartare in futuro)
+    // restituisce l'array dei quadrati del terzetto colonne (indice terzetto tra 0 e 2) (TODO da scartare in futuro)
     public static List<List<Integer>> getColsTrioBoxes(Sudoku sudoku, int indexRowsTrio) {
         List<List<Integer>> boxesTrio = new ArrayList<>();
         for (int i : INDEXES_02) {
@@ -215,8 +199,8 @@ public class Utils {
     }
 
 
-    // controlla per ogni quadrato, riga e colonna se presenta numeriRipetuti
-    //(bug che incorre col metodo FIFTY FIFTY) rendere un metodo privato della classe ?
+    // controlla per ogni quadrato, riga e colonna se presenta numeriRipetuti (bug che incorre col metodo FIFTY FIFTY)
+    // TODO rendere un metodo privato della classe ?
     public static Set<String> checkForBugs(Sudoku attempt) {
         Set<String> bugs = new HashSet<>();
         for (List<Integer> box : attempt.getBoxes()) {
@@ -254,7 +238,7 @@ public class Utils {
 
 
     // controlla se ci sono caselle che non hanno candidati pur non essendo valorizzate
-    //(bug che incorre col metodo FIFTY FIFTY) rendere un metodo privato della classe ?
+    // (bug che incorre col metodo FIFTY FIFTY) rendere un metodo privato della classe ?
     public static Set<String> checkForEmptySquaresWithNoCandidates(Sudoku sudoku, List<Tab> tabs) {
         Set<String> bugs = new HashSet<>();
         for (Tab tab : tabs) {
@@ -272,13 +256,13 @@ public class Utils {
         for (ChangeLog changeLog : result.getChangeLogs()) {
             System.out.println(changeLog.getSolvingTechnique() + ": " + changeLog.getUnitExamined());
             if (changeLog.getHouse() != null) {
-                System.out.println("IT'S IN " + getWelcomingUnit(changeLog));
+                System.out.println("It's in " + getWelcomingUnit(changeLog));
             }
-            System.out.println("ITS TABS ARE:");
+            System.out.println("It's tabs are:");
             for (ChangeLogUnitMember tab : changeLog.getUnitMembers()) {
                 System.out.println(tab);
             }
-            System.out.println("I THEN DEDUCTED:");
+            System.out.println("I then deducted:");
             for (Change change : changeLog.getChanges()) {
                 if (change instanceof Skimming) {
                     Skimming skimming = (Skimming) change;
@@ -294,9 +278,11 @@ public class Utils {
     }
 
 
-    // Dato un ChangeLog, restituisce la stringa corrispondente (usato dagli explainers)
+    /**
+     * Given a ChangeLog, returns the corresponding string (used by explainers)
+     */
     public static String getWelcomingUnit(ChangeLog changeLog) {
-        switch (changeLog.getHouse()) {
+        switch (Objects.requireNonNull(changeLog.getHouse())) {
             case BOX:
                 return "BOX " + changeLog.getUnitMembers().get(0).getBox();
             case ROW:
@@ -308,31 +294,9 @@ public class Utils {
         }
     }
 
-
-    // per debuggare // NON USATO
-//	public static void printHouseTabs(House house, List<tab> tabs) {
-//		List<List<tab>> houseTabs = new ArrayList<>();
-//		for (int i = 0; i < 9; i++) {
-//			houseTabs.add(new ArrayList<tab>());
-//		}
-//		for (tab tab : tabs) {
-//			switch (house) {
-//				case BOX : houseTabs.get(tab.getBox() - 1).add(tab); break;
-//				case ROW : houseTabs.get(tab.getRow() - 1).add(tab); break;
-//				case COL : houseTabs.get(tab.getCol() - 1).add(tab); break;
-//				default : throw new InvalidHouseException();
-//			}
-//		}
-//		for (int i : NUMBERS) {
-//			System.out.println("-- TABS " + house + " " + i);
-//			for (tab tab : houseTabs.get(i - 1)) {
-//				System.out.println(tab);
-//			}
-//		}
-//	}
-
-
-    // per debuggare: stempa una griglia del sudoku dove ci sono i tabs di ogni casella (se risolta, tab con un solo candidato)
+    /**
+     * Per debuggare: stempa una griglia del sudoku dove ci sono i tabs di ogni casella (se risolta, tab con un solo candidato)
+     */
     public static void printSkimmedTabs(Sudoku sudoku, List<Tab> skimmedTabs) {
         List<Tab> allTabs = new ArrayList<>();
         for (int row : NUMBERS) {
@@ -346,7 +310,7 @@ public class Utils {
                         }
                     }
                 } else {
-                    tab = new Tab(row, col, Arrays.asList(number));
+                    tab = new Tab(row, col, Collections.singletonList(number));
                 }
                 allTabs.add(tab);
             }
@@ -374,7 +338,9 @@ public class Utils {
     }
 
 
-    // per debuggare: identico al metodo di sopra, ma sono tabs semplici, senza scremature
+    /**
+     * Per debuggare: identico al metodo di sopra, ma sono tabs semplici, senza scremature *
+     */
     public static void printTabs(Sudoku sudoku) {
         List<Tab> allTabs = new ArrayList<>();
         for (int row : NUMBERS) {
@@ -389,7 +355,7 @@ public class Utils {
                     List<Integer> boxNumbers = sudoku.getBoxes().get(tab.getBox() - 1);
                     tab.getNumbers().removeAll(boxNumbers);
                 } else {
-                    tab = new Tab(row, col, Arrays.asList(number));
+                    tab = new Tab(row, col, Collections.singletonList(number));
                 }
                 allTabs.add(tab);
             }
@@ -419,12 +385,12 @@ public class Utils {
 
     // usato dai due metodi printTabs e printSkimmedTabs
     private static String printCandidates(Tab tab) {
-        String candidates = "";
+        StringBuilder candidates = new StringBuilder();
         for (int candidate : tab.getNumbers()) {
-            candidates += candidate;
+            candidates.append(candidate);
         }
         while (candidates.length() < 9) {
-            candidates += " ";
+            candidates.append(" ");
         }
         return "[" + candidates + "]";
     }
@@ -434,6 +400,7 @@ public class Utils {
         try {
             ClassLoader classLoader = Utils.class.getClassLoader();
             URL resource = classLoader.getResource("50kSudoku.txt");
+            assert resource != null;
             File sudokuList = new File(resource.toURI());
             Scanner myReader = new Scanner(sudokuList);
             while (myReader.hasNextLine()) {

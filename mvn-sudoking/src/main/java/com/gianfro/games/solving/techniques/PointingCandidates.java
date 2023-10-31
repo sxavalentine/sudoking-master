@@ -35,8 +35,8 @@ public class PointingCandidates {
     }
 
     private static SkimmingResult pointingCandidates(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int boxNumber : Utils.NUMBERS) {
                 for (int number : Utils.NUMBERS) {
                     List<Tab> boxTabs = Utils.getHouseTabs(House.BOX, boxNumber, tabs);
@@ -44,7 +44,7 @@ public class PointingCandidates {
                     Set<Integer> welcomingHouses = new HashSet<>();
                     for (Tab tab : boxTabs) {
                         if (tab.getNumbers().contains(number)) {
-                            welcomingTabs.add((ChangeLogUnitMember) tab);
+                            welcomingTabs.add(tab);
                             if (house == House.ROW) {
                                 welcomingHouses.add(tab.getRow());
                             } else if (house == House.COL) {
@@ -60,23 +60,22 @@ public class PointingCandidates {
                         boolean deductionsDone = false;
                         for (Tab tab : houseTabs) {
                             if (tab.getBox() != boxNumber && tab.getNumbers().contains(number)) {
-                                tab.getNumbers().remove(new Integer(number));
-                                Skimming s = new Skimming(method, house, tab, Arrays.asList(number));
+                                tab.getNumbers().remove(Integer.valueOf(number));
+                                Skimming s = new Skimming(method, house, tab, Collections.singletonList(number));
                                 unitSkimmings.add(s);
                                 deductionsDone = true;
                             }
                         }
                         if (deductionsDone) {
-                            changeLogs.add(new ChangeLog(Arrays.asList(number), House.BOX, boxNumber, welcomingTabs, POINTING_CANDIDATES, method, unitSkimmings));
+                            changeLogs.add(new ChangeLog(Collections.singletonList(number), House.BOX, boxNumber, welcomingTabs, POINTING_CANDIDATES, method, unitSkimmings));
                         }
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in POINTING CANDIDATES " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     public static void main(String[] args) {

@@ -38,8 +38,8 @@ public class Hidden1 {
     }
 
     private static SkimmingResult hiddenSingle(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 for (int number : Utils.NUMBERS) {
                     if (!getHouseNumbers(house, houseNumber, tabs).contains(number)) {
@@ -55,11 +55,10 @@ public class Hidden1 {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in HIDDEN SINGLE " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     private static List<Integer> getHouseNumbers(House house, int houseNumberInput, List<Tab> tabs) {

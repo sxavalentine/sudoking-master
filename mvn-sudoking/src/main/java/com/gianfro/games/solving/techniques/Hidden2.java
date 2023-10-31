@@ -39,8 +39,8 @@ public class Hidden2 {
     }
 
     private static SkimmingResult hiddenPairs(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 List<Integer> candidatesWithTwoOccurences = new ArrayList<>();
                 for (int number : Utils.NUMBERS) {
@@ -88,11 +88,10 @@ public class Hidden2 {
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in HIDDEN PAIR " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     public static void main(String[] args) {

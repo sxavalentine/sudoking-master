@@ -5,10 +5,7 @@ import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 import org.paukov.combinatorics3.Generator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class XWing {
@@ -38,8 +35,8 @@ public class XWing {
     }
 
     private static SkimmingResult xWing(House house, List<Tab> tabs) {
+        List<ChangeLog> changeLogs = new LinkedList<>();
         try {
-            List<ChangeLog> changeLogs = new LinkedList<>();
 
             for (int number : Utils.NUMBERS) {
                 List<List<Tab>> tabsPair = new ArrayList<>();
@@ -74,10 +71,10 @@ public class XWing {
                             List<Change> unitSkimmings = new ArrayList<>();
 
                             List<ChangeLogUnitMember> xWingMembers = Arrays.asList(
-                                    (ChangeLogUnitMember) firstTabPair1,
-                                    (ChangeLogUnitMember) firstTabPair2,
-                                    (ChangeLogUnitMember) secondTabPair1,
-                                    (ChangeLogUnitMember) secondTabPair2);
+                                    firstTabPair1,
+                                    firstTabPair2,
+                                    secondTabPair1,
+                                    secondTabPair2);
 
                             List<Tab> tabsHouseFirstMembersPairs = Utils.getHouseTabs(house == House.ROW ? House.COL : House.ROW, firstTabPair1house, tabs);
                             List<Tab> tabsHouseSecondMembersPairs = Utils.getHouseTabs(house == House.ROW ? House.COL : House.ROW, secondTabPair1house, tabs);
@@ -88,32 +85,31 @@ public class XWing {
 
                             for (Tab tab : tabsHouseFirstMembersPairs) {
                                 if (!firstMembers.contains(tab)) {
-                                    if (tab.getNumbers().remove(new Integer(number))) {
-                                        Skimming skimming = new Skimming(X_WING, house, tab, Arrays.asList(number));
+                                    if (tab.getNumbers().remove(Integer.valueOf(number))) {
+                                        Skimming skimming = new Skimming(X_WING, house, tab, Collections.singletonList(number));
                                         unitSkimmings.add(skimming);
                                     }
                                 }
                             }
                             for (Tab tab : tabsHouseSecondMembersPairs) {
                                 if (!secondMembers.contains(tab)) {
-                                    if (tab.getNumbers().remove(new Integer(number))) {
-                                        Skimming skimming = new Skimming(X_WING, house, tab, Arrays.asList(number));
+                                    if (tab.getNumbers().remove(Integer.valueOf(number))) {
+                                        Skimming skimming = new Skimming(X_WING, house, tab, Collections.singletonList(number));
                                         unitSkimmings.add(skimming);
                                     }
                                 }
                             }
                             if (!unitSkimmings.isEmpty()) {
-                                changeLogs.add(new ChangeLog(Arrays.asList(number), null, 0, xWingMembers, X_WING, null, unitSkimmings));
+                                changeLogs.add(new ChangeLog(Collections.singletonList(number), null, 0, xWingMembers, X_WING, null, unitSkimmings));
                             }
                         }
                     }
                 }
             }
-            return new SkimmingResult(tabs, changeLogs);
         } catch (Exception e) {
             System.out.println("Exception in X WING " + house + ": " + e.getMessage());
-            return null;
         }
+        return new SkimmingResult(tabs, changeLogs);
     }
 
     // data una lista di liste di liste di tabs e un numero N, restituisce tutte le possibili tuple di N elementi che si possono ottenere con quel set

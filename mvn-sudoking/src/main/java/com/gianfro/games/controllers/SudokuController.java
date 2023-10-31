@@ -10,7 +10,10 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -25,11 +28,6 @@ public class SudokuController {
 
     @Autowired
     SudokuService sudokuService;
-
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public SolutionOutput solveSudokuPost(@NotNull @RequestBody @NotNull String stringNumbers) {
-        return this.sudokuService.solveSudoku(stringNumbers);
-    }
 
     @GetMapping(value = "/solveSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
     public SolutionOutput solveSudoku(@NotNull @RequestBody String stringNumbers) {

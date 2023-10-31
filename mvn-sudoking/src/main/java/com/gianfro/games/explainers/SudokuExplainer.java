@@ -56,7 +56,8 @@ public class SudokuExplainer {
             case Hidden4.HIDDEN_QUAD:
                 ExplainerHidden4.explain(changeLog);
                 break;
-//			case XWing.X_WING : 							ExplainerXWing.explain(changeLog); break;
+//			TODO rimetterci mano
+//			 case XWing.X_WING : 							ExplainerXWing.explain(changeLog); break;
             case XYChain.XY_CHAIN:
                 ExplainerXYChain.explain(changeLog);
                 break;

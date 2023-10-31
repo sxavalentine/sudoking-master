@@ -23,6 +23,6 @@ public class NoFiftyFiftyException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return "NO CHANCE OF 50/50. CELL CANDIDATES ARE: " + tabs;
+        return "No chances of 50/50. Cell candidates are: " + tabs;
     }
 }

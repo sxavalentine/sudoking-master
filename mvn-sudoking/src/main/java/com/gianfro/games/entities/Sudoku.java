@@ -74,13 +74,13 @@ public class Sudoku {
         return getStringNumbers();
     }
 
-    // restituisce la stringa dei numeri che formano il Sudoku
+    // return the string of numbers forming the sudoku
     @Field("numbers")
     public String getStringNumbers() {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (Integer i : numbers) {
-            s += i;
+            s.append(i);
         }
-        return s;
+        return s.toString();
     }
 }

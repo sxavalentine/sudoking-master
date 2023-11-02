@@ -121,7 +121,8 @@ public class XYChain {
                                                 null,
                                                 0,
                                                 new ArrayList<>(chain),
-                                                XY_CHAIN, null,
+                                                XY_CHAIN,
+                                                null,
                                                 skimmings);
                                     }
                                 }

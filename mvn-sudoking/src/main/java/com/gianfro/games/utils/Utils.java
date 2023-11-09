@@ -14,6 +14,7 @@ public class Utils {
 
     public static final List<String> ROWS_LETTERS = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I");
     public static final List<Integer> NUMBERS = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    public static final List<List<Integer>> SPLITTED_NUMBERS = Arrays.asList(NUMBERS.subList(0, 3), NUMBERS.subList(3, 6), NUMBERS.subList(6, 9));
     public static final List<Integer> INDEXES_02 = Arrays.asList(0, 1, 2);
     private static final List<Character> CHARACTERS = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
@@ -49,26 +50,92 @@ public class Utils {
 
 
     /**
-     * Prints on console an image of sudoku's grid
+     * Prints on console an image of the sudoku grid (and returns the String corresponding to that image)
      */
-    public static void grid(Sudoku sudoku) {
-        System.out.println("    1 2 3   4 5 6   7 8 9");
-        System.out.println("  +-------+-------+-------+");
+    public static String grid(Sudoku sudoku) {
+        String gridString = "";
+        String newLine = "\n";
+
+        gridString += "    1 2 3   4 5 6   7 8 9" + newLine;
+        gridString += "  +-------+-------+-------+" + newLine;
         for (int i = 0; i < 9; i++) {
             List<Integer> row = sudoku.getRows().get(i);
-            System.out.println(
+            gridString +=
                     (ROWS_LETTERS.get(i)) + " " +
                             "| " + printIfFilled(row.get(0)) + " " + printIfFilled(row.get(1)) + " " + printIfFilled(row.get(2)) +
                             " | " + printIfFilled(row.get(3)) + " " + printIfFilled(row.get(4)) + " " + printIfFilled(row.get(5)) +
-                            " | " + printIfFilled(row.get(6)) + " " + printIfFilled(row.get(7)) + " " + printIfFilled(row.get(8)) + " |");
+                            " | " + printIfFilled(row.get(6)) + " " + printIfFilled(row.get(7)) + " " + printIfFilled(row.get(8)) +
+                            " |" + newLine;
             if (((i + 1) % 3) == 0) {
-                System.out.println("  +-------+-------+-------+");
+                gridString += "  +-------+-------+-------+" + newLine;
             }
         }
+        System.out.println(gridString);
+        return gridString;
+    }
+
+    /**
+     * Prints on console a giant image of the sudoku grid (and returns the String corresponding to that image)
+     */
+    public static String megaGrid(Sudoku sudoku) {
+
+        String ANSI_RESET = "\u001B[0m";
+        String ANSI_RED = "\u001B[31m";
+        String ANSI_GREEN = "\u001B[32m";
+        String newLine = "\n";
+
+        String fourSpaces = "    ";
+        String fiveSpaces = "     ";
+        String elevenSpaces = "          ";
+        String elevenHash = "###########";
+
+
+        StringBuilder numbersRow = new StringBuilder();
+        StringBuilder gridString = new StringBuilder();
+        for (int number : NUMBERS) {
+            numbersRow.append(fiveSpaces).append(ANSI_RED).append(number).append(ANSI_RESET).append(fiveSpaces);
+        }
+
+        gridString.append("  ").append(numbersRow).append(newLine);
+        gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), elevenHash))).append("#").append(newLine);
+
+
+        for (int i = 0; i < NUMBERS.size() * 4; i++) {
+            int sudokuRowIndex = i / 4;
+            List<Integer> correSpondingSudokuRow = sudoku.getRows().get(sudokuRowIndex);
+
+            if (((i + 1) % 2) == 0 && ((i + 1) % 4) != 0) {
+                gridString.append(ANSI_RED).append(ROWS_LETTERS.get(i / 4)).append(ANSI_RESET).append(" #");
+                for (int index = 0; index < 9; index++) {
+                    if (!correSpondingSudokuRow.get(index).equals(0)) {
+                        gridString.append(fourSpaces).append(ANSI_GREEN).append(correSpondingSudokuRow.get(index)).append(ANSI_RESET).append(fiveSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
+                    } else {
+                        gridString.append(fourSpaces).append(" ").append(fiveSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
+                    }
+                }
+                gridString.append(newLine);
+            } else if (((i + 1) % 4) == 0) {
+                if ((i + 1) % 12 == 0) {
+                    gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), elevenHash))).append("#").append(newLine);
+                } else {
+                    gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), "-----------"))).append("#").append(newLine);
+                }
+            } else {
+                gridString.append("  #");
+                for (int index = 0; index < 9; index++) {
+                    gridString.append(elevenSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
+                }
+                gridString.append(newLine);
+            }
+        }
+        System.out.println(gridString);
+        return gridString.toString();
     }
 
 
-    // stampa un numero solo se diverso da 0 (usato da gid(Sudoku sudoku))
+    /**
+     * Prints a number only if != 0 (used by grid(Sudoku sudoku))
+     */
     private static String printIfFilled(int number) {
         return number != 0 ? String.valueOf(number) : " ";
     }
@@ -103,7 +170,7 @@ public class Utils {
 
     // data una House e una lista di tabs restituisce la lista dei tabs appartenenti a quella casa
     public static List<Tab> getHouseTabs(House house, int index, List<Tab> tabs) {
-        List<Tab> houseTabs = new ArrayList<>();
+        List<Tab> houseTabs = new LinkedList<>();
         for (Tab tab : tabs) {
             int houseValue;
             switch (house) {
@@ -161,17 +228,17 @@ public class Utils {
 
     // restituisce l'array delle tre righe da 3 elementi del quadrato (TODO da scartare in futuro)
     public static List<List<Integer>> getBoxRows(List<Integer> box) {
-        List<List<Integer>> boxRows = new ArrayList<>();
+        List<List<Integer>> boxRows = new LinkedList<>();
         for (int i : INDEXES_02) {
-            boxRows.add(new ArrayList<>(box.subList(3 * i, (3 * i) + 3)));
+            boxRows.add(new LinkedList<>(box.subList(3 * i, (3 * i) + 3)));
         }
         return boxRows;
     }
 
 
-    // restituisce l'array delle tre colonne da 3 elementi del quadrato (TODO da scartare in futuro)
+    // restituisce la lista delle tre colonne da 3 elementi del quadrato (TODO da scartare in futuro)
     public static List<List<Integer>> getBoxColumns(List<Integer> box) {
-        List<List<Integer>> boxColumns = new ArrayList<>();
+        List<List<Integer>> boxColumns = new LinkedList<>();
         for (int i : INDEXES_02) {
             List<Integer> thirdPartOfColumn = new ArrayList<>();
             for (List<Integer> row : getBoxRows(box)) {
@@ -189,9 +256,9 @@ public class Utils {
     }
 
 
-    // restituisce l'array dei quadrati del terzetto colonne (indice terzetto tra 0 e 2) (TODO da scartare in futuro)
+    // restituisce la lista dei quadrati del terzetto colonne (indice terzetto tra 0 e 2) (TODO da scartare in futuro)
     public static List<List<Integer>> getColsTrioBoxes(Sudoku sudoku, int indexRowsTrio) {
-        List<List<Integer>> boxesTrio = new ArrayList<>();
+        List<List<Integer>> boxesTrio = new LinkedList<>();
         for (int i : INDEXES_02) {
             boxesTrio.add(sudoku.getBoxes().get(indexRowsTrio + (3 * i)));
         }
@@ -254,7 +321,7 @@ public class Utils {
     // per ogni changeLog in uno skimming result, ne stampa una versione semplificata
     public static void printChangeLogs(SkimmingResult result) {
         for (ChangeLog changeLog : result.getChangeLogs()) {
-            System.out.println(changeLog.getSolvingTechnique() + ": " + changeLog.getUnitExamined());
+            System.out.println(changeLog.getSolvingTechniqueVariant() != null ? changeLog.getSolvingTechniqueVariant() : changeLog.getSolvingTechnique() + ": " + changeLog.getUnitExamined());
             if (changeLog.getHouse() != null) {
                 System.out.println("It's in " + getWelcomingUnit(changeLog));
             }
@@ -295,7 +362,7 @@ public class Utils {
     }
 
     /**
-     * Per debuggare: stempa una griglia del sudoku dove ci sono i tabs di ogni casella (se risolta, tab con un solo candidato)
+     * Per debuggare: stampa una griglia del sudoku dove ci sono i tabs di ogni casella (se risolta, tab con un solo candidato)
      */
     public static void printSkimmedTabs(Sudoku sudoku, List<Tab> skimmedTabs) {
         List<Tab> allTabs = new ArrayList<>();
@@ -415,5 +482,112 @@ public class Utils {
         }
         System.out.println("READ " + allSudokus.size() + " SUDOKUS");
         return allSudokus;
+    }
+
+    // Data una lista di Tab, restituisce il numero con meno celle possibili dove può essere inserito. Per ora non usato, ma può tornare utile
+    public static Integer getNumberWithLessPossibleCells(List<Tab> tabs) {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (Integer number : NUMBERS) {
+            int cellCount = 0;
+            for (Tab t : tabs) {
+                if (t.getNumbers().contains(number)) cellCount++;
+            }
+            map.put(number, cellCount);
+        }
+        return map.get(Collections.min(map.values()));
+    }
+
+    /**
+     * Given a Sudoku and a Tab List, prints a giant grid, where each determined cell has its number set in green.
+     * The remaining cells have show list of candidates still available.
+     * FOR SURE IT CAN BE WRITTEN WAY BETTER
+     */
+    public static String megaGrid(Sudoku sudoku, List<Tab> tabs) {
+
+        String ANSI_RESET = "\u001B[0m";
+        String ANSI_GREEN = "\u001B[32m";
+        String ANSI_RED = "\u001B[31m";
+        String NEW_LINE = "\n";
+
+        String fourSpaces = "    ";
+        String nineSpaces = "         ";
+        String tenHash = "##########";
+        String midColumnSeparator = "---------#---------#---------" + ANSI_RED + "#" + ANSI_RESET;
+
+        StringBuilder numbersRow = new StringBuilder();
+        StringBuilder gridString = new StringBuilder();
+        for (int number : NUMBERS) {
+            numbersRow.append("     ").append(number).append(fourSpaces);
+        }
+
+        gridString.append("  ").append(numbersRow).append(NEW_LINE);
+        gridString.append("  ").append(ANSI_RED).append(String.join("", Collections.nCopies(NUMBERS.size(), tenHash))).append("#").append(ANSI_RESET).append(NEW_LINE);
+
+        for (int i = 0; i < NUMBERS.size() * 4; i++) {
+            int sudokuRowIndex = i / 4;
+            List<Integer> correSpondingSudokuRow = sudoku.getRows().get(sudokuRowIndex);
+            int candidatesRowIndex = i;
+            while (candidatesRowIndex >= 4) {
+                candidatesRowIndex -= 4;
+            }
+
+            if (((i + 1) % 2) == 0 && ((i + 1) % 4) != 0) {
+                gridString.append(ROWS_LETTERS.get(i / 4)).append(ANSI_RED).append(" #").append(ANSI_RESET);
+                for (int index = 0; index < 9; index++) {
+                    String endLineBox = (index + 1) % 3 == 0 ? ANSI_RED + "#" + ANSI_RESET : "|";
+                    if (!correSpondingSudokuRow.get(index).equals(0)) {
+                        gridString.append(fourSpaces).append(ANSI_GREEN).append(correSpondingSudokuRow.get(index)).append(ANSI_RESET).append(fourSpaces).append(endLineBox);
+                    } else {
+                        int cellColumn = index;
+                        List<Tab> rowTabs = tabs.stream().filter(t -> t.getRow() == sudokuRowIndex + 1).collect(Collectors.toList());
+                        Tab currentCellTab = rowTabs.stream().filter(t -> t.getCol() == cellColumn + 1).findFirst().orElse(null);
+                        if (currentCellTab != null) {
+                            for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {
+                                gridString.append(" ").append(currentCellTab.getNumbers().contains(number) ? number : " ").append(" ");
+                            }
+                            gridString.append(endLineBox);
+                        }
+                    }
+                }
+                gridString.append(NEW_LINE);
+            } else if (((i + 1) % 4) == 0) {
+                if ((i + 1) % 12 == 0) {
+                    gridString.append("  ").append(ANSI_RED).append(String.join("", Collections.nCopies(NUMBERS.size(), tenHash))).append("#").append(ANSI_RESET).append(NEW_LINE);
+                } else {
+                    gridString.append("  ").append(ANSI_RED).append("#").append(ANSI_RESET).append(String.join("", Collections.nCopies(3, midColumnSeparator))).append(NEW_LINE);
+                }
+            } else {
+                gridString.append(ANSI_RED).append("  #").append(ANSI_RESET);
+                for (int index = 0; index < 9; index++) {
+                    String endLineBox = (index + 1) % 3 == 0 ? ANSI_RED + "#" + ANSI_RESET : "|";
+                    if (correSpondingSudokuRow.get(index).equals(0)) {
+                        int cellColumn = index;
+                        List<Tab> rowTabs = tabs.stream().filter(t -> t.getRow() == sudokuRowIndex + 1).collect(Collectors.toList());
+                        Tab currentCellTab = rowTabs.stream().filter(t -> t.getCol() == cellColumn + 1).findFirst().orElse(null);
+                        if (currentCellTab != null) {
+                            for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {
+                                gridString.append(" ").append(currentCellTab.getNumbers().contains(number) ? number : " ").append(" ");
+                            }
+                            gridString.append(endLineBox);
+                        }
+                    } else {
+                        gridString.append(nineSpaces).append(endLineBox);
+                    }
+                }
+                gridString.append(NEW_LINE);
+            }
+        }
+        System.out.println(gridString);
+        return gridString.toString();
+    }
+
+    public static void main(String[] args) {
+
+        Sudoku sudoku = buildSudoku("000000206000080109900700000000030090056000000029000000000106500400000030000203000");
+        List<Tab> tabs = getBasicTabs(sudoku);
+
+        grid(sudoku);
+        megaGrid(sudoku, tabs);
+        printTabs(sudoku);
     }
 }

@@ -3,6 +3,7 @@ package com.gianfro.games.solving.techniques.advanced;
 import com.gianfro.games.entities.*;
 import com.gianfro.games.solving.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class RemotePairs {
                     List<Tab> skimmedTabs = new ArrayList<>();
 
                     // this because the chain must have an even number of links
-                    // with the Sudoku in SudokuList.TEST_REMOTE_PAIRS_1, cell C9 is the last link and wouldn't see F7
+                    // with the Sudoku in Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_1, cell C9 is the last link and wouldn't see F7
                     int trimming = chain.size();
                     while (chain.size() >= 5 && skimmedTabs.isEmpty()) {
                         chain = chain.subList(0, trimming);
@@ -134,9 +135,10 @@ public class RemotePairs {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST REMOTE PAIRS -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_REMOTE_PAIRS_1;
-//      Sudoku sudoku = SudokuList.TEST_REMOTE_PAIRS_2;
-        Sudoku sudoku = Utils.buildSudoku("802635017670128350315070826153206780900587231287013065408301572721850603530702108"); //TODO capire se c'è errore
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_1);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_2);
+        sudoku = Utils.buildSudoku("802635017670128350315070826153206780900587231287013065408301572721850603530702108"); //TODO capire se c'è errore
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         tabs = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs).getTabs();

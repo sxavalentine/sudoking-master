@@ -43,9 +43,10 @@ public class ExplainerXYChain {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST XY CHAIN -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_XY_CHAIN_1;
-//		Sudoku sudoku = SudokuList.TEST_XY_CHAIN_2;
-        Sudoku sudoku = SudokuList.TEST_XY_CHAIN_3;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_1);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_2);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_3);
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

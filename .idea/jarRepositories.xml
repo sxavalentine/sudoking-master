@@ -7,9 +7,24 @@
       <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="eng-http-signatures" />
+      <option name="name" value="eng-http-signatures" />
+      <option name="url" value="https://maven.pkg.github.com/pagopa/eng-http-signatures" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="eng-lollipop-consumer-java-sdk" />
+      <option name="name" value="eng-lollipop-consumer-java-sdk" />
+      <option name="url" value="https://maven.pkg.github.com/pagopa/eng-lollipop-consumer-java-sdk" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Maven Central repository" />
       <option name="url" value="https://repo1.maven.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="pn-codeartifact-domain-pn-codeartifact-repo" />
+      <option name="name" value="pn-codeartifact-domain-pn-codeartifact-repo" />
+      <option name="url" value="https://pn-codeartifact-domain-911845998067.d.codeartifact.eu-central-1.amazonaws.com/maven/pn-codeartifact-repo/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="jboss.community" />

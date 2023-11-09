@@ -86,8 +86,9 @@ public class Naked4 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST NAKED QUADRUPLE -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_NAKED_4_BOX;
-        Sudoku sudoku = SudokuList.TEST_NAKED_4_ROW;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_4_BOX);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_4_ROW);
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

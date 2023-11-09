@@ -1,17 +1,17 @@
 package com.gianfro.games.sudoku.solver;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.exceptions.NoFiftyFiftyException;
+import com.gianfro.games.exceptions.UnsolvableException;
 import com.gianfro.games.solving.techniques.Hidden1;
 import com.gianfro.games.solving.techniques.Naked1;
 import com.gianfro.games.solving.techniques.StandardSolvingTechnique;
-import com.gianfro.games.solving.techniques.advanced.Chain;
-import com.gianfro.games.solving.techniques.advanced.RemotePairs;
-import com.gianfro.games.solving.techniques.advanced.XWing;
-import com.gianfro.games.solving.techniques.custom.FiftyFifty;
+import com.gianfro.games.solving.techniques.advanced.*;
 import com.gianfro.games.utils.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class SudokuSolver {
 
@@ -20,7 +20,7 @@ public class SudokuSolver {
         Utils.grid(sudoku);
 
         long start = System.currentTimeMillis();
-        List<SolutionStep> stepRisolutivi = solve(sudoku);
+        List<SolutionStep> stepRisolutivi = solve(sudoku, true);
         long end = System.currentTimeMillis();
         int tempoImpiegato = (int) (end - start);
 
@@ -30,7 +30,7 @@ public class SudokuSolver {
         return new SolutionOutput(sudoku, stepRisolutivi, tempoImpiegato);
     }
 
-    private static List<SolutionStep> solve(Sudoku sudoku) {
+    private static List<SolutionStep> solve(Sudoku sudoku, boolean isFirstIteration) {
 
         List<SolutionStep> result = new LinkedList<>();
         List<ChangeLog> changeLogs = new LinkedList<>();
@@ -39,27 +39,15 @@ public class SudokuSolver {
         if (Collections.frequency(sudoku.getNumbers(), 0) == 0) {
             result.add(new SolutionStep(sudoku, changeLogs, tabs));
         } else {
-            List<Integer> sequence = new ArrayList<>(sudoku.getNumbers());
-            Sudoku step = new Sudoku(sequence);
-            SolutionStep solutionStep = useStandardSolvingTechniques(step, tabs);
+            try {
+                List<Integer> sequence = new ArrayList<>(sudoku.getNumbers());
+                Sudoku step = new Sudoku(sequence);
+                SolutionStep solutionStep = useStandardSolvingTechniques(step, tabs);
 
-            changeLogs.addAll(solutionStep.getChangeLogs());
-            tabs = solutionStep.getTabs();
-            List<Integer> mutation = new ArrayList<>(step.getNumbers());
-            int deductionsCount = 0;
-
-            for (ChangeLog changeLog : changeLogs) {
-                for (Change change : changeLog.getChanges()) {
-                    if (!(change instanceof Skimming)) {
-                        deductionsCount++;
-                    }
-                }
-            }
-
-            if (deductionsCount == 0) {
-                solutionStep = SudokuSolver.useAdvancedTechniques(sudoku, tabs);
                 changeLogs.addAll(solutionStep.getChangeLogs());
                 tabs = solutionStep.getTabs();
+                List<Integer> mutation = new ArrayList<>(step.getNumbers());
+                int deductionsCount = 0;
 
                 for (ChangeLog changeLog : changeLogs) {
                     for (Change change : changeLog.getChanges()) {
@@ -68,57 +56,66 @@ public class SudokuSolver {
                         }
                     }
                 }
-            }
 
-//            if (deductionsCount == 0) {
-//                deductionsCount += changeLogs.addAll(ControlloTerzettiRighe.check(step)) ? 1 : 0;
-//                deductionsCount += changeLogs.addAll(ControlloTerzettiColonne.check(step)) ? 1 : 0;
-//            }
+                if (deductionsCount == 0) {
+                    solutionStep = SudokuSolver.useAdvancedTechniques(sudoku, tabs);
+                    changeLogs.addAll(solutionStep.getChangeLogs());
+                    tabs = solutionStep.getTabs();
 
-            if (deductionsCount > 0) {
-                for (ChangeLog changeLog : changeLogs) {
-                    for (Change change : changeLog.getChanges()) {
-                        if (!(change instanceof Skimming)) {
-                            mutation = Utils.setDeductedNumber(mutation, change);
+                    for (ChangeLog changeLog : changeLogs) {
+                        for (Change change : changeLog.getChanges()) {
+                            if (!(change instanceof Skimming)) {
+                                deductionsCount++;
+                            }
                         }
                     }
                 }
 
-                Sudoku nextStep = new Sudoku(mutation);
-                result.add(new SolutionStep(step, changeLogs, tabs));
-                ///
-//				System.out.println("PER EFFETTO DELLE DEDUZIONI DI SOPRA, LA NUOVA GRIGLIA E'");
-//				Utils.grid(nextStep);
-//				if (nextStep.getNumbers().contains(0)) System.out.println("ORA APPLICHERO' RICORSIVAMENTE IL METODO SOLVE");
-//				System.out.println("------------------------------------------------------------------------------------------------------------------");
-                ///
-                List<SolutionStep> solutionSteps = solve(nextStep);
-                result.addAll(solutionSteps);
-            } else {
-                ///
-                System.out.println("------------------------------------------------------------------------------------------------------------------");
-                System.out.println("I'm about to call method FIFTY FIFTY, the grid is");
-                Utils.grid(step);
-                ///
-                SolutionStep firstCallToTryFiftyFifty = FiftyFifty.check(step, tabs, 1);
-                for (Change change : firstCallToTryFiftyFifty.getChanges()) {
-                    if (!(change instanceof Skimming)) {
-                        change.setSolvingTechnique(FiftyFifty.FIFTY_FIFTY);
-                        ChangeLog log = new ChangeLog(null, null, 0, null, FiftyFifty.FIFTY_FIFTY, null, Arrays.asList(change));
-                        changeLogs.add(log);
-                        mutation = Utils.setDeductedNumber(mutation, change);
+                //            if (deductionsCount == 0) {
+                //                deductionsCount += changeLogs.addAll(ControlloTerzettiRighe.check(step)) ? 1 : 0;
+                //                deductionsCount += changeLogs.addAll(ControlloTerzettiColonne.check(step)) ? 1 : 0;
+                //            }
+
+                if (deductionsCount > 0) {
+                    for (ChangeLog changeLog : changeLogs) {
+                        for (Change change : changeLog.getChanges()) {
+                            if (!(change instanceof Skimming)) {
+                                mutation = Utils.setDeductedNumber(mutation, change);
+                            }
+                        }
                     }
+
+                    Sudoku nextStep = new Sudoku(mutation);
+                    result.add(new SolutionStep(step, changeLogs, tabs));
+
+                    List<SolutionStep> solutionSteps = solve(nextStep, false);
+                    result.addAll(solutionSteps);
+                } else {
+                    throw new UnsolvableException(null, sudoku, result, tabs, "");
+                    //                ///
+                    //                System.out.println("------------------------------------------------------------------------------------------------------------------");
+                    //                System.out.println("I'm about to call method FIFTY FIFTY, the grid is");
+                    //                Utils.megaGrid(step, tabs);
+                    //                ///
+                    //                SolutionStep firstCallToTryFiftyFifty = FiftyFifty.check(step, tabs, 1);
+                    //                for (Change change : firstCallToTryFiftyFifty.getChanges()) {
+                    //                    if (!(change instanceof Skimming)) {
+                    //                        change.setSolvingTechnique(FiftyFifty.FIFTY_FIFTY);
+                    //                        ChangeLog log = new ChangeLog(null, null, 0, null, FiftyFifty.FIFTY_FIFTY, null, Arrays.asList(change));
+                    //                        changeLogs.add(log);
+                    //                        mutation = Utils.setDeductedNumber(mutation, change);
+                    //                    }
+                    //                }
+                    //                Sudoku nextStep = new Sudoku(mutation);
+                    //                result.add(new SolutionStep(step, changeLogs, tabs));
+                    //                List<SolutionStep> solutionSteps = solve(nextStep);
+                    //                result.addAll(solutionSteps);
                 }
-                Sudoku nextStep = new Sudoku(mutation);
-                result.add(new SolutionStep(step, changeLogs, tabs));
-                ///
-//				System.out.println("PER EFFETTO DELLE DEDUZIONI DI SOPRA, LA NUOVA GRIGLIA E'");
-//				Utils.grid(nextStep);
-//				if (nextStep.getNumbers().contains(0)) System.out.println("ORA APPLICHERO' RICORSIVAMENTE IL METODO SOLVE");
-//				System.out.println("------------------------------------------------------------------------------------------------------------------");
-                ///
-                List<SolutionStep> solutionSteps = solve(nextStep);
-                result.addAll(solutionSteps);
+            } catch (UnsolvableException ue) {
+                String message = isFirstIteration ? "This Sudoku can't be solved by pure logic" : "";
+                Sudoku startingSudoku = isFirstIteration ? sudoku : null;
+                result.addAll(ue.getSolutionSteps());
+                throw new UnsolvableException(startingSudoku, ue.getBlockedSudoku(), result, ue.getTabs(), message);
             }
         }
         return result;
@@ -127,10 +124,9 @@ public class SudokuSolver {
 
     public static SolutionStep useStandardSolvingTechniques(Sudoku sudoku, List<Tab> tabs) {
         SkimmingResult result;
-        List<ChangeLog> changeLogs = new LinkedList<>();
 
         result = Naked1.check(tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = Hidden1.check(tabs);
@@ -163,11 +159,10 @@ public class SudokuSolver {
 
     private static SolutionStep useAdvancedTechniques(Sudoku sudoku, List<Tab> tabs) {
         SkimmingResult result;
-        List<ChangeLog> changeLogs = new LinkedList<>();
 
         // X WING
         result = XWing.check(tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         // REMOTE PAIRS
@@ -175,8 +170,18 @@ public class SudokuSolver {
         changeLogs.addAll(result.getChangeLogs());
         tabs = result.getTabs();
 
-        // CHAINS
-        result = Chain.check(tabs);
+        // DISCINTINUOUS NICE LOOP
+        result = DiscontinuousNiceLoop.check(tabs);
+        changeLogs.addAll(result.getChangeLogs());
+        tabs = result.getTabs();
+
+        // X CHAIN
+        result = XChain.check(tabs);
+        changeLogs.addAll(result.getChangeLogs());
+        tabs = result.getTabs();
+
+        // COLORING
+        result = Coloring.check(tabs);
         changeLogs.addAll(result.getChangeLogs());
         tabs = result.getTabs();
 
@@ -190,13 +195,14 @@ public class SudokuSolver {
         changeLogs.addAll(solutionStep.getChangeLogs());
         tabs = solutionStep.getTabs();
 
+
         return new SolutionStep(sudoku, changeLogs, tabs);
     }
 
 
     // shows Sudoku solution
     public static List<Integer> showSolution(Sudoku sudoku) {
-        List<SolutionStep> allSteps = solve(sudoku);
+        List<SolutionStep> allSteps = solve(sudoku, true);
         SolutionStep finalStep = allSteps.get(allSteps.size() - 1);
         Sudoku solvedSudoku = finalStep.getSudokuInstance();
         System.out.println("SUDOKU SOLUTION");
@@ -226,38 +232,5 @@ public class SudokuSolver {
             System.out.println();
         }
         System.out.println("SOLVED IN " + solutionOutput.getSolutionTime() + " MILLISECONDS");
-    }
-
-    public static void solve50kSudokus() {
-        List<Sudoku> allSudokus = Utils.read50kSudoku();
-        List<Sudoku> noFfeSudokus = new LinkedList<>();
-        int totalSolutionTime = 0;
-        int count = 1;
-        int solvedCount = 0;
-        int nffeCount = 0;
-        int geCount = 0;
-        for (Sudoku sudoku : allSudokus) {
-            try {
-                SolutionOutput solutionOutput = getSolution(sudoku);
-                totalSolutionTime += solutionOutput.getSolutionTime();
-                solvedCount++;
-            } catch (NoFiftyFiftyException nffe) {
-                System.out.println(count + " " + nffe);
-                nffeCount++;
-                noFfeSudokus.add(sudoku);
-            } catch (Exception e) {
-                System.out.println(count + " " + e);
-                geCount++;
-            }
-            count++;
-        }
-        System.out.println("I solved " + solvedCount + " out of " + allSudokus.size() + " sudokus in " + totalSolutionTime + " milliseconds");
-        if (nffeCount > 0) System.out.println("NO FIFTY FIFTY EXCEPTION count: " + nffeCount);
-        if (geCount > 0) System.out.println("GENERIC EXCEPTION count: " + geCount);
-        System.out.println("These are the NoFiftyFiftyException sudokus: ");
-        for (Sudoku s : noFfeSudokus) {
-            System.out.println(s.getStringNumbers());
-        }
-
     }
 }

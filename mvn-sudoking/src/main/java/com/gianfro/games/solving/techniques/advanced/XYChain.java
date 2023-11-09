@@ -4,6 +4,7 @@ import com.gianfro.games.entities.*;
 import com.gianfro.games.explainers.SudokuExplainer;
 import com.gianfro.games.solving.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
@@ -152,10 +153,11 @@ public class XYChain {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST XY CHAIN -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_XY_CHAIN_1;
-//		Sudoku sudoku = SudokuList.TEST_XY_CHAIN_2;
-//        Sudoku sudoku = SudokuList.TEST_XY_CHAIN_3;
-        Sudoku sudoku = Utils.buildSudoku("802635017670128350315070826153206700900587231287013065408301572721850603530702100"); //TODO FIX ERRORE
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_1);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_2);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_3);
+        sudoku = Utils.buildSudoku("802635017670128350315070826153206700900587231287013065408301572721850603530702100"); //TODO FIX ERRORE
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

@@ -27,9 +27,10 @@ public class ExplainerHidden4 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST HIDDEN QUADRUPLE -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_4_BOX;
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_4_ROW;
-        Sudoku sudoku = SudokuList.TEST_HIDDEN_4_COL;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_BOX);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_COL);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         Utils.grid(sudoku);

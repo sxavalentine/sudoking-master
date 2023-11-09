@@ -2,6 +2,7 @@ package com.gianfro.games.exceptions;
 
 import com.gianfro.games.entities.Sudoku;
 import com.gianfro.games.entities.Tab;
+import com.gianfro.games.utils.Utils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class NoFiftyFiftyException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return "No chances of 50/50. Cell candidates are: " + tabs;
+        Utils.megaGrid(sudokuAtTheTimeOfException, tabs);
+        return "No chances of 50/50.";
     }
 }

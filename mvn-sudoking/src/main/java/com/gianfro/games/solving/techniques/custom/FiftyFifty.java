@@ -21,7 +21,7 @@ public class FiftyFifty {
         List<Tab> bivalueCells = tabs.stream().filter(tab -> tab.getNumbers().size() == 2).collect(Collectors.toList());
         Tab bivalueCell = null;
         try {
-            int index = 0; // in futuro si potrebbe fare che prova tutte le possibili caselle 5050 se la prima (come ora, con l'indice fisso a 0) non porta a risultati
+            int index = 0; // TODO in futuro si potrebbe fare che prova tutte le possibili caselle 5050 se la prima (come ora, con l'indice fisso a 0) non porta a risultati
             bivalueCell = bivalueCells.get(index);
         } catch (IndexOutOfBoundsException ioobe) {
             NoFiftyFiftyException nffe = new NoFiftyFiftyException(sudoku, tabs);

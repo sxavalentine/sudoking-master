@@ -102,9 +102,10 @@ public class Hidden3 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST HIDDEN TRIPLES -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_3_BOX;
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_3_ROW;
-        Sudoku sudoku = SudokuList.TEST_HIDDEN_3_COL;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_3_BOX);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_3_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_3_COL);
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

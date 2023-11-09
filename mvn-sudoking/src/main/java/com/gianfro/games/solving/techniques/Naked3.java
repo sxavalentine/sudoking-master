@@ -104,8 +104,9 @@ public class Naked3 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST NAKED TRIPLE -----------------------------------------");
 
-        Sudoku sudoku = SudokuList.TEST_NAKED_3_ROW;
-//		Sudoku sudoku = SudokuList.TEST_NAKED_3_COL;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_3_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_3_COL);
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

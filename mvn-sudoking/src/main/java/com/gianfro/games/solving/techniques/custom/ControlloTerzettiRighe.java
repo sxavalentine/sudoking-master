@@ -74,7 +74,7 @@ public class ControlloTerzettiRighe {
     }
 
     public static void main(String[] args) {
-        Sudoku sudoku = SudokuList.EVEREST1;
+        Sudoku sudoku = Utils.buildSudoku(SudokuList.EVEREST1);
 
         Utils.grid(sudoku);
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

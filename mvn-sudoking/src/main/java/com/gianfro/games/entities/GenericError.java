@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@Document(collection = "sudoku_error")
-public class SudokuError {
+@Document(collection = "generic_error")
+public class GenericError {
 
     private String startingNumbers;
     private String exceptionMessage;

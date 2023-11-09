@@ -72,8 +72,9 @@ public class ClaimingCandidates {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST CLAIMING CANDIDATES -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_CLAIMING_CANDIDATES_ROW;
-        Sudoku sudoku = SudokuList.TEST_CLAIMING_CANDIDATES_COL;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_CLAIMING_CANDIDATES_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_CLAIMING_CANDIDATES_COL);
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

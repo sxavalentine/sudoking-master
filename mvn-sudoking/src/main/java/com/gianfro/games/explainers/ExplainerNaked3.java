@@ -27,8 +27,9 @@ public class ExplainerNaked3 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST NAKED TRIPLE -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_NAKED_3_ROW;
-        Sudoku sudoku = SudokuList.TEST_NAKED_3_COL; // <- in teoria sarebbe in col 2, ma evidentemente la scrematura e' oscurata da tecniche risolutive precedenti. Trova comunque un caso in row A
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_3_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_3_COL); // <- in teoria sarebbe in col 2, ma evidentemente la scrematura è oscurata da tecniche risolutive precedenti. Trova comunque un caso in row A
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         Utils.grid(sudoku);

@@ -47,7 +47,7 @@ public class Sudoku {
         }
 
         for (int x = 0; x < 9; x++) {
-            columns.add(new ArrayList<Integer>());
+            columns.add(new ArrayList<>());
             for (int y = 0; y < 9; y++) {
                 columns.get(x).add(rows.get(y).get(x));
             }
@@ -60,7 +60,7 @@ public class Sudoku {
             colTrios.add(columns.subList(i, i + 3));
         }
         for (int i = 0; i < 9; i++) {
-            boxes.add(new ArrayList<Integer>());
+            boxes.add(new ArrayList<>());
             for (int x : Utils.INDEXES_02) {
                 for (int y : Utils.INDEXES_02) {
                     boxes.get(i).add(rowTrios.get(i / 3).get(x).subList(3 * (i % 3), 3 + (3 * (i % 3))).get(y));

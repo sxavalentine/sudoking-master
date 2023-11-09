@@ -75,7 +75,7 @@ public class SudokuExplainer {
     }
 
     public static void main(String[] args) {
-        SolutionOutput out = SudokuSolver.getSolution(SudokuList.EVEREST1);
+        SolutionOutput out = SudokuSolver.getSolution(Utils.buildSudoku(SudokuList.EVEREST1));
         List<SolutionStep> steps = out.getSolutionSteps();
         explain(steps);
     }

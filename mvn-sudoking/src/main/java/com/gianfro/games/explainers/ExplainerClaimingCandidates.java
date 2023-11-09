@@ -31,8 +31,9 @@ public class ExplainerClaimingCandidates {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST POINTING CANDIDATES -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_CLAIMING_CANDIDATES_ROW;
-        Sudoku sudoku = SudokuList.TEST_CLAIMING_CANDIDATES_COL;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_CLAIMING_CANDIDATES_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_CLAIMING_CANDIDATES_COL);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         Utils.grid(sudoku);

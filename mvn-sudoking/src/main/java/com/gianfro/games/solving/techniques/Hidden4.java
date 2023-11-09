@@ -2,6 +2,7 @@ package com.gianfro.games.solving.techniques;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.explainers.SudokuExplainer;
+import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
@@ -102,10 +103,11 @@ public class Hidden4 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST HIDDEN QUADRUPLES -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_4_BOX;
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_4_ROW;
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_4_COL; // <-in teoria sarebbe in col 9, ma avendo saltato le scremature con gli altri metodi, non e' in grado di trovarlo, ma trova un esempio in col 1
-        Sudoku sudoku = Utils.buildSudoku("650087024000649050040025000570438061000501000310902085000890010000213000130750098"); // TEST COL 7 STRONZO ENG RICHIEDE XY-WING
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_BOX);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_COL); // <-in teoria sarebbe in col 9, ma avendo saltato le scremature con gli altri metodi, non e' in grado di trovarlo, ma trova un esempio in col 1
+        sudoku = Utils.buildSudoku("650087024000649050040025000570438061000501000310902085000890010000213000130750098"); // TEST COL 7 STRONZO ENG RICHIEDE XY-WING
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

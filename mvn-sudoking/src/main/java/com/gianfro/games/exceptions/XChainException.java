@@ -15,6 +15,11 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 
+/**
+ * An XChainException doesn't indicate an error in the code, but gets thrown whenever (while building an XChain)
+ * we find one or more cells that can see both ends of the chain and contain the selected candidate.
+ * In that case, we can stop building the chain, and remove the selected candidate from those cells.
+ */
 public class XChainException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

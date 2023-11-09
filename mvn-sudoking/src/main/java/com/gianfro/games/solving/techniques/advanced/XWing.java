@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class XWing {
 
     /**
-     * If you can find two rows, such that all candidates of a specific digit (the fish digit) in both rows are containd in
+     * If you can find two rows, such that all candidates of a specific digit (the fish digit) in both rows are contained in
      * the columns (the cover sets), all fish candidates in the columns that are not part of the rows can be eliminated.
      * The result is called an X-Wing in the rows.
      * If you exchange the terms rows and columns in the description above, you get an X-Wing in the columns.
@@ -134,8 +134,9 @@ public class XWing {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST X WING -----------------------------------------");
 
-        Sudoku sudoku = SudokuList.TEST_X_WING_ROW;
-//		Sudoku sudoku = SudokuList.TEST_X_WING_COL;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_X_WING_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_X_WING_COL);
 
         Utils.grid(sudoku);
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

@@ -103,8 +103,9 @@ public class Hidden2 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST HIDDEN PAIRS -----------------------------------------");
 
-        Sudoku sudoku = SudokuList.TEST_HIDDEN_2_BOX; // ROW 1
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_2_B; // COL 9
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_2_BOX); // ROW 1
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_2_COL);
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

@@ -94,7 +94,7 @@ public class Hidden1 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST HIDDEN SINGLE -----------------------------------------");
 
-        Sudoku sudoku = SudokuList.TEST_HIDDEN_1_BOX;
+        Sudoku sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_1_BOX);
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

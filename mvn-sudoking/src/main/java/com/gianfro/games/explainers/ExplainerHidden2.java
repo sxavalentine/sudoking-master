@@ -27,8 +27,9 @@ public class ExplainerHidden2 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST HIDDEN PAIR -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_HIDDEN_2_BOX;
-        Sudoku sudoku = SudokuList.TEST_HIDDEN_2_COL;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_2_BOX);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_2_COL);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         Utils.grid(sudoku);

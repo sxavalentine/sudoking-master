@@ -87,9 +87,10 @@ public class PointingCandidates {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST POINTING CANDIDATES -----------------------------------------");
 
-//		Sudoku sudoku = SudokuList.TEST_POINTING_CANDIDATES_ROW;
-//		Sudoku sudoku = SudokuList.TEST_POINTING_CANDIDATES_COL;
-        Sudoku sudoku = SudokuList.TEST_POINTING_CANDIDATES_TRIPLE;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_ROW);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_COL);
+        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_TRIPLE);
         Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);

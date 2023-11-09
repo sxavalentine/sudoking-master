@@ -27,7 +27,8 @@ public class ExplainerNaked2 {
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST NAKED PAIR -----------------------------------------");
 
-        Sudoku sudoku = SudokuList.TEST_NAKED_2_ALL;
+        Sudoku sudoku;
+        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_2_ALL);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         Utils.grid(sudoku);

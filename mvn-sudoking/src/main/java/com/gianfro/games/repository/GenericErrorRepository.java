@@ -6,7 +6,4 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface GenericErrorRepository extends MongoRepository<GenericError, String> {
 
     GenericError findItemByStartingNumbers(String startingNumbers);
-
-    public long count();
-
 }

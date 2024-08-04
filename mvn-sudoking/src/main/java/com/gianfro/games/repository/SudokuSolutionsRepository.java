@@ -5,8 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface SudokuSolutionsRepository extends MongoRepository<SolutionOutput, String> {
 
-    SolutionOutput findItemByStartingNumbers(String startingNumbers);
-
-    public long count();
-
+    SolutionOutput findByStartingNumbers(String startingNumbers);
 }

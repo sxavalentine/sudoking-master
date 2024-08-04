@@ -1,9 +1,8 @@
-package com.gianfro.games.solving.techniques.advanced;
+package com.gianfro.games.techniques.advanced;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.solving.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.utils.SudokuList;
+import com.gianfro.games.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
@@ -15,12 +14,10 @@ public class RemotePairs {
 
     public static final String REMOTE_PAIRS = "REMOTE PAIRS";
 
-
     public static SkimmingResult check(List<Tab> tabs) {
         SkimmingResult result = chain(tabs);
         return new SkimmingResult(result.getTabs(), result.getChangeLogs());
     }
-
 
     private static SkimmingResult chain(List<Tab> tabs) {
         List<ChangeLog> changeLogs = new LinkedList<>();
@@ -136,13 +133,14 @@ public class RemotePairs {
         System.out.println("------------------------------------- TEST REMOTE PAIRS -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_1);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_2);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_1);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_2);
         sudoku = Utils.buildSudoku("802635017670128350315070826153206780900587231287013065408301572721850603530702108"); //TODO capire se c'è errore
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         tabs = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs).getTabs();
-        Utils.grid(sudoku);
+        Utils.megaGrid(sudoku, tabs);
+
         SkimmingResult result = check(tabs);
 
         Utils.printChangeLogs(result);

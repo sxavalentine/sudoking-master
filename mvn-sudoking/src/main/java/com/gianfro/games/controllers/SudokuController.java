@@ -34,9 +34,9 @@ public class SudokuController {
         return this.sudokuService.solveSudoku(stringNumbers);
     }
 
-    @GetMapping(value = "/getTabs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Tab> getSudokuTabs(@NotNull @RequestBody String stringNumbers) {
-        return this.sudokuService.getSudokuTabs(stringNumbers);
+    @GetMapping(value = "/solveSudokuWithExplanation", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String solveSudokuWithExplanation(@NotNull @RequestBody String stringNumbers) {
+        return this.sudokuService.solveSudokuWithExplanation(stringNumbers);
     }
 
     @GetMapping(value = "/solve50kSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -44,9 +44,19 @@ public class SudokuController {
         this.sudokuService.solve50kSudoku();
     }
 
+    @GetMapping(value = "/getTabs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Tab> getSudokuTabs(@NotNull @RequestBody String stringNumbers) {
+        return this.sudokuService.getSudokuTabs(stringNumbers);
+    }
+
     @GetMapping(value = "/printGrid", produces = MediaType.APPLICATION_JSON_VALUE)
     public void printGrid(@NotNull @RequestBody String stringNumbers) {
         Sudoku s = Utils.buildSudoku(stringNumbers);
         Utils.grid(s);
+    }
+
+    @GetMapping(value = "/findByStartingNumbers", produces = MediaType.APPLICATION_JSON_VALUE)
+    public SolutionOutput findByStartingNumbers(@NotNull @RequestBody String startingNumbers) {
+        return this.sudokuService.findSolutionByStartingNumbers(startingNumbers);
     }
 }

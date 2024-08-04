@@ -3,6 +3,7 @@ package com.gianfro.games.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Transient;
 
@@ -10,7 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class SolutionStep {
 
     @JsonIgnore

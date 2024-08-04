@@ -1,8 +1,8 @@
 package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.solving.techniques.Hidden4;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.techniques.Hidden4;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
@@ -11,26 +11,37 @@ import java.util.stream.Collectors;
 
 public class ExplainerHidden4 {
 
-    public static void explain(ChangeLog changeLog) {
+    public static String explain(ChangeLog changeLog) {
+        StringBuilder sb = new StringBuilder();
         String welcomingUnit = Utils.getWelcomingUnit(changeLog);
-        System.out.println("IN " + welcomingUnit + " THE QUADRUPLE OF CANDIDATES " + changeLog.getUnitExamined() + " APPEARS ONLY IN THE CELLS:");
-        for (ChangeLogUnitMember tab : changeLog.getUnitMembers()) {
-            System.out.println(tab);
-        }
-        System.out.println("SO I CAN REMOVE ALL THE OTHER CANDIDATES FROM THOSE CELLS:");
-        for (Change change : changeLog.getChanges()) {
-            Skimming skimming = (Skimming) change;
-            System.out.println(SudokuExplainer.getCell(skimming) + " --> CANDIDATES REMAINING " + skimming.getTab().getNumbers() + ", CANDIDATES REMOVED " + skimming.getRemovedCandidates());
-        }
+        sb.append(String.format(
+                "IN %s THE QUADRUPLE OF CANDIDATES %s APPEARS ONLY IN THE CELLS:",
+                welcomingUnit,
+                changeLog.getUnitExamined()));
+        sb.append("\n");
+        changeLog.getUnitMembers().forEach(tab -> sb.append(tab).append("\n"));
+        sb.append("SO I CAN REMOVE ALL THE OTHER CANDIDATES FROM THOSE CELLS:").append("\n");
+        changeLog.getChanges().forEach(c -> {
+            Skimming skimming = (Skimming) c;
+            sb.append(String.format(
+                    "%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
+                    SudokuExplainer.getCell(skimming),
+                    skimming.getTab().getNumbers(),
+                    skimming.getRemovedCandidates()));
+            sb.append("\n");
+        });
+        System.out.println(sb);
+        return sb.toString();
     }
 
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST HIDDEN QUADRUPLE -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_BOX);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_ROW);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_BOX);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_ROW);
         sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_COL);
+//        sudoku = Utils.buildSudoku("650087024000649050040025000570438061000501000310902085000890010000213000130750098"); // TEST COL 7 STRONZO ENG RICHIEDE XY-WING
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         Utils.grid(sudoku);
@@ -42,9 +53,6 @@ public class ExplainerHidden4 {
                         .filter(x -> x.getSolvingTechnique().equals(Hidden4.HIDDEN_QUAD))
                         .collect(Collectors.toList());
 
-        for (ChangeLog changeLog : changeLogs) {
-            explain(changeLog);
-            System.out.println();
-        }
+        changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
     }
 }

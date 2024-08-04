@@ -3,13 +3,17 @@ package com.gianfro.games.entities;
 import com.gianfro.games.exceptions.InvalidHouseException;
 import com.gianfro.games.utils.Utils;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
 @Data
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Tab implements ChangeLogUnitMember {
 
     int box;

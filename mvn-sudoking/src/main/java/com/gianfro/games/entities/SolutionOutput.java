@@ -2,8 +2,8 @@ package com.gianfro.games.entities;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,8 +11,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Data
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Document(collection = "solutions")
+@NoArgsConstructor
 public class SolutionOutput {
 
     String startingNumbers;
@@ -22,7 +23,6 @@ public class SolutionOutput {
     int stepsCount;
     List<SolutionStep> solutionSteps;
     @Id
-    @NonFinal
     String id;
 
     public SolutionOutput(Sudoku sudoku, List<SolutionStep> solutionSteps, int solutionTime) {

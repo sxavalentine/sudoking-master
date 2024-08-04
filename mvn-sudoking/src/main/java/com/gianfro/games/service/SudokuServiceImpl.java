@@ -3,6 +3,7 @@ package com.gianfro.games.service;
 import com.gianfro.games.entities.*;
 import com.gianfro.games.exceptions.NoFiftyFiftyException;
 import com.gianfro.games.exceptions.UnsolvableException;
+import com.gianfro.games.explainers.SudokuExplainer;
 import com.gianfro.games.repository.GenericErrorRepository;
 import com.gianfro.games.repository.No5050Repository;
 import com.gianfro.games.repository.SudokuSolutionsRepository;
@@ -22,13 +23,10 @@ public class SudokuServiceImpl implements SudokuService {
 
     @Autowired
     private SudokuSolutionsRepository sudokuSolutionsRepository;
-
     @Autowired
     private UnsolvableErrorRepository unsolvableErrorRepository;
-
     @Autowired
     private GenericErrorRepository genericErrorRepository;
-
     @Autowired
     private No5050Repository no5050Repository;
 
@@ -37,7 +35,7 @@ public class SudokuServiceImpl implements SudokuService {
     public SolutionOutput solveSudoku(String stringNumbers) {
 
         Sudoku sudoku = Utils.buildSudoku(stringNumbers);
-        SolutionOutput solutionOutput = null;
+        SolutionOutput solutionOutput;
 
         try {
             solutionOutput = SudokuSolver.getSolution(sudoku);
@@ -76,6 +74,11 @@ public class SudokuServiceImpl implements SudokuService {
         return solutionOutput;
     }
 
+    @Override
+    public String solveSudokuWithExplanation(String stringNumbers) {
+        SolutionOutput solution = this.solveSudoku(stringNumbers);
+        return SudokuExplainer.explain(solution.getSolutionSteps());
+    }
 
     /**
      * This method reads from the 50kSudoku.txt file in the resources folder and solves them all.
@@ -85,15 +88,15 @@ public class SudokuServiceImpl implements SudokuService {
      */
     @Override
     public void solve50kSudoku() {
-        List<Sudoku> allSudokus = Utils.read50kSudoku();
-        List<Sudoku> noFfeSudokus = new LinkedList<>();
+        List<Sudoku> allSudoku = Utils.read50kSudoku();
+        List<Sudoku> noFfeSudoku = new LinkedList<>();
         int totalSolutionTime = 0;
         int count = 1;
         int solvedCount = 0;
         int nffeCount = 0;
         int unsolvableCount = 0;
         int geCount = 0;
-        for (Sudoku sudoku : allSudokus) {
+        for (Sudoku sudoku : allSudoku) {
             try {
                 SolutionOutput solutionOutput = this.solveSudoku(sudoku.getStringNumbers());
                 totalSolutionTime += solutionOutput.getSolutionTime();
@@ -101,7 +104,7 @@ public class SudokuServiceImpl implements SudokuService {
             } catch (NoFiftyFiftyException nffe) {
                 System.out.println(count + " " + nffe);
                 nffeCount++;
-                noFfeSudokus.add(sudoku);
+                noFfeSudoku.add(sudoku);
             } catch (UnsolvableException ue) {
                 System.out.println(count + " " + ue);
                 unsolvableCount++;
@@ -111,12 +114,12 @@ public class SudokuServiceImpl implements SudokuService {
             }
             count++;
         }
-        System.out.println("I solved " + solvedCount + " out of " + allSudokus.size() + " sudokus in " + totalSolutionTime + " milliseconds");
+        System.out.println("I solved " + solvedCount + " out of " + allSudoku.size() + " sudoku in " + totalSolutionTime + " milliseconds");
         if (nffeCount > 0) System.out.println("NO FIFTY FIFTY EXCEPTION count: " + nffeCount);
         if (unsolvableCount > 0) System.out.println("UNSOLVABLE EXCEPTION count: " + unsolvableCount);
         if (geCount > 0) System.out.println("GENERIC EXCEPTION count: " + geCount);
-        System.out.println("These are the NoFiftyFiftyException sudokus: ");
-        for (Sudoku s : noFfeSudokus) {
+        System.out.println("These are the NoFiftyFiftyException sudoku: ");
+        for (Sudoku s : noFfeSudoku) {
             System.out.println(s.getStringNumbers());
         }
     }
@@ -126,4 +129,11 @@ public class SudokuServiceImpl implements SudokuService {
         Sudoku s = Utils.buildSudoku(stringNumbers);
         return Utils.getBasicTabs(s);
     }
+
+    @Override
+    public SolutionOutput findSolutionByStartingNumbers(String startingNumbers) {
+        return sudokuSolutionsRepository.findByStartingNumbers(startingNumbers);
+    }
+
+
 }

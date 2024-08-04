@@ -1,4 +1,4 @@
-package com.gianfro.games.solving.techniques;
+package com.gianfro.games.techniques;
 
 import com.gianfro.games.entities.Change;
 import com.gianfro.games.entities.ChangeLog;

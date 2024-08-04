@@ -1,12 +1,9 @@
-package com.gianfro.games.solving.techniques;
+package com.gianfro.games.techniques;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.explainers.SudokuExplainer;
-import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ClaimingCandidates {
 
@@ -41,7 +38,7 @@ public class ClaimingCandidates {
                     List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                     for (Tab tab : houseTabs) {
                         if (tab.getNumbers().contains(number)) {
-                            welcomingTabs.add((ChangeLogUnitMember) (tab));
+                            welcomingTabs.add(tab);
                             boxesOfWelcomingTabs.add(tab.getBox());
                         }
                     }
@@ -67,27 +64,5 @@ public class ClaimingCandidates {
             System.out.println("Exception in CLAIMING CANDIDATES " + house + ": " + e.getMessage());
         }
         return new SkimmingResult(tabs, changeLogs);
-    }
-
-    public static void main(String[] args) {
-        System.out.println("------------------------------------- TEST CLAIMING CANDIDATES -----------------------------------------");
-
-        Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_CLAIMING_CANDIDATES_ROW);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_CLAIMING_CANDIDATES_COL);
-        Utils.grid(sudoku);
-
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        SkimmingResult result = check(tabs);
-        List<ChangeLog> changeLogs =
-                result.getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(CLAIMING_CANDIDATES))
-                        .collect(Collectors.toList());
-
-        for (ChangeLog changeLog : changeLogs) {
-            SudokuExplainer.explainChange(changeLog);
-            System.out.println();
-        }
     }
 }

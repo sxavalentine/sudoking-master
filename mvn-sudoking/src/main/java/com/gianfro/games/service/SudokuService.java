@@ -7,9 +7,13 @@ import java.util.List;
 
 public interface SudokuService {
 
-    public SolutionOutput solveSudoku(String stringNumbers);
+    SolutionOutput solveSudoku(String stringNumbers);
 
-    public void solve50kSudoku();
+    String solveSudokuWithExplanation(String stringNumbers);
 
-    public List<Tab> getSudokuTabs(String stringNumbers);
+    void solve50kSudoku();
+
+    List<Tab> getSudokuTabs(String stringNumbers);
+
+    SolutionOutput findSolutionByStartingNumbers(String startingNumbers);
 }

@@ -1,12 +1,9 @@
-package com.gianfro.games.solving.techniques;
+package com.gianfro.games.techniques;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.explainers.SudokuExplainer;
-import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PointingCandidates {
 
@@ -82,28 +79,5 @@ public class PointingCandidates {
             System.out.println("Exception in POINTING CANDIDATES " + house + ": " + e.getMessage());
         }
         return new SkimmingResult(tabs, changeLogs);
-    }
-
-    public static void main(String[] args) {
-        System.out.println("------------------------------------- TEST POINTING CANDIDATES -----------------------------------------");
-
-        Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_ROW);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_COL);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_TRIPLE);
-        Utils.grid(sudoku);
-
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        SkimmingResult result = check(tabs);
-        List<ChangeLog> changeLogs =
-                result.getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(POINTING_CANDIDATES))
-                        .collect(Collectors.toList());
-
-        for (ChangeLog changeLog : changeLogs) {
-            SudokuExplainer.explainChange(changeLog);
-            System.out.println();
-        }
     }
 }

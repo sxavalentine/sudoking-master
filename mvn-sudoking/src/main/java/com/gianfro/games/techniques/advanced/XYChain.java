@@ -1,10 +1,9 @@
-package com.gianfro.games.solving.techniques.advanced;
+package com.gianfro.games.techniques.advanced;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.explainers.SudokuExplainer;
-import com.gianfro.games.solving.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.utils.SudokuList;
+import com.gianfro.games.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class XYChain {
             List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
 
             for (Tab tab : bivalueCells) {
-                // if importante, perchè nel mentre i suoi candidati potrebbero essere stati rimossi dalle precedenti iterazioni del ciclo
+                // if importante, perché nel mentre i suoi candidati potrebbero essere stati rimossi dalle precedenti iterazioni del ciclo
                 if (tab.getNumbers().size() == 2) {
                     List<Tab> seenTabs = ChainUtils.getSeenCells(tab, bivalueCells);
                     if (seenTabs.size() >= 2) {
@@ -154,14 +153,15 @@ public class XYChain {
         System.out.println("------------------------------------- TEST XY CHAIN -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_1);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_2);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_3);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_1);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_2);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_3);
         sudoku = Utils.buildSudoku("802635017670128350315070826153206700900587231287013065408301572721850603530702100"); //TODO FIX ERRORE
-        Utils.grid(sudoku);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         tabs = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs).getTabs();
+        Utils.megaGrid(sudoku, tabs);
+
         SkimmingResult result = check(tabs);
         List<ChangeLog> changeLogs =
                 result.getChangeLogs()

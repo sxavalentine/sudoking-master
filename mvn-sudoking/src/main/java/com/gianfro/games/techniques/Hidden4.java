@@ -1,8 +1,6 @@
-package com.gianfro.games.solving.techniques;
+package com.gianfro.games.techniques;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.explainers.SudokuExplainer;
-import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
@@ -98,29 +96,5 @@ public class Hidden4 {
             System.out.println("Exception in HIDDEN QUADRUPLE " + house + ": " + e.getMessage());
         }
         return new SkimmingResult(tabs, changeLogs);
-    }
-
-    public static void main(String[] args) {
-        System.out.println("------------------------------------- TEST HIDDEN QUADRUPLES -----------------------------------------");
-
-        Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_BOX);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_ROW);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_4_COL); // <-in teoria sarebbe in col 9, ma avendo saltato le scremature con gli altri metodi, non e' in grado di trovarlo, ma trova un esempio in col 1
-        sudoku = Utils.buildSudoku("650087024000649050040025000570438061000501000310902085000890010000213000130750098"); // TEST COL 7 STRONZO ENG RICHIEDE XY-WING
-        Utils.grid(sudoku);
-
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        SkimmingResult result = check(tabs);
-        List<ChangeLog> changeLogs =
-                result.getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(HIDDEN_QUAD))
-                        .collect(Collectors.toList());
-
-        for (ChangeLog changeLog : changeLogs) {
-            SudokuExplainer.explainChange(changeLog);
-            System.out.println();
-        }
     }
 }

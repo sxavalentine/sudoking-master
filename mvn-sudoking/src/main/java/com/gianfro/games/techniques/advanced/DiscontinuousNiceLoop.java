@@ -1,12 +1,10 @@
-package com.gianfro.games.solving.techniques.advanced;
+package com.gianfro.games.techniques.advanced;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.exceptions.InvalidHouseException;
 import com.gianfro.games.exceptions.NoPossibleChainException;
-import com.gianfro.games.exceptions.XChainException;
-import com.gianfro.games.solving.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.utils.SudokuList;
+import com.gianfro.games.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
@@ -15,14 +13,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class XChain {
+public class DiscontinuousNiceLoop {
 
     /**
-     * X CHAINS must start and end with a strong link. A strong link is a "If A is false then B is true". So they always need to have an even numbers of links"
+     * DISCONTINUOUS NICE LOOP must start and end with a strong link on the same cell.
+     * A strong link is an "If A is false then B is true".
+     * So they always need to have an even numbers of links, and the first link is the same of the last (first OFF, last ON)
      */
 
     public static final String CHAIN = "CHAIN";
-    public static final String X_CHAIN = "X CHAIN";
+    public static final String DISCONTINUOUS_NICE_LOOP_TRUE = "DISCONTINUOUS NICE LOOP (true)";
+    public static final String DISCONTINUOUS_NICE_LOOP_FALSE = "DISCONTINUOUS NICE LOOP (false)";
 
 
     public static SkimmingResult check(List<Tab> tabs) {
@@ -43,6 +44,13 @@ public class XChain {
             changeLogs.addAll(result.getChangeLogs());
             tabs = result.getTabs();
         }
+
+        //TODO remove: chains must always start and end with a strong link (assuming the candidate is OFF)
+//        if (changeLogs.isEmpty()) {
+//        result = chainAll(tabs);
+//        changeLogs.addAll(result.getChangeLogs());
+//        tabs = result.getTabs();
+//        }
 
         return new SkimmingResult(tabs, changeLogs);
     }
@@ -79,47 +87,24 @@ public class XChain {
 
                         try {
                             chain = findNegativeChain(chain, link2, link1, tabs, number);
-//                            if (chain.get(chain.size() - 1).getTab() == link1.getTab()) {
-//                                for (Link link : chain) {
-//                                    unitMembers.add(link);
-//                                }
-//                                Change change = new Change(CHAIN, house, tab1.getRow(), tab1.getCol(), number);
-//                                ChangeLog changeLog = new ChangeLog(
-//                                        Collections.singletonList(number),
-//                                        house,
-//                                        houseNumber,
-//                                        unitMembers,
-//                                        CHAIN,
-//                                        DISCONTINUOUS_NICE_LOOP_FALSE,
-//                                        Collections.singletonList(change));
-//                                changeLogs.add(changeLog);
-//                                return new SkimmingResult(tabs, changeLogs);
-//                            }
-                        } catch (XChainException xce) {
-                            List<Change> skimmings = new ArrayList<>();
-                            for (Link link : xce.getChain()) {
-                                unitMembers.add(link);
+                            if (chain.get(chain.size() - 1).getTab() == link1.getTab()) {
+                                unitMembers.addAll(chain);
+                                Change change = new Change(CHAIN, house, tab1.getRow(), tab1.getCol(), number);
+                                ChangeLog changeLog = new ChangeLog(
+                                        Collections.singletonList(number),
+                                        house,
+                                        houseNumber,
+                                        unitMembers,
+                                        CHAIN,
+                                        DISCONTINUOUS_NICE_LOOP_FALSE,
+                                        Collections.singletonList(change));
+                                changeLogs.add(changeLog);
+                                return new SkimmingResult(tabs, changeLogs);
                             }
-
-                            for (Tab tab : xce.getTabs()) {
-                                tab.getNumbers().remove(Integer.valueOf(number));
-                                Skimming skimming = new Skimming(X_CHAIN, house, tab, Collections.singletonList(number));
-                                skimmings.add(skimming);
-                            }
-                            ChangeLog changeLog = new ChangeLog(
-                                    Collections.singletonList(number),
-                                    house,
-                                    houseNumber,
-                                    unitMembers,
-                                    X_CHAIN,
-                                    null,
-                                    skimmings);
-                            changeLogs.add(changeLog);
-                            return new SkimmingResult(tabs, changeLogs);
                         } catch (NoPossibleChainException npce) {
                             // Sometimes, when forming a chain, we get with NoPossibleChainException simply because of the order of the first two link.
                             // One example is the Sudoku 000000206000080109900700000000030090056000000029000000000106500400000030000203000,
-                            // where it cn't find the X-CHAIN on 6 (Discontinuous Alternating Nice Loop, length 8):
+                            // where it can't find the following Discontinuous Alternating Nice Loop, length 8:
                             // -6[C5]+6[B4]-6[B1]+6[J1]-6[J8]+6[F8]-6[F5]+6[C5]
                             // simply because C5 was put before B4.
                             // So we try forming a new chain inverting the orders of the first two links.
@@ -131,52 +116,29 @@ public class XChain {
 
                             try {
                                 reverseChain = findNegativeChain(reverseChain, link1, link2, tabs, number);
-//                                if (reverseChain.get(reverseChain.size() - 1).getTab() == link2.getTab()) {
-//                                    for (Link link : reverseChain) {
-//                                        unitMembers.add(link);
-//                                    }
-//                                    Change change = new Change(CHAIN, house, tab2.getRow(), tab2.getCol(), number);
-//                                    ChangeLog changeLog = new ChangeLog(
-//                                            Collections.singletonList(number),
-//                                            house,
-//                                            houseNumber,
-//                                            unitMembers,
-//                                            CHAIN,
-//                                            DISCONTINUOUS_NICE_LOOP_FALSE,
-//                                            Collections.singletonList(change));
-//                                    changeLogs.add(changeLog);
-//                                    return new SkimmingResult(tabs, changeLogs);
-//                                }
-                            } catch (XChainException xce) {
-                                List<Change> skimmings = new ArrayList<>();
-                                for (Link link : xce.getChain()) {
-                                    unitMembers.add(link);
+                                if (reverseChain.get(reverseChain.size() - 1).getTab() == link2.getTab()) {
+                                    unitMembers.addAll(reverseChain);
+                                    Change change = new Change(CHAIN, house, tab2.getRow(), tab2.getCol(), number);
+                                    ChangeLog changeLog = new ChangeLog(
+                                            Collections.singletonList(number),
+                                            house,
+                                            houseNumber,
+                                            unitMembers,
+                                            CHAIN,
+                                            DISCONTINUOUS_NICE_LOOP_FALSE,
+                                            Collections.singletonList(change));
+                                    changeLogs.add(changeLog);
+                                    return new SkimmingResult(tabs, changeLogs);
                                 }
-
-                                for (Tab tab : xce.getTabs()) {
-                                    tab.getNumbers().remove(Integer.valueOf(number));
-                                    Skimming skimming = new Skimming(X_CHAIN, house, tab, Collections.singletonList(number));
-                                    skimmings.add(skimming);
-                                }
-                                ChangeLog changeLog = new ChangeLog(
-                                        Collections.singletonList(number),
-                                        house,
-                                        houseNumber,
-                                        unitMembers,
-                                        X_CHAIN,
-                                        null,
-                                        skimmings);
-                                changeLogs.add(changeLog);
-                                return new SkimmingResult(tabs, changeLogs);
                             } catch (NoPossibleChainException npce2) {
-                                //TODO stavolta non fa nulla
+                                //TODO stavolta non fare nulla
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            System.out.println("Exception in CHAIN " + house + ": " + e.getMessage());
+            System.out.println("Exception in DISCONTINUOUS NICE LOOP " + house + ": " + e.getMessage());
         }
         return new SkimmingResult(tabs, changeLogs);
     }
@@ -188,7 +150,7 @@ public class XChain {
         for (Tab tab : seenTabs) {
             if (tab.getNumbers().contains(candidate) && tab != linkBeforeLast.getTab()) {
                 if (!ChainUtils.chainContainsTab(chain, tab)) {
-                    House sharedHouse = getSharedHouse(tab, lastLink);
+                    House sharedHouse = ChainUtils.getSharedHouse(tab, lastLink.getTab());
 
                     Tab tabForNextLink = lookForWeakLinks(sharedHouse, tab, tabs, candidate);
                     if (tabForNextLink != null) {
@@ -198,18 +160,6 @@ public class XChain {
 
                         chain.add(newLink);
                         chain.add(nextLink);
-
-                        /**
-                         * Looks for a possible X Chain, by checking if there is a cell that can see both ends of the chain
-                         * */
-                        List<Tab> xChainTabs = tabs
-                                .stream()
-                                .filter(t -> ChainUtils.seesCell(t, chain.get(0).getTab(), candidate) && ChainUtils.seesCell(t, tabForNextLink, candidate))
-                                .collect(Collectors.toList());
-
-                        if (!xChainTabs.isEmpty()) {
-                            throw new XChainException(chain, xChainTabs);
-                        }
 
                         if (nextLink.getTab().equals(chain.get(0).getTab())) {
                             return chain;
@@ -223,6 +173,91 @@ public class XChain {
         throw new NoPossibleChainException(chain);
     }
 
+
+    //TODO remove: not used
+    // prova a formare una catena con qualsiasi tab, a prescindere da quanti candidati abbia. Il primo elemento della catena sara' dato per vero
+//    private static SkimmingResult chainAll(List<Tab> tabs) {
+//        List<ChangeLog> changeLogs = new LinkedList<>();
+//        for (int number : Utils.NUMBERS) {
+//            for (Tab tab : tabs) {
+//                List<ChangeLogUnitMember> unitMembers = new ArrayList<>();
+//                if (tab.getNumbers().contains(number)) {
+//
+//                    Link link1 = new Link(tab, true, number);
+//                    List<Link> chain = new ArrayList<>();
+//                    chain.add(link1);
+//
+//                    try {
+//                        chain = findPositiveChain(chain, link1, null, tabs, number);
+//                        if (chain.get(chain.size() - 1).getTab() == link1.getTab()) {
+//                            unitMembers.addAll(chain);
+//                            tab.getNumbers().remove(Integer.valueOf(number));
+//                            Skimming skimming = new Skimming(CHAIN, House.BOX, tab, Collections.singletonList(number));
+//                            ChangeLog changeLog = new ChangeLog(
+//                                    Collections.singletonList(number),
+//                                    House.BOX,
+//                                    0,
+//                                    unitMembers,
+//                                    CHAIN,
+//                                    DISCONTINUOUS_NICE_LOOP_TRUE,
+//                                    Collections.singletonList(skimming));
+//                            changeLogs.add(changeLog);
+//                        }
+//                    } catch (NoPossibleChainException npce) {
+//                        //TODO che si fa in tal caso?
+//                        System.out.println("NO POSSIBLE CHAIN WITH " + npce.getChain());
+//                    }
+//                }
+//            }
+//        }
+//        return new SkimmingResult(tabs, changeLogs);
+//    }
+
+
+    //TODO remove: not used
+    // positive IN QUANTO IL PRIMO ANELLO DELLA CATENA PARTE DAL PRESUPPOSTO CHE CONTENGA IL CANDIDATO
+    // Basically, if we start assuming that a certain cell values is a candidate, and then we are able to build a chain of deductions that bring us back
+    // to the initial cell and ends with a contradiction, we can exclude the candidate that we start assuming was the cell value.
+    // It's like saying, if cell X is 4 then is not 4
+//    private static List<Link> findPositiveChain(List<Link> chain, Link lastLink, Link linkBeforeLast, List<Tab> tabs, int candidate) {
+//        List<Tab> seenTabs = getSeenTabs(lastLink.getTab(), tabs);
+//        for (Tab tab : seenTabs) {
+//            Tab linkBeforeLastTab = linkBeforeLast == null ? null : linkBeforeLast.getTab();
+//            if (tab.getNumbers().contains(candidate) && tab != linkBeforeLastTab) {
+//
+//                if (tab.equals(chain.get(0).getTab())) {
+//                    Link newLink = new Link(tab, !lastLink.isOn(), candidate);
+//                    chain.add(newLink);
+//                    return chain;
+//                } else {
+//                    List<Link> clonedChain = new ArrayList<>(chain);
+//                    House sharedHouse = ChainUtils.getSharedHouse(tab, lastLink.getTab());
+//                    Tab tabForNextLink = lookForWeakLinks(sharedHouse, tab, tabs, candidate);
+//                    if (tabForNextLink != null
+//                            && !ChainUtils.chainContainsTab(clonedChain, tabForNextLink)
+//                            && !tabForNextLink.equals(lastLink.getTab())
+//                            && !tabForNextLink.equals(clonedChain.get(0).getTab())) {
+//
+//                        Link newLink = new Link(tab, !lastLink.isOn(), candidate);
+//                        Link nextLink = new Link(tabForNextLink, !newLink.isOn(), candidate);
+//
+//                        clonedChain.add(newLink);
+//                        clonedChain.add(nextLink);
+//
+//                        try {
+//                            clonedChain = findPositiveChain(clonedChain, nextLink, newLink, tabs, candidate);
+//                            return clonedChain;
+//                        } catch (NoPossibleChainException npce) {
+//                            //TODO che si fa in tal caso?
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        throw new NoPossibleChainException(chain);
+//    }
+
+
     /**
      * Given a list of Tab and a single Tab, returns the elements of the list that share at least a House with the Tab (except the tab itself)
      */
@@ -231,16 +266,6 @@ public class XChain {
                 .stream()
                 .filter(t -> t != tab && (t.getBox() == tab.getBox() || t.getRow() == tab.getRow() || t.getCol() == tab.getCol()))
                 .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Returns the House in common between two Tab
-     */
-    private static House getSharedHouse(Tab tab, Link link) {
-        return
-                tab.getBox() == link.getTab().getBox() ? House.BOX :
-                        tab.getRow() == link.getTab().getRow() ? House.ROW : House.COL;
     }
 
 
@@ -284,15 +309,16 @@ public class XChain {
         System.out.println("------------------------------------- TEST CHAIN -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.BLOCKED.get(0));
-        sudoku = Utils.buildSudoku(SudokuList.DISCOUNTINUOUS_NICE_LOOP);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_X_CHAIN_1);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_X_CHAIN_2);
+//        sudoku = Utils.buildSudoku(SudokuList.BLOCKED.get(0));
+//        sudoku = Utils.buildSudoku(SudokuList.DISCOUNTINUOUS_NICE_LOOP); // non trova nulla, weird
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_X_CHAIN_1);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_X_CHAIN_2);
         sudoku = Utils.buildSudoku("000000206000080109900700000000030090056000000029000000000106500400000030000203000");
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         tabs = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs).getTabs();
         Utils.megaGrid(sudoku, tabs);
+
         SkimmingResult result = check(tabs);
 
         Utils.printChangeLogs(result);

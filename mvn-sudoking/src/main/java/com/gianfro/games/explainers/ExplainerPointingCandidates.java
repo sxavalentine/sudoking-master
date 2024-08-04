@@ -1,8 +1,8 @@
 package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.solving.techniques.PointingCandidates;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.techniques.PointingCandidates;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
@@ -11,17 +11,32 @@ import java.util.stream.Collectors;
 
 public class ExplainerPointingCandidates {
 
-    public static void explain(ChangeLog changeLog) {
+    public static String explain(ChangeLog changeLog) {
+        StringBuilder sb = new StringBuilder();
         String boxWelcomingUnit = getBoxWelcomingUnit(changeLog);
-        System.out.println("IN BOX " + changeLog.getHouseNumber() + " THE CANDIDATE " + changeLog.getUnitExamined().get(0) + " CAN ONLY BE PUT IN " + boxWelcomingUnit + " IN THE CELLS:");
-        for (ChangeLogUnitMember tab : changeLog.getUnitMembers()) {
-            System.out.println(tab);
-        }
-        System.out.println("SO I CAN REMOVE " + changeLog.getUnitExamined().get(0) + " FROM ALL THE OTHER CELLS OF " + boxWelcomingUnit + ":");
-        for (Change change : changeLog.getChanges()) {
-            Skimming skimming = (Skimming) change;
-            System.out.println(SudokuExplainer.getCell(skimming) + " --> CANDIDATES REMAINING " + skimming.getTab().getNumbers() + ", CANDIDATES REMOVED " + skimming.getRemovedCandidates());
-        }
+        sb.append(String.format(
+                "IN BOX %s THE CANDIDATE %s CAN ONLY BE PUT IN %s IN THE CELLS:",
+                changeLog.getHouseNumber(),
+                changeLog.getUnitExamined().get(0),
+                boxWelcomingUnit));
+        sb.append("\n");
+        changeLog.getUnitMembers().forEach(tab -> sb.append(tab).append("\n"));
+        sb.append(String.format(
+                "SO I CAN REMOVE %s FROM ALL THE OTHER CELLS OF %s:",
+                changeLog.getUnitExamined().get(0),
+                boxWelcomingUnit));
+        sb.append("\n");
+        changeLog.getChanges().forEach(c -> {
+            Skimming skimming = (Skimming) c;
+            sb.append(String.format(
+                    "%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
+                    SudokuExplainer.getCell(skimming),
+                    skimming.getTab().getNumbers(),
+                    skimming.getRemovedCandidates()));
+            sb.append("\n");
+        });
+        System.out.println(sb);
+        return sb.toString();
     }
 
     private static String getBoxWelcomingUnit(ChangeLog changeLog) {
@@ -38,12 +53,13 @@ public class ExplainerPointingCandidates {
         System.out.println("------------------------------------- TEST POINTING CANDIDATES -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_ROW);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_COL);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_ROW);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_COL);
         sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_TRIPLE);
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         Utils.grid(sudoku);
+        Utils.megaGrid(sudoku, tabs);
 
         SolutionStep step = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs);
         List<ChangeLog> changeLogs =
@@ -52,9 +68,6 @@ public class ExplainerPointingCandidates {
                         .filter(x -> x.getSolvingTechnique().equals(PointingCandidates.POINTING_CANDIDATES))
                         .collect(Collectors.toList());
 
-        for (ChangeLog changeLog : changeLogs) {
-            explain(changeLog);
-            System.out.println();
-        }
+        changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
     }
 }

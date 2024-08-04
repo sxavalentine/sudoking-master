@@ -12,3 +12,10 @@ Some queries that could be useful:
 
 {solutionTime: {$gt: 100}}                               --> find all sudokus with solutionTime > 100ms
 {"solutionSteps.changes.solvingTechnique": "NAKED QUAD"} --> find all sudokus with at least one SolutionStep with solving technique NAKED QUAD
+
+AND
+{"solutionTime":{$lt:5}, "stepsCount": {$lt: 10}}
+
+OR
+{$or:[{"solutionTime":{$lt:5}}, {"stepsCount": {$lt: 10}}]}
+

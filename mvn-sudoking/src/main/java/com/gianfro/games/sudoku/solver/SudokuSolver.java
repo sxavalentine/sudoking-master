@@ -2,16 +2,13 @@ package com.gianfro.games.sudoku.solver;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.exceptions.UnsolvableException;
-import com.gianfro.games.solving.techniques.Hidden1;
-import com.gianfro.games.solving.techniques.Naked1;
-import com.gianfro.games.solving.techniques.StandardSolvingTechnique;
-import com.gianfro.games.solving.techniques.advanced.*;
+import com.gianfro.games.techniques.Hidden1;
+import com.gianfro.games.techniques.Naked1;
+import com.gianfro.games.techniques.StandardSolvingTechnique;
+import com.gianfro.games.techniques.advanced.*;
 import com.gianfro.games.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class SudokuSolver {
 
@@ -80,7 +77,7 @@ public class SudokuSolver {
                     for (ChangeLog changeLog : changeLogs) {
                         for (Change change : changeLog.getChanges()) {
                             if (!(change instanceof Skimming)) {
-                                mutation = Utils.setDeductedNumber(mutation, change);
+                                Utils.setDeductedNumber(mutation, change);
                             }
                         }
                     }
@@ -94,7 +91,7 @@ public class SudokuSolver {
                     throw new UnsolvableException(null, sudoku, result, tabs, "");
                     //                ///
                     //                System.out.println("------------------------------------------------------------------------------------------------------------------");
-                    //                System.out.println("I'm about to call method FIFTY FIFTY, the grid is");
+                    //                System.out.println("I'm about to call method FIFTY-FIFTY, the grid is");
                     //                Utils.megaGrid(step, tabs);
                     //                ///
                     //                SolutionStep firstCallToTryFiftyFifty = FiftyFifty.check(step, tabs, 1);
@@ -126,7 +123,7 @@ public class SudokuSolver {
         SkimmingResult result;
 
         result = Naked1.check(tabs);
-        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
+        Set<ChangeLog> changeLogs = new HashSet<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = Hidden1.check(tabs);
@@ -153,7 +150,8 @@ public class SudokuSolver {
             tabs = result.getTabs();
         }
 
-        return new SolutionStep(sudoku, changeLogs, tabs);
+        List<ChangeLog> changeLogList = new ArrayList<>(changeLogs);
+        return new SolutionStep(sudoku, changeLogList, tabs);
     }
 
 

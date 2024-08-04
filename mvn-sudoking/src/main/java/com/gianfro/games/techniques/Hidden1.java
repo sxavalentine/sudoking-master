@@ -1,9 +1,7 @@
-package com.gianfro.games.solving.techniques;
+package com.gianfro.games.techniques;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.exceptions.InvalidHouseException;
-import com.gianfro.games.explainers.SudokuExplainer;
-import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.*;
@@ -53,10 +51,10 @@ public class Hidden1 {
                                     null,
                                     house,
                                     houseNumber,
-                                    Arrays.asList(tab),
+                                    Collections.singletonList(tab),
                                     HIDDEN_SINGLE,
                                     null,
-                                    Arrays.asList(change)));
+                                    Collections.singletonList(change)));
                         }
                     }
                 }
@@ -70,7 +68,7 @@ public class Hidden1 {
     private static List<Integer> getHouseNumbers(House house, int houseNumberInput, List<Tab> tabs) {
         List<Integer> houseNumbers = new ArrayList<>(Utils.NUMBERS);
         for (Tab tab : tabs) {
-            int houseNumber = 0;
+            int houseNumber;
             switch (house) {
                 case BOX:
                     houseNumber = tab.getBox();
@@ -89,25 +87,5 @@ public class Hidden1 {
             }
         }
         return houseNumbers;
-    }
-
-    public static void main(String[] args) {
-        System.out.println("------------------------------------- TEST HIDDEN SINGLE -----------------------------------------");
-
-        Sudoku sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_1_BOX);
-        Utils.grid(sudoku);
-
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        SkimmingResult result = check(tabs);
-        List<ChangeLog> changeLogs =
-                result.getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(HIDDEN_SINGLE))
-                        .collect(Collectors.toList());
-
-        for (ChangeLog changeLog : changeLogs) {
-            SudokuExplainer.explainChange(changeLog);
-            System.out.println();
-        }
     }
 }

@@ -1,8 +1,8 @@
 package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.solving.techniques.advanced.XYChain;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.techniques.advanced.XYChain;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class ExplainerXYChain {
 
-    public static void explain(ChangeLog changeLog) {
+    public static String explain(ChangeLog changeLog) {
 
 //		String chain = "[";
 //		for (ChangeLogUnitMember unitMember : changeLog.getUnitMembers()) {
@@ -26,26 +26,39 @@ public class ExplainerXYChain {
 //		}
 //		System.out.println("All cells forming the chain " + chain + " are bi-value cells strongly linked with each other");
 
-        System.out.println("All cells forming the following chain are bi-value cells strongly linked with each other:");
-        for (ChangeLogUnitMember unitMember : changeLog.getUnitMembers()) {
-            Link link = (Link) unitMember;
+        StringBuilder sb = new StringBuilder("All cells forming the following chain are bi-value cells strongly linked with each other:\n");
+        changeLog.getUnitMembers().forEach(c -> {
+            Link link = (Link) c;
             String linkString = link.toString().replace('-', '+');
-            System.out.println(linkString);
-        }
-        System.out.println("This ensures that at least one end of the chain contains the candidate " + changeLog.getUnitExamined().get(0) + ".");
-        System.out.println("The following cells see both ends of the chain, so they can't contain " + changeLog.getUnitExamined().get(0) + ".");
-        for (Change change : changeLog.getChanges()) {
-            Skimming skimming = (Skimming) change;
-            System.out.println(SudokuExplainer.getCell(skimming) + " --> CANDIDATES REMAINING " + skimming.getTab().getNumbers() + ", CANDIDATES REMOVED " + skimming.getRemovedCandidates());
-        }
+            sb.append(linkString).append("\n");
+        });
+        sb.append(String.format(
+                "This ensures that at least one end of the chain contains the candidate %s.",
+                changeLog.getUnitExamined().get(0)));
+        sb.append("\n");
+        sb.append(String.format(
+                "The following cells see both ends of the chain, so they can't contain %s.",
+                changeLog.getUnitExamined().get(0)));
+        sb.append("\n");
+        changeLog.getChanges().forEach(c -> {
+            Skimming skimming = (Skimming) c;
+            sb.append(String.format(
+                    "%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
+                    SudokuExplainer.getCell(skimming),
+                    skimming.getTab().getNumbers(),
+                    skimming.getRemovedCandidates()));
+            sb.append("\n");
+        });
+        System.out.println(sb);
+        return sb.toString();
     }
 
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST XY CHAIN -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_1);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_2);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_1);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_2);
         sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_3);
         Utils.grid(sudoku);
 
@@ -58,9 +71,6 @@ public class ExplainerXYChain {
                         .filter(x -> x.getSolvingTechnique().equals(XYChain.XY_CHAIN))
                         .collect(Collectors.toList());
 
-        for (ChangeLog changeLog : changeLogs) {
-            explain(changeLog);
-            System.out.println();
-        }
+        changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
     }
 }

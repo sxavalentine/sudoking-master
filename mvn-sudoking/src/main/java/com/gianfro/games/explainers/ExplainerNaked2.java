@@ -1,8 +1,8 @@
 package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.solving.techniques.Naked2;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.techniques.Naked2;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
@@ -11,17 +11,30 @@ import java.util.stream.Collectors;
 
 public class ExplainerNaked2 {
 
-    public static void explain(ChangeLog changeLog) {
+    public static String explain(ChangeLog changeLog) {
+        StringBuilder sb = new StringBuilder();
         String welcomingUnit = Utils.getWelcomingUnit(changeLog);
-        System.out.println("IN " + welcomingUnit + " THE ONLY CELLS WITH THE PAIR OF CANDIDATES " + changeLog.getUnitExamined() + " ARE THE CELLS:");
-        for (ChangeLogUnitMember tab : changeLog.getUnitMembers()) {
-            System.out.println(tab);
-        }
-        System.out.println("SO I CAN REMOVE " + changeLog.getUnitExamined() + " FROM ALL THE OTHER CELLS OF " + welcomingUnit + ":");
-        for (Change change : changeLog.getChanges()) {
-            Skimming skimming = (Skimming) change;
-            System.out.println(SudokuExplainer.getCell(skimming) + " --> CANDIDATES REMAINING " + skimming.getTab().getNumbers() + ", CANDIDATES REMOVED " + skimming.getRemovedCandidates());
-        }
+        sb.append(String.format(
+                "IN %s THE ONLY CELLS WITH THE PAIR OF CANDIDATES %s ARE THE CELLS:",
+                welcomingUnit,
+                changeLog.getUnitExamined()));
+        sb.append("\n");
+        changeLog.getUnitMembers().forEach(tab -> sb.append(tab).append("\n"));
+        sb.append(String.format(
+                "SO I CAN REMOVE %s FROM ALL THE OTHER CELLS OF %s:",
+                changeLog.getUnitExamined(),
+                welcomingUnit));
+        sb.append("\n");
+        changeLog.getChanges().forEach(c -> {
+            Skimming skimming = (Skimming) c;
+            sb.append(String.format("%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
+                    SudokuExplainer.getCell(skimming),
+                    skimming.getTab().getNumbers(),
+                    skimming.getRemovedCandidates()));
+            sb.append("\n");
+        });
+        System.out.println(sb);
+        return sb.toString();
     }
 
     public static void main(String[] args) {
@@ -40,9 +53,6 @@ public class ExplainerNaked2 {
                         .filter(x -> x.getSolvingTechnique().equals(Naked2.NAKED_PAIR))
                         .collect(Collectors.toList());
 
-        for (ChangeLog changeLog : changeLogs) {
-            explain(changeLog);
-            System.out.println();
-        }
+        changeLogs.forEach(changeLog -> explain(changeLog));
     }
 }

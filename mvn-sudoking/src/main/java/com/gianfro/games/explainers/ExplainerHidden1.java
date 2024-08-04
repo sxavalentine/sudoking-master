@@ -1,8 +1,11 @@
 package com.gianfro.games.explainers;
 
-import com.gianfro.games.entities.*;
-import com.gianfro.games.solving.techniques.Hidden1;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.SolutionStep;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.Tab;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.techniques.Hidden1;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
@@ -11,10 +14,18 @@ import java.util.stream.Collectors;
 
 public class ExplainerHidden1 {
 
-    public static void explain(ChangeLog changeLog) {
-        for (Change change : changeLog.getChanges()) {
-            System.out.println("IN " + Utils.getWelcomingUnit(changeLog) + " THE CELL " + SudokuExplainer.getCell(change) + " IS THE ONLY CELL WITH THE CANDIDATE " + change.getNumber());
-        }
+    public static String explain(ChangeLog changeLog) {
+        StringBuilder sb = new StringBuilder();
+        changeLog.getChanges().forEach(c -> {
+            sb.append(String.format(
+                    "CELL %s IN %s IS THE ONLY CELL WITH THE CANDIDATE %s",
+                    SudokuExplainer.getCell(c),
+                    Utils.getWelcomingUnit(changeLog),
+                    c.getNumber()));
+            sb.append("\n");
+        });
+        System.out.println(sb);
+        return sb.toString();
     }
 
     public static void main(String[] args) {
@@ -32,9 +43,6 @@ public class ExplainerHidden1 {
                         .filter(x -> x.getSolvingTechnique().equals(Hidden1.HIDDEN_SINGLE))
                         .collect(Collectors.toList());
 
-        for (ChangeLog changeLog : changeLogs) {
-            explain(changeLog);
-            System.out.println();
-        }
+        changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
     }
 }

@@ -1,8 +1,6 @@
-package com.gianfro.games.solving.techniques;
+package com.gianfro.games.techniques;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.explainers.SudokuExplainer;
-import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.*;
@@ -84,26 +82,5 @@ public class Naked2 {
             System.out.println("Exception in NAKED PAIR " + house + ": " + e.getMessage());
         }
         return new SkimmingResult(tabs, changeLogs);
-    }
-
-    public static void main(String[] args) {
-        System.out.println("------------------------------------- TEST NAKED PAIRS:  -----------------------------------------");
-
-        Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_2_ALL);
-        Utils.grid(sudoku);
-
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        SkimmingResult result = check(tabs);
-        List<ChangeLog> changeLogs =
-                result.getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(NAKED_PAIR))
-                        .collect(Collectors.toList());
-
-        for (ChangeLog changeLog : changeLogs) {
-            SudokuExplainer.explainChange(changeLog);
-            System.out.println();
-        }
     }
 }

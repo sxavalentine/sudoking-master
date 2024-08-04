@@ -3,12 +3,14 @@ package com.gianfro.games.entities;
 import com.gianfro.games.utils.Utils;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
 @Data
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Skimming extends Change {
 
     Tab tab;
@@ -25,9 +27,9 @@ public class Skimming extends Change {
         return
                 this.getSolvingTechnique() + " " +
                         (this.getHouse() != null ? " " + this.getHouse() : "") + ": " +
-                        Utils.ROWS_LETTERS.get(this.getRow() - 1) + this.getCol()
-                        + ", candidates: " + this.tab.getNumbers()
-                        + ", candidates removed: " + this.getRemovedCandidates();
+                        Utils.ROWS_LETTERS.get(this.getRow() - 1) + this.getCol() +
+                        ", candidates: " + this.tab.getNumbers() +
+                        ", candidates removed: " + this.getRemovedCandidates();
     }
 
     @Override

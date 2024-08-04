@@ -1,4 +1,4 @@
-package com.gianfro.games.solving.techniques.advanced;
+package com.gianfro.games.techniques.advanced;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.utils.SudokuList;
@@ -119,27 +119,26 @@ public class XWing {
     }
 
     /**
-     * Given a list of list of tabs and an N number, returns all the possible tuples of N elements obtainable with that set
+     * Given a list of lists of tabs and an N number, returns all the possible tuples of N elements obtainable with that set
      */
     private static List<List<List<Tab>>> findAllPossibleTabsTuples(List<List<Tab>> tabsList, int n) {
-        List<List<List<Tab>>> subsets =
-                Generator
-                        .combination(tabsList)
-                        .simple(n)
-                        .stream()
-                        .collect(Collectors.<List<List<Tab>>>toList());
-        return subsets;
+        return Generator
+                .combination(tabsList)
+                .simple(n)
+                .stream()
+                .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {
         System.out.println("------------------------------------- TEST X WING -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_X_WING_ROW);
+//        sudoku = Utils.buildSudoku(SudokuList.TEST_X_WING_ROW);
         sudoku = Utils.buildSudoku(SudokuList.TEST_X_WING_COL);
 
-        Utils.grid(sudoku);
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
+        Utils.megaGrid(sudoku, tabs);
+
         SkimmingResult result = check(tabs);
         Utils.printChangeLogs(result);
     }

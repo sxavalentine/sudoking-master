@@ -16,4 +16,6 @@ public interface SudokuService {
     List<Tab> getSudokuTabs(String stringNumbers);
 
     SolutionOutput findSolutionByStartingNumbers(String startingNumbers);
+
+    List<SolutionOutput> solveUnsolvableSudokus();
 }

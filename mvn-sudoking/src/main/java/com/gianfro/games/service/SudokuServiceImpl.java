@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class SudokuServiceImpl implements SudokuService {
@@ -50,7 +51,7 @@ public class SudokuServiceImpl implements SudokuService {
         } catch (NoFiftyFiftyException nffe) {
             System.out.println("THERE ARE NO CELLS WITH ONLY 2 OR LESS CANDIDATES");
             No5050Entity no5050Entity = new No5050Entity(sudoku, nffe);
-            no5050Repository.insert(no5050Entity);
+            this.no5050Repository.insert(no5050Entity);
             throw nffe;
 //            Utils.grid(nffe.getSudokuAtTheTimeOfException());
 //            for (Tab tab : nffe.getTabs()) {
@@ -132,7 +133,29 @@ public class SudokuServiceImpl implements SudokuService {
 
     @Override
     public SolutionOutput findSolutionByStartingNumbers(String startingNumbers) {
-        return sudokuSolutionsRepository.findByStartingNumbers(startingNumbers);
+        return this.sudokuSolutionsRepository.findByStartingNumbers(startingNumbers);
+    }
+
+    @Override
+    public List<SolutionOutput> solveUnsolvableSudokus() {
+        List<UnsolvableError> unsolvableErrorList = this.unsolvableErrorRepository.findAll();
+        List<SolutionOutput> solutions = new LinkedList<>();
+        AtomicInteger counter = new AtomicInteger();
+        AtomicInteger unsolvable = new AtomicInteger();
+        unsolvableErrorList.forEach(x -> {
+            try {
+                Sudoku s = Utils.buildSudoku(x.getImpasseNumbers());
+                solutions.add(SudokuSolver.getSolution(s));
+                counter.getAndIncrement();
+            } catch (UnsolvableException ue) {
+                System.out.println("UNSOLVABLE");
+                Utils.megaGrid(ue.getBlockedSudoku());
+                unsolvable.getAndIncrement();
+            }
+        });
+        System.out.println("RISOLTI: " + counter.get() + " SU 3920");
+        System.out.println("BLOCCATI: " + unsolvable.get() + " SU 3920");
+        return solutions;
     }
 
 

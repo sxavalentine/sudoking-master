@@ -19,11 +19,11 @@ public class FiftyFifty {
 
         List<ChangeLog> changeLogs = new LinkedList<>();
         List<Tab> bivalueCells = tabs.stream().filter(tab -> tab.getNumbers().size() == 2).collect(Collectors.toList());
-        Tab bivalueCell = null;
+        Tab bivalueCell;
         try {
             int index = 0; // TODO in futuro si potrebbe fare che prova tutte le possibili caselle 5050 se la prima (come ora, con l'indice fisso a 0) non porta a risultati
             bivalueCell = bivalueCells.get(index);
-        } catch (IndexOutOfBoundsException ioobe) {
+        } catch (IndexOutOfBoundsException ex) {
             NoFiftyFiftyException nffe = new NoFiftyFiftyException(sudoku, tabs);
             nffe.getMessage();
             throw nffe;
@@ -40,7 +40,7 @@ public class FiftyFifty {
 
         if (attemptResult.change != null) {
             Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionA);
-            ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Arrays.asList(fiftyFiftyChange));
+            ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
             changeLogs.add(log);
             ///
 //			System.out.println("------------------------------------------------------------------------------------------------------------------");
@@ -52,7 +52,7 @@ public class FiftyFifty {
         } else if (attemptResult.bugs != null) {
             if (cyclesCount == 1) {
                 Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Arrays.asList(fiftyFiftyChange));
+                ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
                 changeLogs.add(log);
                 ///
 //				System.out.println("------------------------------------------------------------------------------------------------------------------");
@@ -72,7 +72,7 @@ public class FiftyFifty {
 
                 if (attempt2.change != null) {
                     Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                    ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Arrays.asList(fiftyFiftyChange));
+                    ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
                     changeLogs.add(log);
                     ///
 //					System.out.println("------------------------------------------------------------------------------------------------------------------");
@@ -99,21 +99,20 @@ public class FiftyFifty {
 //					System.out.println("SIAMO AL CICLO NUMERO " + cyclesCount);
 //					System.out.println("ANCHE CON L'OPZIONE B " + optionB + " NELLA CASELLA " + speculationRow + ", " + speculationCol + " NON HA PORTATO A UNA MAZZA");
 //					System.out.println("QUESTA ERA LA GRIGLIA CHE SI ERA VENUTA A FORMARE");
-//					Utils.grid(farestPoint);
-//					System.out.println("PERTANTO ORA RI-APPLICO UN FIFTY FIFTY ALL'INTERNO DEL FIFTY FIFTY");
+//					Utils.grid(furthestPoint);
+//					System.out.println("PERTANTO ORA RI-APPLICO UN FIFTY-FIFTY ALL'INTERNO DEL FIFTY-FIFTY");
                     ///
                     cyclesCount++;
-                    Sudoku farestPoint = attempt2.sudokuDuringAttempt;
-                    List<ChangeLog> recursiveResults = new ArrayList<>();
-                    List<Tab> basicTabs = Utils.getBasicTabs(farestPoint);
-                    List<Tab> tabsFarestPoint = SudokuSolver.useStandardSolvingTechniques(farestPoint, basicTabs).getTabs();
-                    SolutionStep fiftyFiftyResults = check(farestPoint, tabsFarestPoint, cyclesCount);
-                    recursiveResults.addAll(fiftyFiftyResults.getChangeLogs());
+                    Sudoku furthestPoint = attempt2.sudokuDuringAttempt;
+                    List<Tab> basicTabs = Utils.getBasicTabs(furthestPoint);
+                    List<Tab> tabsFurthestPoint = SudokuSolver.useStandardSolvingTechniques(furthestPoint, basicTabs).getTabs();
+                    SolutionStep fiftyFiftyResults = check(furthestPoint, tabsFurthestPoint, cyclesCount);
+                    List<ChangeLog> recursiveResults = new ArrayList<>(fiftyFiftyResults.getChangeLogs());
 
                     if (!recursiveResults.contains(null)) {
                         changeLogs.addAll(recursiveResults);
                         Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                        ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Arrays.asList(fiftyFiftyChange));
+                        ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
                         changeLogs.add(log);
                     } else {
                         changeLogs.add(null);
@@ -121,32 +120,31 @@ public class FiftyFifty {
                 }
             }
         } else {
-            Sudoku farestPoint = attemptResult.sudokuDuringAttempt;
+            Sudoku furthestPoint = attemptResult.sudokuDuringAttempt;
             ///
 //			System.out.println("------------------------------------------------------------------------------------------------------------------");
 //			System.out.println("SIAMO AL CICLO NUMERO " + cyclesCount);
 //			System.out.println("NON HO RISOLTO UNA MAZZA");
 //			System.out.println("PER ORA IL MIO TENTATIVO ERA STATO INSERIRE " + optionA + " NELLA CASELLA " + speculationRow + ", " + speculationCol);
 //			System.out.println("QUESTA ERA LA GRIGLIA CHE SI ERA VENUTA A FORMARE");
-//			Utils.grid(farestPoint);
-//			System.out.println("PERTANTO ORA RI-APPLICO UN FIFTY FIFTY ALL'INTERNO DEL FIFTY FIFTY");
+//			Utils.grid(furthestPoint);
+//			System.out.println("PERTANTO ORA RI-APPLICO UN FIFTY-FIFTY ALL'INTERNO DEL FIFTY-FIFTY");
             ///
             cyclesCount++;
-            List<Tab> basicTabs = Utils.getBasicTabs(farestPoint);
-            List<Tab> tabsFarestPoint = SudokuSolver.useStandardSolvingTechniques(farestPoint, basicTabs).getTabs();
-            SolutionStep fiftyFiftyResults = check(farestPoint, tabsFarestPoint, cyclesCount);
-            List<ChangeLog> recursiveResults = new ArrayList<>();
+            List<Tab> basicTabs = Utils.getBasicTabs(furthestPoint);
+            List<Tab> tabsFurthestPoint = SudokuSolver.useStandardSolvingTechniques(furthestPoint, basicTabs).getTabs();
+            SolutionStep fiftyFiftyResults = check(furthestPoint, tabsFurthestPoint, cyclesCount);
 
-            recursiveResults.addAll(fiftyFiftyResults.getChangeLogs());
+            List<ChangeLog> recursiveResults = new ArrayList<>(fiftyFiftyResults.getChangeLogs());
             if (!recursiveResults.contains(null)) {
                 changeLogs.addAll(recursiveResults);
                 Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionA);
-                ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Arrays.asList(fiftyFiftyChange));
+                ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
                 changeLogs.add(log);
             } else {
                 if (cyclesCount == 2) {
                     Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                    ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Arrays.asList(fiftyFiftyChange));
+                    ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
                     changeLogs.add(log);
                 } else {
                     List<Integer> hypotheticalSequenceNumbers2 = new ArrayList<>(sudoku.getNumbers());
@@ -157,23 +155,22 @@ public class FiftyFifty {
 
                     if (attempt2.change != null) {
                         Change fiftyFiftyChange2 = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                        ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Arrays.asList(fiftyFiftyChange2));
+                        ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange2));
                         changeLogs.add(log);
                     } else if (attempt2.bugs != null) {
                         changeLogs.add(null);
                     } else {
                         cyclesCount++;
-                        Sudoku farestPoint2 = attempt2.sudokuDuringAttempt;
-                        List<Tab> basicTabs2 = Utils.getBasicTabs(farestPoint);
-                        List<Tab> tabsFarestPoint2 = SudokuSolver.useStandardSolvingTechniques(farestPoint2, basicTabs2).getTabs();
-                        SolutionStep fiftyFiftyResult2 = check(farestPoint2, tabsFarestPoint2, cyclesCount);
-                        List<ChangeLog> recursiveResults2 = new ArrayList<>();
-                        recursiveResults2.addAll(fiftyFiftyResult2.getChangeLogs());
+                        Sudoku furthestPoint2 = attempt2.sudokuDuringAttempt;
+                        List<Tab> basicTabs2 = Utils.getBasicTabs(furthestPoint);
+                        List<Tab> tabsFurthestPoint2 = SudokuSolver.useStandardSolvingTechniques(furthestPoint2, basicTabs2).getTabs();
+                        SolutionStep fiftyFiftyResult2 = check(furthestPoint2, tabsFurthestPoint2, cyclesCount);
+                        List<ChangeLog> recursiveResults2 = new ArrayList<>(fiftyFiftyResult2.getChangeLogs());
 
                         if (!recursiveResults2.contains(null)) {
                             changeLogs.addAll(recursiveResults2);
                             Change fiftyFiftyChange2 = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                            ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Arrays.asList(fiftyFiftyChange2));
+                            ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange2));
                             changeLogs.add(log);
                         } else {
                             changeLogs.add(null);
@@ -199,20 +196,17 @@ public class FiftyFifty {
 
         if (!bugs.isEmpty()) {
             attemptResult.setBugs(bugs);
-            ///
 //			System.out.println("I FOUND THE FOLLOWING ERRORS");
 //			Utils.grid(attempt);
 //			for (String bug : bugs) {
 //				System.out.println(bug);
 //			}
-            ///
         } else {
             if (Collections.frequency(attempt.getNumbers(), 0) == 0) {
                 attemptResult.setChange(new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, option));
             } else {
-                List<ChangeLog> changeLogs = new LinkedList<>();
 
-                changeLogs.addAll(standardTechniquesOnly.getChangeLogs());
+                List<ChangeLog> changeLogs = new LinkedList<>(standardTechniquesOnly.getChangeLogs());
 
                 int deductionsCount = 0;
                 for (ChangeLog changeLog : changeLogs) {
@@ -226,10 +220,8 @@ public class FiftyFifty {
                 if (deductionsCount == 0) {
                     deductionsCount += changeLogs.addAll(ControlloTerzettiRighe.check(attempt)) ? 1 : 0;
                     deductionsCount += changeLogs.addAll(ControlloTerzettiColonne.check(attempt)) ? 1 : 0;
-                    ///
 //					Utils.grid(attempt);
 //					Utils.printSkimmedTabs(attempt, tabs);
-                    ///
                 }
 
                 if (deductionsCount > 0) {

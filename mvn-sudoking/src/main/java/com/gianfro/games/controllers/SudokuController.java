@@ -59,4 +59,9 @@ public class SudokuController {
     public SolutionOutput findByStartingNumbers(@NotNull @RequestBody String startingNumbers) {
         return this.sudokuService.findSolutionByStartingNumbers(startingNumbers);
     }
+
+    @GetMapping(value = "/solveUnsolvableSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<SolutionOutput> solveUnsolvableSudokus() {
+        return this.sudokuService.solveUnsolvableSudokus();
+    }
 }

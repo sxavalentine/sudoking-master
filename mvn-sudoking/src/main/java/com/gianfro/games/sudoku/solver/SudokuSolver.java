@@ -55,7 +55,7 @@ public class SudokuSolver {
                 }
 
                 if (deductionsCount == 0) {
-                    solutionStep = SudokuSolver.useAdvancedTechniques(sudoku, tabs);
+                    solutionStep = SudokuSolver.useAdvancedSolvingTechniques(sudoku, tabs);
                     changeLogs.addAll(solutionStep.getChangeLogs());
                     tabs = solutionStep.getTabs();
 
@@ -67,12 +67,6 @@ public class SudokuSolver {
                         }
                     }
                 }
-
-                //            if (deductionsCount == 0) {
-                //                deductionsCount += changeLogs.addAll(ControlloTerzettiRighe.check(step)) ? 1 : 0;
-                //                deductionsCount += changeLogs.addAll(ControlloTerzettiColonne.check(step)) ? 1 : 0;
-                //            }
-
                 if (deductionsCount > 0) {
                     for (ChangeLog changeLog : changeLogs) {
                         for (Change change : changeLog.getChanges()) {
@@ -89,24 +83,22 @@ public class SudokuSolver {
                     result.addAll(solutionSteps);
                 } else {
                     throw new UnsolvableException(null, sudoku, result, tabs, "");
-                    //                ///
-                    //                System.out.println("------------------------------------------------------------------------------------------------------------------");
-                    //                System.out.println("I'm about to call method FIFTY-FIFTY, the grid is");
-                    //                Utils.megaGrid(step, tabs);
-                    //                ///
-                    //                SolutionStep firstCallToTryFiftyFifty = FiftyFifty.check(step, tabs, 1);
-                    //                for (Change change : firstCallToTryFiftyFifty.getChanges()) {
-                    //                    if (!(change instanceof Skimming)) {
-                    //                        change.setSolvingTechnique(FiftyFifty.FIFTY_FIFTY);
-                    //                        ChangeLog log = new ChangeLog(null, null, 0, null, FiftyFifty.FIFTY_FIFTY, null, Arrays.asList(change));
-                    //                        changeLogs.add(log);
-                    //                        mutation = Utils.setDeductedNumber(mutation, change);
-                    //                    }
-                    //                }
-                    //                Sudoku nextStep = new Sudoku(mutation);
-                    //                result.add(new SolutionStep(step, changeLogs, tabs));
-                    //                List<SolutionStep> solutionSteps = solve(nextStep);
-                    //                result.addAll(solutionSteps);
+//                    System.out.println("------------------------------------------------------------------------------------------------------------------");
+//                    System.out.println("I'm about to call method FIFTY-FIFTY, the grid is");
+//                    Utils.megaGrid(step, tabs);
+//                    SolutionStep firstCallToTryFiftyFifty = FiftyFifty.check(step, tabs, 1);
+//                    for (Change change : firstCallToTryFiftyFifty.getChanges()) {
+//                        if (!(change instanceof Skimming)) {
+//                            change.setSolvingTechnique(FiftyFifty.FIFTY_FIFTY);
+//                            ChangeLog log = new ChangeLog(null, null, 0, null, FiftyFifty.FIFTY_FIFTY, null, Collections.singletonList(change));
+//                            changeLogs.add(log);
+//                            mutation = Utils.setDeductedNumber(mutation, change);
+//                        }
+//                    }
+//                    Sudoku nextStep = new Sudoku(mutation);
+//                    result.add(new SolutionStep(step, changeLogs, tabs));
+//                    List<SolutionStep> solutionSteps = solve(nextStep, false);
+//                    result.addAll(solutionSteps);
                 }
             } catch (UnsolvableException ue) {
                 String message = isFirstIteration ? "This Sudoku can't be solved by pure logic" : "";
@@ -155,7 +147,7 @@ public class SudokuSolver {
     }
 
 
-    private static SolutionStep useAdvancedTechniques(Sudoku sudoku, List<Tab> tabs) {
+    private static SolutionStep useAdvancedSolvingTechniques(Sudoku sudoku, List<Tab> tabs) {
         SkimmingResult result;
 
         // X WING
@@ -198,7 +190,9 @@ public class SudokuSolver {
     }
 
 
-    // shows Sudoku solution
+    /**
+     * Shows Sudoku solution
+     */
     public static List<Integer> showSolution(Sudoku sudoku) {
         List<SolutionStep> allSteps = solve(sudoku, true);
         SolutionStep finalStep = allSteps.get(allSteps.size() - 1);
@@ -209,7 +203,9 @@ public class SudokuSolver {
     }
 
 
-    // shows solution steps and the solving techniques used
+    /**
+     * Shows solution steps and the solving techniques used
+     */
     public static void showStepsAndTechniques(Sudoku sudoku) {
         SolutionOutput solutionOutput = getSolution(sudoku);
         List<SolutionStep> solution = solutionOutput.getSolutionSteps();

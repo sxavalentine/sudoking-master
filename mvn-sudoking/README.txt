@@ -1,83 +1,298 @@
-SudokuController chiama il metodo solveSudoku di SudokuService
-SudokuService chiama il metodo getSolution di SudokuSolver per ottenere un SolutionOutput
+SudoKing is an application that not only can solve most of Sudokus grids, but for every Sudoku solved is able to generate a step by step explanation of the solution process,
+telling which solving tecnique it's been used for that specific step and generating a written explanation.
+The results are then stored into a MongoDB collection, and so are the errors of those that couldn't be solved.
+To test it, i used a txt file containing 49.151 Sudoku (each line representing a different grid).
+They are all MINIMAL SUDOKUS (grids with only 17 starting digits: according to an MIT study, 17 is the minimum number of digits needed to be solvable AND have only a possible solution).
+So far the program can solve 45.231 of them in about 10 minutes (11 milliseconds per grid)
+It's still a work in progress (many techniques are hard to implement and test), but so far it can solve most of them (only 3920 that should be done once the new techniques are implemented).
+Here is an example of a SolutionOutput.
 
-La collezione di chiamate Postman con cui testare l'applicativo si può trovare al seguente link:
-https://winter-zodiac-86017.postman.co/workspace/CLZ~0f499c32-aec5-41be-ab6c-c30b8f49520f/collection/9138070-d3fc34a9-2ae7-4afd-98e8-ced0c687d838?action=share&creator=9138070
+---------- STEP 1 ----------
+    1 2 3   4 5 6   7 8 9
+  +-------+-------+-------+
+A | 6 8 7 |     4 | 5 2 3 |
+B | 9 5 3 |     2 | 6 1 4 |
+C | 1 4 2 | 3 5 6 | 9 7 8 |
+  +-------+-------+-------+
+D | 3 1   |     7 | 2 4 6 |
+E | 7 6   |       | 3   5 |
+F |   2   |       | 7   1 |
+  +-------+-------+-------+
+G |   9 6 |     1 |   3 2 |
+H | 2 3   |       |   5 7 |
+I |   7   |       |   6 9 |
+  +-------+-------+-------+
+# NAKED PAIR
+IN COL 6 THE ONLY CELLS WITH THE PAIR OF CANDIDATES [8, 9] ARE THE CELLS:
+E6, [8, 9]
+H6, [8, 9]
+SO I CAN REMOVE [8, 9] FROM ALL THE OTHER CELLS OF COL 6:
+I6 --> CANDIDATES REMAINING: [3, 5]; CANDIDATES REMOVED: [8]
 
------------------------------------------- SolutionOutput ---------------------------------------------------------------------
-Entità che rappresenta la soluzione di un Sudoku.
-Contiene i seguenti campi:
-- numeri iniziali sudoku
-- numeri finali sudoku (una volta risolto)
-- millisecondi impiegati a risolverlo
-- numero di cifre iniziali del sudoku
-- numero di passaggi per la sua risoluzione
-- lista di SolutionStep per risolverlo (IMPORTANTISSIMA)
+# NAKED PAIR
+IN BOX 5 THE ONLY CELLS WITH THE PAIR OF CANDIDATES [8, 9] ARE THE CELLS:
+D5, [8, 9]
+E6, [8, 9]
+SO I CAN REMOVE [8, 9] FROM ALL THE OTHER CELLS OF BOX 5:
+D4 --> CANDIDATES REMAINING: [5]; CANDIDATES REMOVED: [8, 9]
+E4 --> CANDIDATES REMAINING: [1, 2]; CANDIDATES REMOVED: [8, 9]
+E5 --> CANDIDATES REMAINING: [1, 2]; CANDIDATES REMOVED: [8, 9]
+F4 --> CANDIDATES REMAINING: [4, 6]; CANDIDATES REMOVED: [8, 9]
+F5 --> CANDIDATES REMAINING: [4, 6]; CANDIDATES REMOVED: [8, 9]
+F6 --> CANDIDATES REMAINING: [3, 5]; CANDIDATES REMOVED: [8, 9]
 
-Il metodo getSolution costruisce il SolutionOutput invocando il metodo privato solve di SudokuSolver per produrre la lista di SolutionStep.
+# NAKED PAIR
+IN ROW E THE ONLY CELLS WITH THE PAIR OF CANDIDATES [8, 9] ARE THE CELLS:
+E6, [8, 9]
+E8, [8, 9]
+SO I CAN REMOVE [8, 9] FROM ALL THE OTHER CELLS OF ROW E:
+E3 --> CANDIDATES REMAINING: [4]; CANDIDATES REMOVED: [8, 9]
 
--------------------------------------------- SolutionStep --------------------------------------------------------------------
-Entità che rappresenta un passaggio risolutivo di un Sudoku data la sua configurazione attuale
-(numeri presenti al momento e tabulati delle celle ancora da riempire), elenca tutte le deduzioni che si possono fare su quell'istanza.
+# HIDDEN PAIR
+IN BOX 5 THE PAIR OF CANDIDATES [1, 2] APPEARS ONLY IN THE CELLS:
+E4, [1, 2]
+E5, [1, 2]
+SO I CAN REMOVE ALL THE OTHER CANDIDATES FROM THOSE CELLS:
+E4 --> CANDIDATES REMAINING: [1, 2]; CANDIDATES REMOVED: [4]
+E5 --> CANDIDATES REMAINING: [1, 2]; CANDIDATES REMOVED: [4]
 
+# HIDDEN PAIR
+IN ROW D THE PAIR OF CANDIDATES [8, 9] APPEARS ONLY IN THE CELLS:
+D3, [8, 9]
+D5, [8, 9]
+SO I CAN REMOVE ALL THE OTHER CANDIDATES FROM THOSE CELLS:
+D3 --> CANDIDATES REMAINING: [8, 9]; CANDIDATES REMOVED: [5]
 
-Un SolutionStep contiene i seguenti campi:
-- sudokuInstance --> l'oggetto Sudoku (con relative proprietà) di quel passaggio
-- sudokuNumbers  --> la stringa contenente la sequenza numerica del Sudoku in quello specifico passaggio
-- changeLogs     --> lista di ChangeLogs (verranno meglio definiti più sotto)
-- changes        --> lista di Changes (verranno meglio definiti più sotto)
-- tabs           --> lista di Tab (verranno meglio definiti più sotto)
+# HIDDEN TRIPLE
+IN BOX 4 THE TRIO OF CANDIDATES [5, 8, 9] APPEARS ONLY IN THE CELLS:
+D3, [8, 9]
+F1, [5, 8]
+F3, [5, 8, 9]
+SO I CAN REMOVE ALL THE OTHER CANDIDATES FROM THOSE CELLS:
+F1 --> CANDIDATES REMAINING: [5, 8]; CANDIDATES REMOVED: [4]
+F3 --> CANDIDATES REMAINING: [5, 8, 9]; CANDIDATES REMOVED: [4]
 
---------------------------------------------- ChangeLog ---------------------------------------------------------------------
+# HIDDEN QUAD
+IN BOX 5 THE QUADRUPLE OF CANDIDATES [1, 2, 4, 6] APPEARS ONLY IN THE CELLS:
+E4, [1, 2]
+E5, [1, 2]
+F4, [4, 6]
+F5, [4, 6]
+SO I CAN REMOVE ALL THE OTHER CANDIDATES FROM THOSE CELLS:
+F4 --> CANDIDATES REMAINING: [4, 6]; CANDIDATES REMOVED: [5]
+F5 --> CANDIDATES REMAINING: [4, 6]; CANDIDATES REMOVED: [3]
 
-Entità che rappresenta un insieme di uno o più cambiamenti da apportare al Sudoku in seguito a una deduzione.
-Contiene i seguenti campi:
-- unitExamined              --> lista di numeri (più frequentemente sarà una lista con un solo elemento) esaminati per quella deduzione
-- house                     --> la casa (riga, colonna o box) presa in considerazione per tale deduzione. Può essere null (tecnica Naked1 ad esempio)
-- houseNumber               --> il numero di tale casa (es: riga 2, colonna 4, box 9)
-- unitMembers               --> lista di ChangeLogUnitMember che sono stati esaminati per quella deduzione (meglio definiti più sotto)
-- solvingTechnique          --> la tecnica risolutiva usata per tale deduzione
-- solvingTechniqueVariant   --> eventuale variante della tecnica risolutiva applicata (null nella maggior parte dei casi)
-- changes                   --> la lista di cambiamenti da apportare al sudoku in base a tale deduzione.
+# HIDDEN QUAD
+IN COL 3 THE QUADRUPLE OF CANDIDATES [1, 5, 8, 9] APPEARS ONLY IN THE CELLS:
+D3, [8, 9]
+F3, [5, 8, 9]
+H3, [1, 8]
+I3, [1, 5, 8]
+SO I CAN REMOVE ALL THE OTHER CANDIDATES FROM THOSE CELLS:
+H3 --> CANDIDATES REMAINING: [1, 8]; CANDIDATES REMOVED: [4]
+I3 --> CANDIDATES REMAINING: [1, 5, 8]; CANDIDATES REMOVED: [4]
 
---------------------------------------------- Change ---------------------------------------------------------------------
+# HIDDEN SINGLE
+CELL I5 IN COL 5 IS THE ONLY CELL WITH THE CANDIDATE 3
 
-Entità che rappresenta un cambiamento da apportare al Sudoku in seguito alla deduzione di un numero (o una serie di candidati da scartare).
-Contiene i segenti campi:
-- String solvingTechnique --> la tecnica usata per tale deduzione
-- House house             --> la casa (riga, colonna o box) che si è presa in considerazione. Può essere null
-- int row                 --> il numero della riga dove andrà apportato il cambiamento
-- int col                 --> il numero della colonna dove andrà apportato il cambiamento
-- int number              --> il numero da settare con le coordinate di riga e colonna
+# NAKED SINGLE
+IN CELL D4 NUMBER 5 IS THE ONLY CANDIDATE LEFT
 
-La classe Change viene estesa dalla sottoclasse Skimming (scrematura).
-Tale classe non rappresenta un nuovo numero dedotta da inserire nel Sudoku, bensì dei candidati scartati dai tabs di una cella.
-Contiene i seguenti campi:
-- tab               --> il nuovo tab della cella, con i restanti candidati
-- removedCandidates --> la lista di candidati scartati dalla cella
+# NAKED SINGLE
+IN CELL E3 NUMBER 4 IS THE ONLY CANDIDATE LEFT
 
---------------------------------------------- Tab ---------------------------------------------------------------------
+# HIDDEN SINGLE
+CELL F6 IN BOX 5 IS THE ONLY CELL WITH THE CANDIDATE 3
 
-Entità che rappresenta la lista di possibili candidati di una singola cella del Sudoku.
-Contiene i seguenti campi:
-- int box                   --> numero di box a cui appartiene la cella
-- int row                   --> numero di riga a cui appartiene la cella
-- int col                   --> numero di colonna a cui appartiene la cella
-- List<Integers> numbers    --> i numeri che una cella può ancora potenzialmente ospitare
+---------- STEP 2 ----------
+    1 2 3   4 5 6   7 8 9
+  +-------+-------+-------+
+A | 6 8 7 |     4 | 5 2 3 |
+B | 9 5 3 |     2 | 6 1 4 |
+C | 1 4 2 | 3 5 6 | 9 7 8 |
+  +-------+-------+-------+
+D | 3 1   | 5   7 | 2 4 6 |
+E | 7 6 4 |       | 3   5 |
+F |   2   |     3 | 7   1 |
+  +-------+-------+-------+
+G |   9 6 |     1 |   3 2 |
+H | 2 3   |       |   5 7 |
+I |   7   |   3   |   6 9 |
+  +-------+-------+-------+
+# HIDDEN SINGLE
+CELL I4 IN BOX 8 IS THE ONLY CELL WITH THE CANDIDATE 2
 
------------------------------------- Modalità di risoluzione ----------------------------------------------------------------
+# HIDDEN SINGLE
+CELL I6 IN BOX 8 IS THE ONLY CELL WITH THE CANDIDATE 5
 
-Definiti questi termini, spieghiamo come avviene la risoluzione effettiva del sudoku.
-Il suddetto metodo solve prova inizialmente con le tecniche risolutive più elementari (NakedSingle e HiddenSingle).
-Se riesce a dedurre qualcosa, inserisce i nuovi numeri, crea un nuovo oggetto Sudoku con l'aggiunta dei nuovi numeri dedotti e invoca
-ricorsivamente il metodo solve su di esso finchè tutti i numeri non vengono dedotti.
-Quando NakedSingle e HiddenSingle non riescono a produrre risultati, ricorre allora alle altre tecniche base (Pointing e Claiming Candidates, Hidden e Naked Pair, Triple, Quadruple).
+# HIDDEN SINGLE
+CELL G1 IN ROW G IS THE ONLY CELL WITH THE CANDIDATE 5
 
-Quando si applica una tecnica risolutiva, viene invocato il metodo check(List<Tab> tabs) di essa.
-TUTTE le tecniche risolutive si basano sui tabs, ovvero la lista di potenziali candidati di ogni cella ancora non valorizzata del Sudoku.
-Il metodo check restituisce un oggetto SkimmingResult (una scrematura) con i seguenti campi:
-- tabs      --> lista dei nuovi tabs (con eventuali candidati scartati)
-- changelos --> lista dei changelogs prodotti dalla tecnica risolutiva
+# HIDDEN SINGLE
+CELL E5 IN COL 5 IS THE ONLY CELL WITH THE CANDIDATE 2
 
+---------- STEP 3 ----------
+    1 2 3   4 5 6   7 8 9
+  +-------+-------+-------+
+A | 6 8 7 |     4 | 5 2 3 |
+B | 9 5 3 |     2 | 6 1 4 |
+C | 1 4 2 | 3 5 6 | 9 7 8 |
+  +-------+-------+-------+
+D | 3 1   | 5   7 | 2 4 6 |
+E | 7 6 4 |   2   | 3   5 |
+F |   2   |     3 | 7   1 |
+  +-------+-------+-------+
+G | 5 9 6 |     1 |   3 2 |
+H | 2 3   |       |   5 7 |
+I |   7   | 2 3 5 |   6 9 |
+  +-------+-------+-------+
+# NAKED SINGLE
+IN CELL F1 NUMBER 8 IS THE ONLY CANDIDATE LEFT
 
+# HIDDEN SINGLE
+CELL F3 IN BOX 4 IS THE ONLY CELL WITH THE CANDIDATE 5
 
+# HIDDEN SINGLE
+CELL E4 IN BOX 5 IS THE ONLY CELL WITH THE CANDIDATE 1
+
+# HIDDEN SINGLE
+CELL I1 IN BOX 7 IS THE ONLY CELL WITH THE CANDIDATE 4
+
+# HIDDEN SINGLE
+CELL A5 IN COL 5 IS THE ONLY CELL WITH THE CANDIDATE 1
+
+---------- STEP 4 ----------
+    1 2 3   4 5 6   7 8 9
+  +-------+-------+-------+
+A | 6 8 7 |   1 4 | 5 2 3 |
+B | 9 5 3 |     2 | 6 1 4 |
+C | 1 4 2 | 3 5 6 | 9 7 8 |
+  +-------+-------+-------+
+D | 3 1   | 5   7 | 2 4 6 |
+E | 7 6 4 | 1 2   | 3   5 |
+F | 8 2 5 |     3 | 7   1 |
+  +-------+-------+-------+
+G | 5 9 6 |     1 |   3 2 |
+H | 2 3   |       |   5 7 |
+I | 4 7   | 2 3 5 |   6 9 |
+  +-------+-------+-------+
+# NAKED SINGLE
+IN CELL A4 NUMBER 9 IS THE ONLY CANDIDATE LEFT
+
+# NAKED SINGLE
+IN CELL D3 NUMBER 9 IS THE ONLY CANDIDATE LEFT
+
+# NAKED SINGLE
+IN CELL F8 NUMBER 9 IS THE ONLY CANDIDATE LEFT
+
+# HIDDEN SINGLE
+CELL E8 IN BOX 6 IS THE ONLY CELL WITH THE CANDIDATE 8
+
+# HIDDEN SINGLE
+CELL D5 IN ROW D IS THE ONLY CELL WITH THE CANDIDATE 8
+
+---------- STEP 5 ----------
+    1 2 3   4 5 6   7 8 9
+  +-------+-------+-------+
+A | 6 8 7 | 9 1 4 | 5 2 3 |
+B | 9 5 3 |     2 | 6 1 4 |
+C | 1 4 2 | 3 5 6 | 9 7 8 |
+  +-------+-------+-------+
+D | 3 1 9 | 5 8 7 | 2 4 6 |
+E | 7 6 4 | 1 2   | 3 8 5 |
+F | 8 2 5 |     3 | 7 9 1 |
+  +-------+-------+-------+
+G | 5 9 6 |     1 |   3 2 |
+H | 2 3   |       |   5 7 |
+I | 4 7   | 2 3 5 |   6 9 |
+  +-------+-------+-------+
+# NAKED SINGLE
+IN CELL B5 NUMBER 7 IS THE ONLY CANDIDATE LEFT
+
+# NAKED SINGLE
+IN CELL E6 NUMBER 9 IS THE ONLY CANDIDATE LEFT
+
+# HIDDEN SINGLE
+CELL B4 IN BOX 2 IS THE ONLY CELL WITH THE CANDIDATE 8
+
+# HIDDEN SINGLE
+CELL H5 IN COL 5 IS THE ONLY CELL WITH THE CANDIDATE 9
+
+# HIDDEN SINGLE
+CELL H6 IN COL 6 IS THE ONLY CELL WITH THE CANDIDATE 8
+
+---------- STEP 6 ----------
+    1 2 3   4 5 6   7 8 9
+  +-------+-------+-------+
+A | 6 8 7 | 9 1 4 | 5 2 3 |
+B | 9 5 3 | 8 7 2 | 6 1 4 |
+C | 1 4 2 | 3 5 6 | 9 7 8 |
+  +-------+-------+-------+
+D | 3 1 9 | 5 8 7 | 2 4 6 |
+E | 7 6 4 | 1 2 9 | 3 8 5 |
+F | 8 2 5 |     3 | 7 9 1 |
+  +-------+-------+-------+
+G | 5 9 6 |     1 |   3 2 |
+H | 2 3   |   9 8 |   5 7 |
+I | 4 7   | 2 3 5 |   6 9 |
+  +-------+-------+-------+
+# NAKED SINGLE
+IN CELL G5 NUMBER 4 IS THE ONLY CANDIDATE LEFT
+
+# NAKED SINGLE
+IN CELL H3 NUMBER 1 IS THE ONLY CANDIDATE LEFT
+
+# HIDDEN SINGLE
+CELL I3 IN BOX 7 IS THE ONLY CELL WITH THE CANDIDATE 8
+
+# HIDDEN SINGLE
+CELL H4 IN BOX 8 IS THE ONLY CELL WITH THE CANDIDATE 6
+
+# HIDDEN SINGLE
+CELL G4 IN BOX 8 IS THE ONLY CELL WITH THE CANDIDATE 7
+
+# HIDDEN SINGLE
+CELL G7 IN ROW G IS THE ONLY CELL WITH THE CANDIDATE 8
+
+# HIDDEN SINGLE
+CELL F5 IN COL 5 IS THE ONLY CELL WITH THE CANDIDATE 6
+
+---------- STEP 7 ----------
+    1 2 3   4 5 6   7 8 9
+  +-------+-------+-------+
+A | 6 8 7 | 9 1 4 | 5 2 3 |
+B | 9 5 3 | 8 7 2 | 6 1 4 |
+C | 1 4 2 | 3 5 6 | 9 7 8 |
+  +-------+-------+-------+
+D | 3 1 9 | 5 8 7 | 2 4 6 |
+E | 7 6 4 | 1 2 9 | 3 8 5 |
+F | 8 2 5 |   6 3 | 7 9 1 |
+  +-------+-------+-------+
+G | 5 9 6 | 7 4 1 | 8 3 2 |
+H | 2 3 1 | 6 9 8 |   5 7 |
+I | 4 7 8 | 2 3 5 |   6 9 |
+  +-------+-------+-------+
+# NAKED SINGLE
+IN CELL F4 NUMBER 4 IS THE ONLY CANDIDATE LEFT
+
+# NAKED SINGLE
+IN CELL H7 NUMBER 4 IS THE ONLY CANDIDATE LEFT
+
+# NAKED SINGLE
+IN CELL I7 NUMBER 1 IS THE ONLY CANDIDATE LEFT
+
+---------- STEP 8 ----------
+    1 2 3   4 5 6   7 8 9
+  +-------+-------+-------+
+A | 6 8 7 | 9 1 4 | 5 2 3 |
+B | 9 5 3 | 8 7 2 | 6 1 4 |
+C | 1 4 2 | 3 5 6 | 9 7 8 |
+  +-------+-------+-------+
+D | 3 1 9 | 5 8 7 | 2 4 6 |
+E | 7 6 4 | 1 2 9 | 3 8 5 |
+F | 8 2 5 | 4 6 3 | 7 9 1 |
+  +-------+-------+-------+
+G | 5 9 6 | 7 4 1 | 8 3 2 |
+H | 2 3 1 | 6 9 8 | 4 5 7 |
+I | 4 7 8 | 2 3 5 | 1 6 9 |
+  +-------+-------+-------+

@@ -171,3 +171,9 @@ Dmvn-sudoking/src/main/java/com/gianfro/games/techniques/Hidden1.java,3\3\3336b
 Nmvn-sudoking/src/main/java/com/gianfro/games/techniques/custom/FiftyFifty.java,3\b\3baeb96bad520131dc2a6fe042ce39b4336b7db6
 Œ
 \mvn-sudoking/src/main/java/com/gianfro/games/techniques/custom/ControlloTerzettiColonne.java,3\6\36f855606237ee19206fd21a9437c57c4828b4a7
+u
+Emvn-sudoking/src/main/java/com/gianfro/games/scarti/ScartiSudoku.java,2\7\27504c82c53cd57c47e2d9fb2533358d13a38a70
+E
+mvn-sudoking/README_2,9\3\935d7fedf940408ae9e444d1fbe287115fd5e6a2
+I
+mvn-sudoking/README_2.txt,c\a\cab132a0d086a19204cb73a0b1fdd416482d0425

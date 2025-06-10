@@ -10,3 +10,4 @@ spring:
       database: sudoking
       port: 27017
       host: localhost
+      type-mapper: null

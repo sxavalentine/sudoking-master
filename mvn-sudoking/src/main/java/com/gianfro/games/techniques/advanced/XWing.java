@@ -41,7 +41,7 @@ public class XWing {
                 List<List<Tab>> tabsPair = new ArrayList<>();
                 for (int houseNumber : Utils.NUMBERS) {
                     List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                    List<Tab> welcomingTabs = houseTabs.stream().filter(tab -> tab.getNumbers().contains(number)).collect(Collectors.toList());
+                    List<Tab> welcomingTabs = houseTabs.stream().filter(tab -> tab.getNumbers().contains(number)).toList();
 
                     if (welcomingTabs.size() == 2) {
                         tabsPair.add(new ArrayList<>(welcomingTabs));

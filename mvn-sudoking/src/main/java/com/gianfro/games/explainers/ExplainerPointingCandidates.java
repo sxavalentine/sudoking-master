@@ -2,12 +2,11 @@ package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.techniques.PointingCandidates;
+import com.gianfro.games.techniques.basic.PointingCandidates;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ExplainerPointingCandidates {
 
@@ -66,7 +65,7 @@ public class ExplainerPointingCandidates {
                 step.getChangeLogs()
                         .stream()
                         .filter(x -> x.getSolvingTechnique().equals(PointingCandidates.POINTING_CANDIDATES))
-                        .collect(Collectors.toList());
+                        .toList();
 
         changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
     }

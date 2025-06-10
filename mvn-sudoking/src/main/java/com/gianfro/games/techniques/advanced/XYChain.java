@@ -103,7 +103,7 @@ public class XYChain {
                                         && firstLink.getNumber() != linkOff.getNumber()
                                         // TODO testare fix (controlla che il numero off del primo link sia uguale al numero on dell'ultimo)
                                         // si può scrivere meglio e più leggibile però
-                                        && firstLink.getTab().getNumbers().stream().filter(x -> x != firstLink.getNumber()).collect(Collectors.toList()).get(0).equals(linkOff.getNumber())
+                                        && firstLink.getTab().getNumbers().stream().filter(x -> x != firstLink.getNumber()).toList().get(0).equals(linkOff.getNumber())
                                         //
                                         && (sharedCandidates.get(0) == firstLink.getNumber() || sharedCandidates.get(0) == linkOff.getNumber())) {
                                     List<Tab> commonCells = getCommonCells(chain, allTabs);
@@ -167,7 +167,7 @@ public class XYChain {
                 result.getChangeLogs()
                         .stream()
                         .filter(x -> x.getSolvingTechnique().equals(XY_CHAIN))
-                        .collect(Collectors.toList());
+                        .toList();
 
         for (ChangeLog changeLog : changeLogs) {
             SudokuExplainer.explainChange(changeLog);

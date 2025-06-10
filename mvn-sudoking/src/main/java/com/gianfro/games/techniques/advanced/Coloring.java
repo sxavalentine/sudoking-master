@@ -3,7 +3,6 @@ package com.gianfro.games.techniques.advanced;
 import com.gianfro.games.entities.*;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
 import com.gianfro.games.techniques.advanced.utils.ChainUtils;
-import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.*;
@@ -47,7 +46,7 @@ public class Coloring {
                 for (int houseNumber : Utils.NUMBERS) {
                     if (fullColorMap == null) {
                         // gets the house tabs that contain the number as candidate
-                        List<Tab> welcomingTabs = Utils.getHouseTabs(house, houseNumber, tabs).stream().filter(t -> t.getNumbers().contains(number)).collect(Collectors.toList());
+                        List<Tab> welcomingTabs = Utils.getHouseTabs(house, houseNumber, tabs).stream().filter(t -> t.getNumbers().contains(number)).toList();
                         if (welcomingTabs.size() == 2) {
 
                             List<Link> colorMap = new ArrayList<>();
@@ -71,8 +70,8 @@ public class Coloring {
                                 List<Change> colorWrapSkimmings = new ArrayList<>();
                                 List<Change> colorTrapSkimmings = new ArrayList<>();
 
-                                List<Tab> colorA = colorMap.stream().filter(x -> x.isOn()).map(x -> x.getTab()).collect(Collectors.toList());
-                                List<Tab> colorB = colorMap.stream().filter(x -> !x.isOn()).map(x -> x.getTab()).collect(Collectors.toList());
+                                List<Tab> colorA = colorMap.stream().filter(Link::isOn).map(Link::getTab).collect(Collectors.toList());
+                                List<Tab> colorB = colorMap.stream().filter(Link::isOn).map(Link::getTab).collect(Collectors.toList());
 
                                 //COLOR WRAP
                                 boolean colorWrapA = false;
@@ -117,7 +116,7 @@ public class Coloring {
 
                                 //COLOR TRAP
                                 // check among the tabs that are not part of the colorMap
-                                List<Tab> tabsNotInColorMap = tabs.stream().filter(t -> t.getNumbers().contains(number) && !colorA.contains(t) && !colorB.contains(t)).collect(Collectors.toList());
+                                List<Tab> tabsNotInColorMap = tabs.stream().filter(t -> t.getNumbers().contains(number) && !colorA.contains(t) && !colorB.contains(t)).toList();
                                 for (Tab tab : tabsNotInColorMap) {
                                     List<Tab> seenColorA = ChainUtils.getSeenCells(tab, colorA);
                                     List<Tab> seenColorB = ChainUtils.getSeenCells(tab, colorB);
@@ -167,12 +166,12 @@ public class Coloring {
 
     private static List<Link> getColorMap(List<Link> colorMap, List<Link> lastLinksAdded, List<Tab> tabs, int number) {
 
-        List<Tab> colorMapTabs = colorMap.stream().map(x -> x.getTab()).collect(Collectors.toList());
+        List<Tab> colorMapTabs = colorMap.stream().map(Link::getTab).toList();
         List<Link> newLinksAdded = new LinkedList<>();
 
         for (Link link : lastLinksAdded) {
             // returns the list of the other tabs seen by the link that contains the number as candidate and are not already part of colorMap
-            List<Tab> seenTabs = ChainUtils.getSeenCells(link.getTab(), tabs).stream().filter(t -> !colorMapTabs.contains(t) && t.getNumbers().contains(number)).collect(Collectors.toList());
+            List<Tab> seenTabs = ChainUtils.getSeenCells(link.getTab(), tabs).stream().filter(t -> !colorMapTabs.contains(t) && t.getNumbers().contains(number)).toList();
             for (Tab t : seenTabs) {
                 // we look for which house they share
                 House sharedHouse = ChainUtils.getSharedHouse(t, link.getTab());
@@ -180,7 +179,7 @@ public class Coloring {
                 List<Tab> houseTabs = tabs.stream()
                         .filter(ht -> ht.getNumbers().contains(number) &&
                                 (sharedHouse.equals(House.BOX) ? ht.getBox() == link.getBox() : sharedHouse.equals(House.ROW) ? ht.getRow() == link.getRow() : ht.getCol() == link.getCol()))
-                        .collect(Collectors.toList());
+                        .toList();
                 // if there are only 2 tabs (the link and the seen tab)
                 if (houseTabs.size() == 2) {
                     Link newLink = new Link(t, !link.isOn(), number);
@@ -206,7 +205,8 @@ public class Coloring {
 
         Sudoku sudoku;
 //        sudoku = Utils.buildSudoku(SudokuList.COLOR_WRAP);
-        sudoku = Utils.buildSudoku(SudokuList.COLOR_TRAP);
+//        sudoku = Utils.buildSudoku(SudokuList.COLOR_TRAP);
+        sudoku = Utils.buildSudoku("060409213940231680213068904689010430300800100000300800436100598050943726792685341");
 
         List<Tab> tabs = Utils.getBasicTabs(sudoku);
         tabs = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs).getTabs();
@@ -218,10 +218,10 @@ public class Coloring {
 
         // WARNING: comment these 4 lines when testing with Sudoku COLOR WRAP
         // forced removal of candidates in cells B6 D9 H5 I6, so to have the exact same candidates of the online example of ColorWrap
-        tabs.stream().filter(t -> t.getRow() == 2 && t.getCol() == 6).findFirst().orElse(null).getNumbers().remove(Integer.valueOf(8));
-        tabs.stream().filter(t -> t.getRow() == 4 && t.getCol() == 9).findFirst().orElse(null).getNumbers().remove(Integer.valueOf(8));
-        tabs.stream().filter(t -> t.getRow() == 8 && t.getCol() == 5).findFirst().orElse(null).getNumbers().remove(Integer.valueOf(2));
-        tabs.stream().filter(t -> t.getRow() == 9 && t.getCol() == 6).findFirst().orElse(null).getNumbers().remove(Integer.valueOf(8));
+//        tabs.stream().filter(t -> t.getRow() == 2 && t.getCol() == 6).findFirst().orElse(null).getNumbers().remove(Integer.valueOf(8));
+//        tabs.stream().filter(t -> t.getRow() == 4 && t.getCol() == 9).findFirst().orElse(null).getNumbers().remove(Integer.valueOf(8));
+//        tabs.stream().filter(t -> t.getRow() == 8 && t.getCol() == 5).findFirst().orElse(null).getNumbers().remove(Integer.valueOf(2));
+//        tabs.stream().filter(t -> t.getRow() == 9 && t.getCol() == 6).findFirst().orElse(null).getNumbers().remove(Integer.valueOf(8));
 
         Utils.megaGrid(sudoku, tabs);
 

@@ -2,12 +2,11 @@ package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.techniques.Naked4;
+import com.gianfro.games.techniques.basic.Naked4;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ExplainerNaked4 {
 
@@ -53,7 +52,7 @@ public class ExplainerNaked4 {
                 step.getChangeLogs()
                         .stream()
                         .filter(x -> x.getSolvingTechnique().equals(Naked4.NAKED_QUAD))
-                        .collect(Collectors.toList());
+                        .toList();
 
         changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
     }

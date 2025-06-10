@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class NoPossibleChainException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
-    private final List<Link> chain;
+    static final long serialVersionUID = 1L;
+    final List<Link> chain;
 
 }

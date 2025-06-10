@@ -1,5 +1,6 @@
 package com.gianfro.games.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -16,21 +18,25 @@ import java.util.List;
 @NoArgsConstructor
 public class SolutionOutput {
 
+    @Id
+    @JsonProperty("startingNumbers")
     String startingNumbers;
     String solutionNumbers;
-    int initialDigits;
     int solutionTime;
-    int stepsCount;
     List<SolutionStep> solutionSteps;
-    @Id
-    String id;
+    Instant solutionDate;
+    int initialDigits;
+    int stepsCount;
+
 
     public SolutionOutput(Sudoku sudoku, List<SolutionStep> solutionSteps, int solutionTime) {
         this.startingNumbers = sudoku.getStringNumbers();
         this.solutionNumbers = solutionSteps.get(solutionSteps.size() - 1).getSudokuInstance().getStringNumbers();
-        this.initialDigits = 81 - StringUtils.countMatches(startingNumbers, "0");
         this.solutionTime = solutionTime;
-        this.stepsCount = solutionSteps.size();
         this.solutionSteps = solutionSteps;
+        this.solutionDate = Instant.now();
+        /*These two properties could be excluded, as they are calculated. I just don't know if I'm going to query often by these two*/
+        this.initialDigits = 81 - StringUtils.countMatches(startingNumbers, "0");
+        this.stepsCount = solutionSteps.size();
     }
 }

@@ -10,26 +10,36 @@ import com.gianfro.games.repository.SudokuSolutionsRepository;
 import com.gianfro.games.repository.UnsolvableErrorRepository;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
 import com.gianfro.games.utils.Utils;
-import com.mongodb.DuplicateKeyException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.gianfro.games.utils.SudokuList.MIXED_SUDOKUS;
 
 @Service
 public class SudokuServiceImpl implements SudokuService {
 
+    private final SudokuSolutionsRepository sudokuSolutionsRepository;
+    private final UnsolvableErrorRepository unsolvableErrorRepository;
+    private final GenericErrorRepository genericErrorRepository;
+    private final No5050Repository no5050Repository;
+
     @Autowired
-    private SudokuSolutionsRepository sudokuSolutionsRepository;
-    @Autowired
-    private UnsolvableErrorRepository unsolvableErrorRepository;
-    @Autowired
-    private GenericErrorRepository genericErrorRepository;
-    @Autowired
-    private No5050Repository no5050Repository;
+    public SudokuServiceImpl(SudokuSolutionsRepository sudokuSolutionsRepository,
+                             UnsolvableErrorRepository unsolvableErrorRepository,
+                             GenericErrorRepository genericErrorRepository,
+                             No5050Repository no5050Repository) {
+        this.sudokuSolutionsRepository = sudokuSolutionsRepository;
+        this.unsolvableErrorRepository = unsolvableErrorRepository;
+        this.genericErrorRepository = genericErrorRepository;
+        this.no5050Repository = no5050Repository;
+    }
 
 
     @Override
@@ -158,5 +168,11 @@ public class SudokuServiceImpl implements SudokuService {
         return solutions;
     }
 
-
+    @Override
+    public String getRandomSudoku() {
+//        List<SolutionOutput> all = sudokuSolutionsRepository.findAll();
+//        if (all.isEmpty()) throw new RuntimeException("No records found");
+//        return all.get(new Random().nextInt(all.size())).getStartingNumbers();
+        return MIXED_SUDOKUS.get(new Random().nextInt(MIXED_SUDOKUS.size()));
+    }
 }

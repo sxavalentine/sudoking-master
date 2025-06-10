@@ -1,6 +1,5 @@
 package com.gianfro.games.entities;
 
-import com.gianfro.games.exceptions.InvalidHouseException;
 import com.gianfro.games.utils.Utils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,12 +19,14 @@ public class Tab implements ChangeLogUnitMember {
     int row;
     int col;
     List<Integer> numbers;
+    String coordinates;
 
     public Tab(int row, int col, List<Integer> numbers) {
         this.box = getBoxIndex(row, col);
         this.row = row;
         this.col = col;
         this.numbers = numbers;
+        this.coordinates = Utils.ROWS_LETTERS.get(row - 1) + col;
     }
 
     private static int getBoxIndex(int row, int col) {
@@ -39,20 +40,15 @@ public class Tab implements ChangeLogUnitMember {
     }
 
     public int getHouseNumber(House house) {
-        switch (house) {
-            case BOX:
-                return box;
-            case ROW:
-                return row;
-            case COL:
-                return col;
-            default:
-                throw new InvalidHouseException();
-        }
+        return switch (house) {
+            case BOX -> box;
+            case ROW -> row;
+            case COL -> col;
+        };
     }
 
     @Override
     public String toString() {
-        return Utils.ROWS_LETTERS.get(row - 1) + col + ", " + numbers;
+        return coordinates + ", " + numbers;
     }
 }

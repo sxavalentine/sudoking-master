@@ -34,8 +34,7 @@ public class Skimming extends Change {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Skimming) {
-            Skimming s = (Skimming) obj;
+        if (obj instanceof Skimming s) {
             return s.getRemovedCandidates().equals(this.removedCandidates) && s.getRow() == this.getRow() && s.getCol() == this.getCol();
         }
         return false;

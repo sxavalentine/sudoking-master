@@ -2,8 +2,8 @@ package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.techniques.*;
 import com.gianfro.games.techniques.advanced.XYChain;
+import com.gianfro.games.techniques.basic.*;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
@@ -15,7 +15,7 @@ public class SudokuExplainer {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < solutionSteps.size(); i++) {
             SolutionStep solutionStep = solutionSteps.get(i);
-            sb.append("---------- STEP " + (i + 1) + " ----------").append("\n");
+            sb.append("---------- STEP ").append(i + 1).append(" ----------").append("\n");
             sb.append(Utils.grid(solutionStep.getSudokuInstance()));
             for (ChangeLog changeLog : solutionStep.getChangeLogs()) {
                 sb.append(explainChange(changeLog)).append("\n");
@@ -31,45 +31,24 @@ public class SudokuExplainer {
         sb.append(solvingTechniqueName).append("\n");
         System.out.println(solvingTechniqueName);
         switch (changeLog.getSolvingTechnique()) {
-            case Naked1.NAKED_SINGLE:
-                sb.append(ExplainerNaked1.explain(changeLog));
-                break;
-            case Hidden1.HIDDEN_SINGLE:
-                sb.append(ExplainerHidden1.explain(changeLog));
-                break;
-            case Naked2.NAKED_PAIR:
-                sb.append(ExplainerNaked2.explain(changeLog));
-                break;
-            case Hidden2.HIDDEN_PAIR:
-                sb.append(ExplainerHidden2.explain(changeLog));
-                break;
-            case PointingCandidates.POINTING_CANDIDATES:
-                sb.append(ExplainerPointingCandidates.explain(changeLog));
-                break;
-            case ClaimingCandidates.CLAIMING_CANDIDATES:
-                sb.append(ExplainerClaimingCandidates.explain(changeLog));
-                break;
-            case Naked3.NAKED_TRIPLE:
-                sb.append(ExplainerNaked3.explain(changeLog));
-                break;
-            case Hidden3.HIDDEN_TRIPLE:
-                sb.append(ExplainerHidden3.explain(changeLog));
-                break;
-            case Naked4.NAKED_QUAD:
-                sb.append(ExplainerNaked4.explain(changeLog));
-                break;
-            case Hidden4.HIDDEN_QUAD:
-                sb.append(ExplainerHidden4.explain(changeLog));
-                break;
+            case Naked1.NAKED_SINGLE -> sb.append(ExplainerNaked1.explain(changeLog));
+            case Hidden1.HIDDEN_SINGLE -> sb.append(ExplainerHidden1.explain(changeLog));
+            case Naked2.NAKED_PAIR -> sb.append(ExplainerNaked2.explain(changeLog));
+            case Hidden2.HIDDEN_PAIR -> sb.append(ExplainerHidden2.explain(changeLog));
+            case PointingCandidates.POINTING_CANDIDATES -> sb.append(ExplainerPointingCandidates.explain(changeLog));
+            case ClaimingCandidates.CLAIMING_CANDIDATES -> sb.append(ExplainerClaimingCandidates.explain(changeLog));
+            case Naked3.NAKED_TRIPLE -> sb.append(ExplainerNaked3.explain(changeLog));
+            case Hidden3.HIDDEN_TRIPLE -> sb.append(ExplainerHidden3.explain(changeLog));
+            case Naked4.NAKED_QUAD -> sb.append(ExplainerNaked4.explain(changeLog));
+            case Hidden4.HIDDEN_QUAD -> sb.append(ExplainerHidden4.explain(changeLog));
+
 //			TODO rimetterci mano e fargli restituire una String come gli altri explainers
 //			 case XWing.X_WING :
 //                 ExplainerXWing.explain(changeLog);
 //                 break;
-            case XYChain.XY_CHAIN:
-                sb.append(ExplainerXYChain.explain(changeLog));
-                break;
-            default:
-                break;
+            case XYChain.XY_CHAIN -> sb.append(ExplainerXYChain.explain(changeLog));
+            default -> {
+            }
         }
         return sb.toString();
     }

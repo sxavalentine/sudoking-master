@@ -35,9 +35,9 @@ public class WWing {
         List<ChangeLog> changeLogs = new LinkedList<>();
 
         try {
-            List<Tab> biValueCells = tabs.stream().filter(t -> t.getNumbers().size() == 2).collect(Collectors.toList());
+            List<Tab> biValueCells = tabs.stream().filter(t -> t.getNumbers().size() == 2).toList();
             for (Tab t1 : biValueCells) {
-                List<Tab> sameCandidatesTabs = tabs.stream().filter(t -> !t.equals(t1) && t.getNumbers().equals(t1.getNumbers())).collect(Collectors.toList());
+                List<Tab> sameCandidatesTabs = tabs.stream().filter(t -> !t.equals(t1) && t.getNumbers().equals(t1.getNumbers())).toList();
                 for (Tab t4 : sameCandidatesTabs) {
                     List<Link> chain;
                     List<Tab> t1SeenTabs = ChainUtils.getSeenCells(t1, tabs.stream().filter(t -> !t.equals(t4)).collect(Collectors.toList()));
@@ -57,7 +57,7 @@ public class WWing {
                                                         (sharedHouse.equals(House.BOX) ? t.getBox() == t2.getBox() :
                                                                 sharedHouse.equals(House.ROW) ? t.getRow() == t2.getRow() :
                                                                         t.getCol() == t2.getCol()))
-                                        .collect(Collectors.toList());
+                                        .toList();
                                 if (sharedHouseTabs.size() == 2 && sharedHouseTabs.contains(t2) && sharedHouseTabs.contains(t3)) {
                                     Link l1 = new Link(t1, false, middleLinksCandidate);
                                     Link l2 = new Link(t2, true, middleLinksCandidate);

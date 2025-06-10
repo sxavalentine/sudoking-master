@@ -79,12 +79,12 @@ public class ChainUtils {
     }
 
     /**
-     * Given two Tab, returns the House in common between them
-     * TODO it should return null if they don't share any house (meaning they don't see each other). Instead it returns COL, it's misleading
+     * Given two Tab, returns the House in common between them, or null if they don't share any
      */
     public static House getSharedHouse(Tab t1, Tab t2) {
         return
                 t1.getBox() == t2.getBox() ? House.BOX :
-                        t1.getRow() == t2.getRow() ? House.ROW : House.COL;
+                        t1.getRow() == t2.getRow() ? House.ROW :
+                                t1.getCol() == t2.getCol() ? House.COL : null;
     }
 }

@@ -1,5 +1,11 @@
 package com.gianfro.games.scarti;
 
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.utils.SudokuList;
+
+import java.util.List;
+import java.util.Random;
+
 public class ScartiSudoku {
 
     // PER TUTTI I METODI SEGUENTI, GLI INDICI DEI PARAMETRI PARTONO DA 1, NON DA 0
@@ -493,8 +499,7 @@ public class ScartiSudoku {
 
 //	private static Sudoku getRandomSudoku() {
 //	Random random = new Random();
-//	List<Sudoku> tutti = getAllSudoku();
-//	return tutti.get(random.nextInt(tutti.size()));
+//	return SudokuList.MIXED_SUDOKUS.get(random.nextInt(SudokuList.MIXED_SUDOKUS.size()));
 //}
 
 //	private List<tab> getTabsOspitaliQuadrato(Integer numeroQuadrato, Integer numero, List<tab> tabs) {

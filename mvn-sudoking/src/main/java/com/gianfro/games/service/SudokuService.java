@@ -18,4 +18,6 @@ public interface SudokuService {
     SolutionOutput findSolutionByStartingNumbers(String startingNumbers);
 
     List<SolutionOutput> solveUnsolvableSudokus();
+
+    String getRandomSudoku();
 }

@@ -5,19 +5,19 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public enum House {
-	
-	BOX("BOX"), 
-	ROW("ROW"), 
-	COL("COL");
-	
-	String house;
-	
-	private House(String house) {
-		this.house = house;
-	}
-	
-	@Override
-	public String toString() {
-		return this.house;
-	}
+
+    BOX("BOX"),
+    ROW("ROW"),
+    COL("COL");
+
+    String house;
+
+    House(String house) {
+        this.house = house;
+    }
+
+    @Override
+    public String toString() {
+        return this.house;
+    }
 }

@@ -23,7 +23,7 @@ public class RemotePairs {
         List<ChangeLog> changeLogs = new LinkedList<>();
         try {
 
-            List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).collect(Collectors.toList());
+            List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).toList();
             List<List<Integer>> bivaluePairs = new ArrayList<>();
 
             for (Tab tab : bivalueCells) {
@@ -124,7 +124,7 @@ public class RemotePairs {
                                         && (x.getBox() == tab.getBox()
                                         || x.getRow() == tab.getRow()
                                         || x.getCol() == tab.getCol()))
-                        .collect(Collectors.toList());
+                        .toList();
         return cellsSeen.size();
     }
 

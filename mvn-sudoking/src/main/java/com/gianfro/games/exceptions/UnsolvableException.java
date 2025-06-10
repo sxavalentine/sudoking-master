@@ -13,7 +13,7 @@ import java.util.List;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class UnsolvableException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 1L;
 
     Sudoku startingSudoku;
     Sudoku blockedSudoku;

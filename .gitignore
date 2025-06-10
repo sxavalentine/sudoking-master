@@ -1,2 +1,36 @@
-# Project exclude paths
+# === Build output ===
 /mvn-sudoking/target/
+
+# === IntelliJ IDEA ===
+/.idea/
+/mvn-sudoking/*.iml
+
+# === SonarLint ===
+/.sonarlint/
+/mvn-sudoking/.sonarlint/
+
+# === Eclipse / STS (Spring Tool Suite) ===
+/mvn-sudoking/.classpath
+/mvn-sudoking/.project
+/mvn-sudoking/.settings/
+/mvn-sudoking/.apt_generated
+/mvn-sudoking/.factorypath
+/mvn-sudoking/.springBeans
+/mvn-sudoking/.sts4-cache
+
+# === VS Code ===
+/.vscode/
+/mvn-sudoking/.vscode/
+
+# === OS-generated files ===
+**/.DS_Store
+**/Thumbs.db
+
+# === Node (in caso usi frontend nella repo) ===
+**/node_modules/
+
+# === Config / Secrets (personalizzabile) ===
+/mvn-sudoking/config/api-keys*.properties
+/mvn-sudoking/config/bearer-token*.properties
+/mvn-sudoking/config/interop-tracing*.properties
+/mvn-sudoking/token.json

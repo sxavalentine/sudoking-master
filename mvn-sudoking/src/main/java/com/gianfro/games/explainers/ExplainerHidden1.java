@@ -5,12 +5,11 @@ import com.gianfro.games.entities.SolutionStep;
 import com.gianfro.games.entities.Sudoku;
 import com.gianfro.games.entities.Tab;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.techniques.Hidden1;
+import com.gianfro.games.techniques.basic.Hidden1;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ExplainerHidden1 {
 
@@ -41,7 +40,7 @@ public class ExplainerHidden1 {
                 step.getChangeLogs()
                         .stream()
                         .filter(x -> x.getSolvingTechnique().equals(Hidden1.HIDDEN_SINGLE))
-                        .collect(Collectors.toList());
+                        .toList();
 
         changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
     }

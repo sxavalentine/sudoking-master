@@ -3,6 +3,7 @@ package com.gianfro.games.controllers;
 import com.gianfro.games.entities.SolutionOutput;
 import com.gianfro.games.entities.Sudoku;
 import com.gianfro.games.entities.Tab;
+import com.gianfro.games.response.RandomSudokuResponse;
 import com.gianfro.games.service.SudokuService;
 import com.gianfro.games.utils.Utils;
 import lombok.AccessLevel;
@@ -10,15 +11,13 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(SudokuController.RESOURCE_NAME)
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -29,7 +28,13 @@ public class SudokuController {
     @Autowired
     SudokuService sudokuService;
 
-    @GetMapping(value = "/solveSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/getTabs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Tab> getTabs(@NotNull @RequestBody String stringNumbers) {
+        Sudoku s = Utils.buildSudoku(stringNumbers);
+        return Utils.getBasicTabs(s);
+    }
+
+    @PostMapping(value = "/solveSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
     public SolutionOutput solveSudoku(@NotNull @RequestBody String stringNumbers) {
         return this.sudokuService.solveSudoku(stringNumbers);
     }
@@ -50,9 +55,16 @@ public class SudokuController {
     }
 
     @GetMapping(value = "/printGrid", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void printGrid(@NotNull @RequestBody String stringNumbers) {
+    public String printGrid(@NotNull @RequestBody String stringNumbers) {
         Sudoku s = Utils.buildSudoku(stringNumbers);
-        Utils.grid(s);
+        return Utils.grid(s);
+    }
+
+    @GetMapping(value = "/printMegaGrid", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String printMegaGrid(@NotNull @RequestBody String stringNumbers) {
+        Sudoku s = Utils.buildSudoku(stringNumbers);
+        List<Tab> tabs = Utils.getBasicTabs(s);
+        return Utils.megaGrid(s, tabs);
     }
 
     @GetMapping(value = "/findByStartingNumbers", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -63,5 +75,11 @@ public class SudokuController {
     @GetMapping(value = "/solveUnsolvableSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SolutionOutput> solveUnsolvableSudokus() {
         return this.sudokuService.solveUnsolvableSudokus();
+    }
+
+    @GetMapping(value = "/getRandomSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
+    public RandomSudokuResponse getRandomSudoku() {
+        String sudokuNumbers = this.sudokuService.getRandomSudoku();
+        return new RandomSudokuResponse(sudokuNumbers);
     }
 }

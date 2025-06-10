@@ -2,12 +2,11 @@ package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.techniques.Naked2;
+import com.gianfro.games.techniques.basic.Naked2;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ExplainerNaked2 {
 
@@ -51,7 +50,7 @@ public class ExplainerNaked2 {
                 step.getChangeLogs()
                         .stream()
                         .filter(x -> x.getSolvingTechnique().equals(Naked2.NAKED_PAIR))
-                        .collect(Collectors.toList());
+                        .toList();
 
         changeLogs.forEach(changeLog -> explain(changeLog));
     }

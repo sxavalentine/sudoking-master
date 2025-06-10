@@ -1,7 +1,6 @@
 package com.gianfro.games.techniques.advanced;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.exceptions.InvalidHouseException;
 import com.gianfro.games.exceptions.NoPossibleChainException;
 import com.gianfro.games.exceptions.XChainException;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
@@ -254,17 +253,9 @@ public class XChain {
         tabsInSameCol = tabsInSameCol.stream().filter(x -> x.getNumbers().contains(candidate) && x != tab).collect(Collectors.toList());
 
         switch (house) {
-            case BOX:
-                tabsInSameBox.clear();
-                break;
-            case ROW:
-                tabsInSameRow.clear();
-                break;
-            case COL:
-                tabsInSameCol.clear();
-                break;
-            default:
-                throw new InvalidHouseException();
+            case BOX -> tabsInSameBox.clear();
+            case ROW -> tabsInSameRow.clear();
+            case COL -> tabsInSameCol.clear();
         }
 
         return

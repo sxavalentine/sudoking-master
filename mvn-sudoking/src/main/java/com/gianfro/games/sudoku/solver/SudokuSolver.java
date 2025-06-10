@@ -2,8 +2,8 @@ package com.gianfro.games.sudoku.solver;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.exceptions.UnsolvableException;
-import com.gianfro.games.techniques.Hidden1;
-import com.gianfro.games.techniques.Naked1;
+import com.gianfro.games.techniques.basic.Hidden1;
+import com.gianfro.games.techniques.basic.Naked1;
 import com.gianfro.games.techniques.StandardSolvingTechnique;
 import com.gianfro.games.techniques.advanced.*;
 import com.gianfro.games.utils.Utils;

@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class XChainException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 1L;
 
     List<Link> chain;
     List<Tab> tabs;

@@ -2,6 +2,7 @@ package com.gianfro.games.techniques;
 
 import com.gianfro.games.entities.SkimmingResult;
 import com.gianfro.games.entities.Tab;
+import com.gianfro.games.techniques.basic.*;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -28,28 +29,18 @@ public enum StandardSolvingTechnique {
     }
 
     public SkimmingResult check(List<Tab> tabs) {
-        switch (this.index) {
-            case 0:
-                return Naked1.check(tabs);
-            case 1:
-                return Hidden1.check(tabs);
-            case 2:
-                return PointingCandidates.check(tabs);
-            case 3:
-                return ClaimingCandidates.check(tabs);
-            case 4:
-                return Naked2.check(tabs);
-            case 5:
-                return Hidden2.check(tabs);
-            case 6:
-                return Naked3.check(tabs);
-            case 7:
-                return Hidden3.check(tabs);
-            case 8:
-                return Naked4.check(tabs);
-            case 9:
-                return Hidden4.check(tabs);
-        }
-        return null;
+        return switch (this.index) {
+            case 0 -> Naked1.check(tabs);
+            case 1 -> Hidden1.check(tabs);
+            case 2 -> PointingCandidates.check(tabs);
+            case 3 -> ClaimingCandidates.check(tabs);
+            case 4 -> Naked2.check(tabs);
+            case 5 -> Hidden2.check(tabs);
+            case 6 -> Naked3.check(tabs);
+            case 7 -> Hidden3.check(tabs);
+            case 8 -> Naked4.check(tabs);
+            case 9 -> Hidden4.check(tabs);
+            default -> null;
+        };
     }
 }

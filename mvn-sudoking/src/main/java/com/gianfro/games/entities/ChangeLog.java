@@ -30,8 +30,7 @@ public class ChangeLog {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ChangeLog) {
-            ChangeLog cl = (ChangeLog) obj;
+        if (obj instanceof ChangeLog cl) {
             return cl.changes.equals(this.changes);
         }
         return false;

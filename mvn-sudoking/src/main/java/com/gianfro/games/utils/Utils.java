@@ -1,7 +1,7 @@
 package com.gianfro.games.utils;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.exceptions.InvalidHouseException;
+import com.gianfro.games.exceptions.NoCandidatesLeftException;
 import com.gianfro.games.exceptions.SudokuBuildException;
 import org.paukov.combinatorics3.Generator;
 
@@ -162,6 +162,10 @@ public class Utils {
                 }
             }
         }
+        List<Tab> emptyTabs = tabs.stream().filter(t -> t.getNumbers().isEmpty()).toList();
+        if (!emptyTabs.isEmpty()) {
+            throw new NoCandidatesLeftException(sudoku, null, null, tabs, emptyTabs);
+        }
         return tabs;
     }
 
@@ -181,20 +185,11 @@ public class Utils {
     public static List<Tab> getHouseTabs(House house, int index, List<Tab> tabs) {
         List<Tab> houseTabs = new LinkedList<>();
         for (Tab tab : tabs) {
-            int houseValue;
-            switch (house) {
-                case BOX:
-                    houseValue = tab.getBox();
-                    break;
-                case ROW:
-                    houseValue = tab.getRow();
-                    break;
-                case COL:
-                    houseValue = tab.getCol();
-                    break;
-                default:
-                    throw new InvalidHouseException();
-            }
+            int houseValue = switch (house) {
+                case BOX -> tab.getBox();
+                case ROW -> tab.getRow();
+                case COL -> tab.getCol();
+            };
             if (houseValue == index) {
                 houseTabs.add(tab);
             }
@@ -215,7 +210,13 @@ public class Utils {
     }
 
 
-    // data una lista di candidati di un tab e una tupla di N candidati, stabilisce se la tupla ne contiene almeno quanti il numero passato come parametro
+    /**
+     * Given a list of candidates in a Tab and a tuple with N candidates, check if that Tab contains X of those candidates
+     *
+     * @param candidates:        the list of candidates of a Tab
+     * @param tuple:             the list of numbers to be checked if they are contained in the Tab candidates
+     * @param minimumCandidates: the number of candidates from the tuple expected to be contained in the Tab's candidates
+     */
     public static boolean containsAtLeastXCandidates(List<Integer> candidates, List<Integer> tuple, int minimumCandidates) {
         int count = 0;
         for (Integer number : candidates) {
@@ -226,8 +227,13 @@ public class Utils {
         return count >= minimumCandidates;
     }
 
-
-    // dato un tab e una tupla di candidati, stabilisce se i candidati del tab sono uguali alla tupla o un suo sottoinsieme
+    /**
+     * Given a list of candidates in a Tab and a tuple with N candidates, check if that Tab contains X of those candidates
+     *
+     * @param tab:   the tab to be checked
+     * @param tuple: the list of numbers to be checked if they are contained in the Tab candidates
+     * @return true: if the tuple is equal or a subset of Tab's candidates
+     */
     public static boolean candidatesAreSameOrSubset(Tab tab, List<Integer> tuple) {
         for (Integer numero : tab.getNumbers()) {
             if (!tuple.contains(numero)) {
@@ -344,8 +350,7 @@ public class Utils {
             }
             System.out.println("I then deducted:");
             for (Change change : changeLog.getChanges()) {
-                if (change instanceof Skimming) {
-                    Skimming skimming = (Skimming) change;
+                if (change instanceof Skimming skimming) {
                     System.out.println(skimming);
                 } else {
                     System.out.println(change);
@@ -362,16 +367,11 @@ public class Utils {
      * Given a ChangeLog, returns the corresponding string (used by explainers)
      */
     public static String getWelcomingUnit(ChangeLog changeLog) {
-        switch (Objects.requireNonNull(changeLog.getHouse())) {
-            case BOX:
-                return "BOX " + changeLog.getUnitMembers().get(0).getBox();
-            case ROW:
-                return "ROW " + Utils.ROWS_LETTERS.get(changeLog.getUnitMembers().get(0).getRow() - 1);
-            case COL:
-                return "COL " + changeLog.getUnitMembers().get(0).getCol();
-            default:
-                throw new InvalidHouseException();
-        }
+        return switch (Objects.requireNonNull(changeLog.getHouse())) {
+            case BOX -> "BOX " + changeLog.getUnitMembers().get(0).getBox();
+            case ROW -> "ROW " + Utils.ROWS_LETTERS.get(changeLog.getUnitMembers().get(0).getRow() - 1);
+            case COL -> "COL " + changeLog.getUnitMembers().get(0).getCol();
+        };
     }
 
     /**
@@ -553,7 +553,7 @@ public class Utils {
                         gridString.append(fourSpaces).append(ANSI_GREEN).append(correspondingSudokuRow.get(index)).append(ANSI_RESET).append(fourSpaces).append(endLineBox);
                     } else {
                         int cellColumn = index;
-                        List<Tab> rowTabs = tabs.stream().filter(t -> t.getRow() == sudokuRowIndex + 1).collect(Collectors.toList());
+                        List<Tab> rowTabs = tabs.stream().filter(t -> t.getRow() == sudokuRowIndex + 1).toList();
                         Tab currentCellTab = rowTabs.stream().filter(t -> t.getCol() == cellColumn + 1).findFirst().orElse(null);
                         if (currentCellTab != null) {
                             for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {
@@ -576,7 +576,7 @@ public class Utils {
                     String endLineBox = (index + 1) % 3 == 0 ? ANSI_RED + "#" + ANSI_RESET : "|";
                     if (correspondingSudokuRow.get(index).equals(0)) {
                         int cellColumn = index;
-                        List<Tab> rowTabs = tabs.stream().filter(t -> t.getRow() == sudokuRowIndex + 1).collect(Collectors.toList());
+                        List<Tab> rowTabs = tabs.stream().filter(t -> t.getRow() == sudokuRowIndex + 1).toList();
                         Tab currentCellTab = rowTabs.stream().filter(t -> t.getCol() == cellColumn + 1).findFirst().orElse(null);
                         if (currentCellTab != null) {
                             for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {

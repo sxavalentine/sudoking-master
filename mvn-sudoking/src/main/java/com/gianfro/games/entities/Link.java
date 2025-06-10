@@ -1,6 +1,5 @@
 package com.gianfro.games.entities;
 
-import com.gianfro.games.utils.Utils;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +29,6 @@ public class Link implements ChangeLogUnitMember {
 
     @Override
     public String toString() {
-        return Utils.ROWS_LETTERS.get(tab.getRow() - 1) + tab.getCol() + " (" + (on ? "+" : "-") + number + ")";
+        return tab.getCoordinates() + " (" + (on ? "+" : "-") + number + ")";
     }
 }

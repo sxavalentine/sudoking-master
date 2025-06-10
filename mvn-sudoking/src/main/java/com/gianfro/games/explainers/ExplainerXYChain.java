@@ -7,7 +7,6 @@ import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ExplainerXYChain {
 
@@ -29,7 +28,7 @@ public class ExplainerXYChain {
         StringBuilder sb = new StringBuilder("All cells forming the following chain are bi-value cells strongly linked with each other:\n");
         changeLog.getUnitMembers().forEach(c -> {
             Link link = (Link) c;
-            String linkString = link.toString().replace('-', '+');
+            String linkString = link.toString().replace('-', '+');//TODO perchè rimpiazza il "-" ????
             sb.append(linkString).append("\n");
         });
         sb.append(String.format(
@@ -69,7 +68,7 @@ public class ExplainerXYChain {
                         .getChangeLogs()
                         .stream()
                         .filter(x -> x.getSolvingTechnique().equals(XYChain.XY_CHAIN))
-                        .collect(Collectors.toList());
+                        .toList();
 
         changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
     }

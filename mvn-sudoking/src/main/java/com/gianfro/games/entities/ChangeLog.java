@@ -1,16 +1,17 @@
 package com.gianfro.games.entities;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 @Data
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@AllArgsConstructor
+@Builder
 public class ChangeLog {
 
     List<Integer> unitExamined;
@@ -22,6 +23,8 @@ public class ChangeLog {
     @Nullable
     String solvingTechniqueVariant;
     List<Change> changes;
+    @NonFinal
+    String explanation;
 
     @Override
     public String toString() {

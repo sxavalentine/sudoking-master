@@ -8,7 +8,6 @@ import com.gianfro.games.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,7 +58,7 @@ public class XChain {
                     List<Tab> welcomingTabs = new ArrayList<>();
                     List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                     for (Tab tab : houseTabs) {
-                        if (tab.getNumbers().contains(number)) {
+                        if (tab.getCandidates().contains(number)) {
                             welcomingTabs.add(tab);
                         }
                     }
@@ -99,18 +98,27 @@ public class XChain {
                             unitMembers.addAll(xce.getChain());
 
                             for (Tab tab : xce.getTabs()) {
-                                tab.getNumbers().remove(Integer.valueOf(number));
-                                Skimming skimming = new Skimming(X_CHAIN, house, tab, Collections.singletonList(number));
+                                tab.getCandidates().remove(Integer.valueOf(number));
+                                Skimming skimming = Skimming.builder()
+                                        .solvingTechnique(X_CHAIN)
+                                        .house(house)
+                                        .row(tab.getRow())
+                                        .col(tab.getCol())
+                                        .number(0)
+                                        .tab(tab)
+                                        .removedCandidates(List.of(number))
+                                        .build();
                                 skimmings.add(skimming);
                             }
-                            ChangeLog changeLog = new ChangeLog(
-                                    Collections.singletonList(number),
-                                    house,
-                                    houseNumber,
-                                    unitMembers,
-                                    CHAIN,
-                                    X_CHAIN,
-                                    skimmings);
+                            ChangeLog changeLog = ChangeLog.builder()
+                                    .unitExamined(List.of(number))
+                                    .house(house)
+                                    .houseNumber(houseNumber)
+                                    .unitMembers(unitMembers)
+                                    .solvingTechnique(CHAIN)
+                                    .solvingTechniqueVariant(X_CHAIN)
+                                    .changes(skimmings)
+                                    .build();
                             changeLogs.add(changeLog);
                             return new SkimmingResult(tabs, changeLogs);
                         } catch (NoPossibleChainException npce) {
@@ -149,18 +157,27 @@ public class XChain {
                                 unitMembers.addAll(xce.getChain());
 
                                 for (Tab tab : xce.getTabs()) {
-                                    tab.getNumbers().remove(Integer.valueOf(number));
-                                    Skimming skimming = new Skimming(X_CHAIN, house, tab, Collections.singletonList(number));
+                                    tab.getCandidates().remove(Integer.valueOf(number));
+                                    Skimming skimming = Skimming.builder()
+                                            .solvingTechnique(X_CHAIN)
+                                            .house(house)
+                                            .row(tab.getRow())
+                                            .col(tab.getCol())
+                                            .number(0)
+                                            .tab(tab)
+                                            .removedCandidates(List.of(number))
+                                            .build();
                                     skimmings.add(skimming);
                                 }
-                                ChangeLog changeLog = new ChangeLog(
-                                        Collections.singletonList(number),
-                                        house,
-                                        houseNumber,
-                                        unitMembers,
-                                        CHAIN,
-                                        X_CHAIN,
-                                        skimmings);
+                                ChangeLog changeLog = ChangeLog.builder()
+                                        .unitExamined(List.of(number))
+                                        .house(house)
+                                        .houseNumber(houseNumber)
+                                        .unitMembers(unitMembers)
+                                        .solvingTechnique(CHAIN)
+                                        .solvingTechniqueVariant(X_CHAIN)
+                                        .changes(skimmings)
+                                        .build();
                                 changeLogs.add(changeLog);
                                 return new SkimmingResult(tabs, changeLogs);
                             } catch (NoPossibleChainException npce2) {
@@ -181,7 +198,7 @@ public class XChain {
     private static List<Link> findNegativeChain(List<Link> chain, Link lastLink, Link linkBeforeLast, List<Tab> tabs, int candidate) {
         List<Tab> seenTabs = getSeenTabs(lastLink.getTab(), tabs);
         for (Tab tab : seenTabs) {
-            if (tab.getNumbers().contains(candidate) && tab != linkBeforeLast.getTab()) {
+            if (tab.getCandidates().contains(candidate) && tab != linkBeforeLast.getTab()) {
                 if (!ChainUtils.chainContainsTab(chain, tab)) {
                     House sharedHouse = getSharedHouse(tab, lastLink);
 
@@ -248,9 +265,9 @@ public class XChain {
         List<Tab> tabsInSameRow = new ArrayList<>(Utils.getHouseTabs(House.ROW, tab.getRow(), tabs));
         List<Tab> tabsInSameCol = new ArrayList<>(Utils.getHouseTabs(House.COL, tab.getCol(), tabs));
 
-        tabsInSameBox = tabsInSameBox.stream().filter(x -> x.getNumbers().contains(candidate) && x != tab).collect(Collectors.toList());
-        tabsInSameRow = tabsInSameRow.stream().filter(x -> x.getNumbers().contains(candidate) && x != tab).collect(Collectors.toList());
-        tabsInSameCol = tabsInSameCol.stream().filter(x -> x.getNumbers().contains(candidate) && x != tab).collect(Collectors.toList());
+        tabsInSameBox = tabsInSameBox.stream().filter(x -> x.getCandidates().contains(candidate) && x != tab).collect(Collectors.toList());
+        tabsInSameRow = tabsInSameRow.stream().filter(x -> x.getCandidates().contains(candidate) && x != tab).collect(Collectors.toList());
+        tabsInSameCol = tabsInSameCol.stream().filter(x -> x.getCandidates().contains(candidate) && x != tab).collect(Collectors.toList());
 
         switch (house) {
             case BOX -> tabsInSameBox.clear();

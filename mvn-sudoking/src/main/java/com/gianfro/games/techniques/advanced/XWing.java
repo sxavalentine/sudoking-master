@@ -5,7 +5,10 @@ import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 import org.paukov.combinatorics3.Generator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class XWing {
@@ -41,7 +44,7 @@ public class XWing {
                 List<List<Tab>> tabsPair = new ArrayList<>();
                 for (int houseNumber : Utils.NUMBERS) {
                     List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                    List<Tab> welcomingTabs = houseTabs.stream().filter(tab -> tab.getNumbers().contains(number)).toList();
+                    List<Tab> welcomingTabs = houseTabs.stream().filter(tab -> tab.getCandidates().contains(number)).toList();
 
                     if (welcomingTabs.size() == 2) {
                         tabsPair.add(new ArrayList<>(welcomingTabs));
@@ -84,29 +87,47 @@ public class XWing {
 
                             for (Tab tab : tabsHouseFirstMembersPairs) {
                                 if (!firstMembers.contains(tab)) {
-                                    if (tab.getNumbers().remove(Integer.valueOf(number))) {
-                                        Skimming skimming = new Skimming(X_WING, house, tab, Collections.singletonList(number));
+                                    if (tab.getCandidates().remove(Integer.valueOf(number))) {
+                                        Skimming skimming = Skimming.builder()
+                                                .solvingTechnique(X_WING)
+                                                .house(house)
+                                                .row(tab.getRow())
+                                                .col(tab.getCol())
+                                                .number(0)
+                                                .tab(tab)
+                                                .removedCandidates(List.of(number))
+                                                .build();
                                         unitSkimmings.add(skimming);
                                     }
                                 }
                             }
                             for (Tab tab : tabsHouseSecondMembersPairs) {
                                 if (!secondMembers.contains(tab)) {
-                                    if (tab.getNumbers().remove(Integer.valueOf(number))) {
-                                        Skimming skimming = new Skimming(X_WING, house, tab, Collections.singletonList(number));
+                                    if (tab.getCandidates().remove(Integer.valueOf(number))) {
+                                        Skimming skimming = Skimming.builder()
+                                                .solvingTechnique(X_WING)
+                                                .house(house)
+                                                .row(tab.getRow())
+                                                .col(tab.getCol())
+                                                .number(0)
+                                                .tab(tab)
+                                                .removedCandidates(List.of(number))
+                                                .build();
                                         unitSkimmings.add(skimming);
                                     }
                                 }
                             }
                             if (!unitSkimmings.isEmpty()) {
-                                changeLogs.add(new ChangeLog(
-                                        Collections.singletonList(number),
-                                        null,
-                                        0,
-                                        xWingMembers,
-                                        X_WING,
-                                        null,
-                                        unitSkimmings));
+                                ChangeLog changeLog = ChangeLog.builder()
+                                        .unitExamined(List.of(number))
+                                        .house(null)
+                                        .houseNumber(0)
+                                        .unitMembers(xWingMembers)
+                                        .solvingTechnique(X_WING)
+                                        .solvingTechniqueVariant(null)
+                                        .changes(unitSkimmings)
+                                        .build();
+                                changeLogs.add(changeLog);
                             }
                         }
                     }

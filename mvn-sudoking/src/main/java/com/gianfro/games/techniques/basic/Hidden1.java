@@ -39,20 +39,28 @@ public class Hidden1 {
                 for (int number : Utils.NUMBERS) {
                     if (!getHouseNumbers(house, houseNumber, tabs).contains(number)) {
                         List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                        List<Tab> welcomingTabs = houseTabs.stream().filter(x -> x.getNumbers().contains(number)).toList();
+                        List<Tab> welcomingTabs = houseTabs.stream().filter(x -> x.getCandidates().contains(number)).toList();
 
                         if (welcomingTabs.size() == 1) {
 
                             Tab tab = welcomingTabs.get(0);
-                            Change change = new Change(HIDDEN_SINGLE, house, tab.getRow(), tab.getCol(), number);
-                            changeLogs.add(new ChangeLog(
-                                    null,
-                                    house,
-                                    houseNumber,
-                                    Collections.singletonList(tab),
-                                    HIDDEN_SINGLE,
-                                    null,
-                                    Collections.singletonList(change)));
+                            Change change = Change.builder()
+                                    .solvingTechnique(HIDDEN_SINGLE)
+                                    .house(house)
+                                    .row(tab.getRow())
+                                    .col(tab.getCol())
+                                    .number(number)
+                                    .build();
+                            ChangeLog changeLog = ChangeLog.builder()
+                                    .unitExamined(null)
+                                    .house(house)
+                                    .houseNumber(houseNumber)
+                                    .unitMembers(List.of(tab))
+                                    .solvingTechnique(HIDDEN_SINGLE)
+                                    .solvingTechniqueVariant(null)
+                                    .changes(List.of(change))
+                                    .build();
+                            changeLogs.add(changeLog);
                         }
                     }
                 }
@@ -72,7 +80,7 @@ public class Hidden1 {
                 case COL -> tab.getCol();
             };
             if (houseNumber == houseNumberInput) {
-                houseNumbers.removeAll(tab.getNumbers());
+                houseNumbers.removeAll(tab.getCandidates());
             }
         }
         return houseNumbers;

@@ -39,7 +39,7 @@ public class PointingCandidates {
                     List<ChangeLogUnitMember> welcomingTabs = new ArrayList<>();
                     Set<Integer> welcomingHouses = new HashSet<>();
                     for (Tab tab : boxTabs) {
-                        if (tab.getNumbers().contains(number)) {
+                        if (tab.getCandidates().contains(number)) {
                             welcomingTabs.add(tab);
                             if (house == House.ROW) {
                                 welcomingHouses.add(tab.getRow());
@@ -55,22 +55,32 @@ public class PointingCandidates {
                         boolean deductionsDone = false;
                         List<Change> unitSkimmings = new ArrayList<>();
                         for (Tab tab : houseTabs) {
-                            if (tab.getBox() != boxNumber && tab.getNumbers().contains(number)) {
-                                tab.getNumbers().remove(Integer.valueOf(number));
-                                Skimming s = new Skimming(method, house, tab, Collections.singletonList(number));
-                                unitSkimmings.add(s);
+                            if (tab.getBox() != boxNumber && tab.getCandidates().contains(number)) {
+                                tab.getCandidates().remove(Integer.valueOf(number));
+                                Skimming skimming = Skimming.builder()
+                                        .solvingTechnique(method)
+                                        .house(house)
+                                        .row(tab.getRow())
+                                        .col(tab.getCol())
+                                        .number(0)
+                                        .tab(tab)
+                                        .removedCandidates(List.of(number))
+                                        .build();
+                                unitSkimmings.add(skimming);
                                 deductionsDone = true;
                             }
                         }
                         if (deductionsDone) {
-                            changeLogs.add(new ChangeLog(
-                                    Collections.singletonList(number),
-                                    House.BOX,
-                                    boxNumber,
-                                    welcomingTabs,
-                                    POINTING_CANDIDATES,
-                                    method,
-                                    unitSkimmings));
+                            ChangeLog changeLog = ChangeLog.builder()
+                                    .unitExamined(List.of(number))
+                                    .house(House.BOX)
+                                    .houseNumber(boxNumber)
+                                    .unitMembers(welcomingTabs)
+                                    .solvingTechnique(POINTING_CANDIDATES)
+                                    .solvingTechniqueVariant(method)
+                                    .changes(unitSkimmings)
+                                    .build();
+                            changeLogs.add(changeLog);
                         }
                     }
                 }

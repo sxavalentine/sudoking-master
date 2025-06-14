@@ -18,14 +18,14 @@ public class Tab implements ChangeLogUnitMember {
     int box;
     int row;
     int col;
-    List<Integer> numbers;
+    List<Integer> candidates;
     String coordinates;
 
-    public Tab(int row, int col, List<Integer> numbers) {
+    public Tab(int row, int col, List<Integer> candidates) {
         this.box = getBoxIndex(row, col);
         this.row = row;
         this.col = col;
-        this.numbers = numbers;
+        this.candidates = candidates;
         this.coordinates = Utils.ROWS_LETTERS.get(row - 1) + col;
     }
 
@@ -49,6 +49,6 @@ public class Tab implements ChangeLogUnitMember {
 
     @Override
     public String toString() {
-        return coordinates + ", " + numbers;
+        return coordinates + ", " + candidates;
     }
 }

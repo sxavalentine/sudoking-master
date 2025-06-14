@@ -23,17 +23,17 @@ public class RemotePairs {
         List<ChangeLog> changeLogs = new LinkedList<>();
         try {
 
-            List<Tab> bivalueCells = tabs.stream().filter(x -> x.getNumbers().size() == 2).toList();
+            List<Tab> bivalueCells = tabs.stream().filter(x -> x.getCandidates().size() == 2).toList();
             List<List<Integer>> bivaluePairs = new ArrayList<>();
 
             for (Tab tab : bivalueCells) {
-                if (!bivaluePairs.contains(tab.getNumbers())) {
-                    bivaluePairs.add(tab.getNumbers());
+                if (!bivaluePairs.contains(tab.getCandidates())) {
+                    bivaluePairs.add(tab.getCandidates());
                 }
             }
 
             for (List<Integer> pair : bivaluePairs) {
-                List<Tab> pairTabs = bivalueCells.stream().filter(x -> x.getNumbers().equals(pair)).collect(Collectors.toList());
+                List<Tab> pairTabs = bivalueCells.stream().filter(x -> x.getCandidates().equals(pair)).collect(Collectors.toList());
 
                 // CHAIN MUST HAVE AT LEAST 4 LINKS TO ELIMINATE SOMETHING
                 if (pairTabs.size() >= 4) {
@@ -72,26 +72,36 @@ public class RemotePairs {
 
                     if (!skimmedTabs.isEmpty()) {
                         List<Change> unitSkimmings = new ArrayList<>();
-                        for (Tab t : skimmedTabs) {
+                        for (Tab tab
+                                : skimmedTabs) {
                             List<Integer> candidatesToBeRemoved = new ArrayList<>();
-                            for (int candidate : t.getNumbers()) {
+                            for (int candidate : tab.getCandidates()) {
                                 if (pair.contains(candidate)) {
                                     candidatesToBeRemoved.add(candidate);
                                 }
                             }
-                            if (t.getNumbers().removeAll(candidatesToBeRemoved)) {
-                                Skimming skimming = new Skimming(REMOTE_PAIRS, null, t, candidatesToBeRemoved);
+                            if (tab.getCandidates().removeAll(candidatesToBeRemoved)) {
+                                Skimming skimming = Skimming.builder()
+                                        .solvingTechnique(REMOTE_PAIRS)
+                                        .house(null)
+                                        .row(tab.getRow())
+                                        .col(tab.getCol())
+                                        .number(0)
+                                        .tab(tab)
+                                        .removedCandidates(candidatesToBeRemoved)
+                                        .build();
                                 unitSkimmings.add(skimming);
                             }
                         }
-                        ChangeLog changeLog = new ChangeLog(
-                                pair,
-                                null,
-                                0,
-                                new ArrayList<>(chain),
-                                REMOTE_PAIRS,
-                                null,
-                                unitSkimmings);
+                        ChangeLog changeLog = ChangeLog.builder()
+                                .unitExamined(pair)
+                                .house(null)
+                                .houseNumber(0)
+                                .unitMembers(new ArrayList<>(chain))
+                                .solvingTechnique(REMOTE_PAIRS)
+                                .solvingTechniqueVariant(null)
+                                .changes(unitSkimmings)
+                                .build();
                         changeLogs.add(changeLog);
                     }
                 }

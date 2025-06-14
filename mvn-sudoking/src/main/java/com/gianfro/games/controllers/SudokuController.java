@@ -1,8 +1,8 @@
 package com.gianfro.games.controllers;
 
-import com.gianfro.games.entities.SolutionOutput;
-import com.gianfro.games.entities.Sudoku;
-import com.gianfro.games.entities.Tab;
+import com.gianfro.games.entities.*;
+import com.gianfro.games.exceptions.NoCandidatesLeftException;
+import com.gianfro.games.explainers.SudokuExplainer;
 import com.gianfro.games.response.RandomSudokuResponse;
 import com.gianfro.games.service.SudokuService;
 import com.gianfro.games.utils.Utils;
@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -29,10 +30,44 @@ public class SudokuController {
     SudokuService sudokuService;
 
     @PostMapping(value = "/getTabs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Tab> getTabs(@NotNull @RequestBody String stringNumbers) {
+    public ResponseEntity<List<Tab>> getTabs(@NotNull @RequestBody String stringNumbers) {
         Sudoku s = Utils.buildSudoku(stringNumbers);
-        return Utils.getBasicTabs(s);
+        List<Tab> tabs = Utils.getBasicTabs(s);
+        List<Tab> emptyTabs = Utils.checkForNoCandidates(tabs);
+        if (!emptyTabs.isEmpty()) {
+            throw new NoCandidatesLeftException(s.getStringNumbers(), tabs, emptyTabs);
+        }
+        return ResponseEntity.ok(tabs);
     }
+
+    //TODO: RIVEDERE PARECCHIO, TROPPO SCRITTO MALE
+    @PostMapping(value = "/getLittleHelp", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ChangeLog> getLittleHelp(@NotNull @RequestBody String stringNumbers) {
+        ChangeLog changeLog = null;
+        try {
+            SolutionOutput solutionOutput = sudokuService.solveSudoku(stringNumbers);
+            if (!solutionOutput.getSolutionSteps().isEmpty()) {
+                SolutionStep step1 = solutionOutput.getSolutionSteps().get(0);
+                //TODO CHECK
+                changeLog = step1.getChangeLogs().get(0);
+                changeLog.setExplanation(SudokuExplainer.explainChange(changeLog));
+            }
+        } catch (Exception e) {
+            //TODO
+            System.out.println(e.getMessage());
+            System.out.println(e.getStackTrace());
+        }
+        return ResponseEntity.ok(changeLog);
+    }
+
+    //TODO REMOVE
+//    NoCandidatesLeftErrorDTO errorDTO = NoCandidatesLeftErrorDTO.builder()
+//            .sudokuNumbers(s.getStringNumbers())
+//            .cellCoordinates("A1") //TODO per il momento ignora il fatto che sia hardcoded
+//            .numberSet(1) //TODO per il momento ignora il fatto che sia hardcoded
+//            .tabs(tabs)
+//            .emptyTabs(emptyTabs)
+//            .build();
 
     @PostMapping(value = "/solveSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
     public SolutionOutput solveSudoku(@NotNull @RequestBody String stringNumbers) {

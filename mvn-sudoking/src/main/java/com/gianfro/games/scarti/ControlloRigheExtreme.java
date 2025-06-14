@@ -25,35 +25,35 @@ public class ControlloRigheExtreme {
                     int rowsCount = 0;
                     for (List<Integer> row : boxRows) {
                         if (row.contains(number)) {
-                            welcomingBoxRows.remove(new Integer(rowsCount));
-                            welcomingBoxes.remove(new Integer(boxNumber));
+                            welcomingBoxRows.remove(Integer.valueOf(rowsCount));
+                            welcomingBoxes.remove(Integer.valueOf(boxNumber));
                             if (welcomingRows.contains(rowsCount)) {
-                                welcomingRows.remove(new Integer(rowsCount));
+                                welcomingRows.remove(Integer.valueOf(rowsCount));
                             }
                         } else {
                             if (sudoku.getRows().get((3 * indexRowsTrio) + rowsCount).contains(number)) {
-                                welcomingBoxRows.remove(new Integer(rowsCount));
+                                welcomingBoxRows.remove(Integer.valueOf(rowsCount));
                                 if (welcomingRows.contains(rowsCount)) {
-                                    welcomingRows.remove(new Integer(rowsCount));
+                                    welcomingRows.remove(Integer.valueOf(rowsCount));
                                 }
                             } else {
                                 if (Collections.frequency(row, 0) == 0) {
-                                    welcomingBoxRows.remove(new Integer(rowsCount));
+                                    welcomingBoxRows.remove(Integer.valueOf(rowsCount));
                                 } else {
                                     List<Integer> welcomingHouses = new ArrayList<>(Utils.INDEXES_02);
                                     int housesCount = 0;
                                     for (int square : row) {
                                         if (square != 0) {
-                                            welcomingHouses.remove(new Integer(housesCount));
+                                            welcomingHouses.remove(Integer.valueOf(housesCount));
                                         } else {
                                             if (sudoku.getColumns().get((3 * boxNumber) + housesCount).contains(number)) {
-                                                welcomingHouses.remove(new Integer(housesCount));
+                                                welcomingHouses.remove(Integer.valueOf(housesCount));
                                             }
                                         }
                                         housesCount++;
                                     }
                                     if (welcomingHouses.isEmpty()) {
-                                        welcomingBoxRows.remove(new Integer(rowsCount));
+                                        welcomingBoxRows.remove(Integer.valueOf(rowsCount));
                                     }
                                 }
                             }
@@ -69,7 +69,7 @@ public class ControlloRigheExtreme {
                                 }
                             }
                             if (welcomingBoxes.contains(boxNumber)) {
-                                welcomingBoxes.remove(new Integer(boxNumber));
+                                welcomingBoxes.remove(Integer.valueOf(boxNumber));
                             }
                         }
                     }
@@ -79,11 +79,13 @@ public class ControlloRigheExtreme {
                     List<List<Integer>> righeQuadratoLibero = Utils.getBoxRows(quadratoLibero);
                     if (Collections.frequency(righeQuadratoLibero.get(welcomingRows.get(0)), 0) == 1) {
                         int indiceColonna = righeQuadratoLibero.get(welcomingRows.get(0)).indexOf(0);
-                        Change change = new Change(
-                                "CRE", House.ROW,
-                                (3 * indexRowsTrio) + (welcomingRows.get(0) + 1),
-                                (3 * welcomingBoxes.get(0)) + (indiceColonna + 1),
-                                number);
+                        Change change = Change.builder()
+                                .solvingTechnique("CRE")
+                                .house(House.ROW)
+                                .row((3 * indexRowsTrio) + (welcomingRows.get(0) + 1))
+                                .col((3 * welcomingBoxes.get(0)) + (indiceColonna + 1))
+                                .number(number)
+                                .build();
                         changes.add(change);
                         ///
 //						System.out.println(change);
@@ -94,20 +96,22 @@ public class ControlloRigheExtreme {
                         int contoColonne = 0;
                         for (int elemento : righeQuadratoLibero.get(welcomingRows.get(0))) {
                             if (elemento != 0) {
-                                colonneQuadratoOspitali.remove(new Integer(contoColonne));
+                                colonneQuadratoOspitali.remove(Integer.valueOf(contoColonne));
                             } else {
                                 if (sudoku.getColumns().get(contoColonne + (3 * welcomingBoxes.get(0))).contains(number)) {
-                                    colonneQuadratoOspitali.remove(new Integer(contoColonne));
+                                    colonneQuadratoOspitali.remove(Integer.valueOf(contoColonne));
                                 }
                             }
                             contoColonne++;
                         }
                         if (colonneQuadratoOspitali.size() == 1) {
-                            Change change = new Change(
-                                    "CRE", House.ROW,
-                                    (welcomingRows.get(0) + 1) + (3 * indexRowsTrio),
-                                    (colonneQuadratoOspitali.get(0) + 1) + (3 * welcomingBoxes.get(0)),
-                                    number);
+                            Change change = Change.builder()
+                                    .solvingTechnique("CRE")
+                                    .house(House.ROW)
+                                    .row((welcomingRows.get(0) + 1) + (3 * indexRowsTrio))
+                                    .col((colonneQuadratoOspitali.get(0) + 1) + (3 * welcomingBoxes.get(0)))
+                                    .number(number)
+                                    .build();
                             changes.add(change);
                             ///
 //							System.out.println(change);

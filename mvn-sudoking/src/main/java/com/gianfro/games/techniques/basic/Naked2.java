@@ -41,9 +41,9 @@ public class Naked2 {
                 List<List<Integer>> pairsList = new ArrayList<>();
                 List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                 for (Tab tab : houseTabs) {
-                    if (tab.getNumbers().size() == 2) {
-                        pairsSet.add(tab.getNumbers());
-                        pairsList.add(tab.getNumbers());
+                    if (tab.getCandidates().size() == 2) {
+                        pairsSet.add(tab.getCandidates());
+                        pairsList.add(tab.getCandidates());
                     }
                 }
                 List<List<Integer>> pairs = new ArrayList<>(pairsSet);
@@ -54,10 +54,18 @@ public class Naked2 {
                         boolean deductionsDone = false;
                         List<Change> unitSkimmings = new ArrayList<>();
                         for (Tab tab : houseTabs2) {
-                            if (!tab.getNumbers().equals(pair)) {
-                                List<Integer> candidatesToBeRemoved = pair.stream().filter(x -> tab.getNumbers().remove(x)).collect(Collectors.toList());
+                            if (!tab.getCandidates().equals(pair)) {
+                                List<Integer> candidatesToBeRemoved = pair.stream().filter(x -> tab.getCandidates().remove(x)).collect(Collectors.toList());
                                 if (!candidatesToBeRemoved.isEmpty()) {
-                                    Skimming skimming = new Skimming(NAKED_PAIR, house, tab, candidatesToBeRemoved);
+                                    Skimming skimming = Skimming.builder()
+                                            .solvingTechnique(NAKED_PAIR)
+                                            .house(house)
+                                            .row(tab.getRow())
+                                            .col(tab.getCol())
+                                            .number(0)
+                                            .tab(tab)
+                                            .removedCandidates(candidatesToBeRemoved)
+                                            .build();
                                     unitSkimmings.add(skimming);
                                     deductionsDone = true;
                                 }
@@ -66,14 +74,16 @@ public class Naked2 {
                             }
                         }
                         if (deductionsDone) {
-                            changeLogs.add(new ChangeLog(
-                                    pair,
-                                    house,
-                                    houseNumber,
-                                    pairTabs,
-                                    NAKED_PAIR,
-                                    null,
-                                    unitSkimmings));
+                            ChangeLog changeLog = ChangeLog.builder()
+                                    .unitExamined(pair)
+                                    .house(house)
+                                    .houseNumber(houseNumber)
+                                    .unitMembers(pairTabs)
+                                    .solvingTechnique(NAKED_PAIR)
+                                    .solvingTechniqueVariant(null)
+                                    .changes(unitSkimmings)
+                                    .build();
+                            changeLogs.add(changeLog);
                         }
                     }
                 }

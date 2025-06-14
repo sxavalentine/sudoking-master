@@ -7,7 +7,6 @@ import com.gianfro.games.entities.Tab;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class ControlloColonneQuadrati {
         for (int boxNumber = 0; boxNumber < 9; boxNumber++) {
             List<Integer> box = sudoku.getBoxes().get(boxNumber);
             List<Integer> boxNumbers = new ArrayList<>(box);
-            boxNumbers.removeAll(Arrays.asList(0));
+            boxNumbers.removeAll(List.of(0));
             List<Integer> missingNumbers = new ArrayList<>();
             for (int number : Utils.NUMBERS) {
                 if (!boxNumbers.contains(number)) {
@@ -63,11 +62,13 @@ public class ControlloColonneQuadrati {
                     }
                     if (welcomingBoxRows.size() == 1) {
                         int rowIndex = rowsIndexes.get(0) + 1;
-                        Change change = new Change(
-                                "CCQ", House.COL,
-                                rowIndex + (3 * (boxNumber / 3)),
-                                colIndex + (3 * variable),
-                                number);
+                        Change change = Change.builder()
+                                .solvingTechnique("CCQ")
+                                .house(House.COL)
+                                .row(rowIndex + (3 * (boxNumber / 3)))
+                                .col(colIndex + (3 * variable))
+                                .number(number)
+                                .build();
                         changes.add(change);
                         ///
 //						System.out.println(change);

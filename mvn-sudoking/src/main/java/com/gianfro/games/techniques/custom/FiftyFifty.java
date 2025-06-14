@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FiftyFifty {
 
@@ -18,7 +17,7 @@ public class FiftyFifty {
     public static SolutionStep check(Sudoku sudoku, List<Tab> tabs, int cyclesCount) {
 
         List<ChangeLog> changeLogs = new LinkedList<>();
-        List<Tab> bivalueCells = tabs.stream().filter(tab -> tab.getNumbers().size() == 2).collect(Collectors.toList());
+        List<Tab> bivalueCells = tabs.stream().filter(tab -> tab.getCandidates().size() == 2).toList();
         Tab bivalueCell;
         try {
             int index = 0; // TODO in futuro si potrebbe fare che prova tutte le possibili caselle 5050 se la prima (come ora, con l'indice fisso a 0) non porta a risultati
@@ -30,8 +29,8 @@ public class FiftyFifty {
         }
         int speculationRow = bivalueCell.getRow();
         int speculationCol = bivalueCell.getCol();
-        int optionA = bivalueCell.getNumbers().get(0);
-        int optionB = bivalueCell.getNumbers().get(1);
+        int optionA = bivalueCell.getCandidates().get(0);
+        int optionB = bivalueCell.getCandidates().get(1);
 
         List<Integer> hypotheticalSequenceNumbers = new ArrayList<>(sudoku.getNumbers());
         hypotheticalSequenceNumbers.set(((9 * (speculationRow - 1)) + (speculationCol - 1)), optionA);
@@ -39,8 +38,22 @@ public class FiftyFifty {
         AttemptResult attemptResult = attempt5050(optionA, hypotheticalSequenceNumbers, speculationRow, speculationCol);
 
         if (attemptResult.change != null) {
-            Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionA);
-            ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
+            Change fiftyFiftyChange = Change.builder()
+                    .solvingTechnique(FIFTY_FIFTY)
+                    .house(null)
+                    .row(speculationRow)
+                    .col(speculationCol)
+                    .number(optionA)
+                    .build();
+            ChangeLog log = ChangeLog.builder()
+                    .unitExamined(null)
+                    .house(null)
+                    .houseNumber(0)
+                    .unitMembers(null)
+                    .solvingTechnique(FIFTY_FIFTY)
+                    .solvingTechniqueVariant(null)
+                    .changes(List.of(fiftyFiftyChange))
+                    .build();
             changeLogs.add(log);
             ///
 //			System.out.println("------------------------------------------------------------------------------------------------------------------");
@@ -51,8 +64,22 @@ public class FiftyFifty {
             ///
         } else if (attemptResult.bugs != null) {
             if (cyclesCount == 1) {
-                Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
+                Change fiftyFiftyChange = Change.builder()
+                        .solvingTechnique(FIFTY_FIFTY)
+                        .house(null)
+                        .row(speculationRow)
+                        .col(speculationCol)
+                        .number(optionB)
+                        .build();
+                ChangeLog log = ChangeLog.builder()
+                        .unitExamined(null)
+                        .house(null)
+                        .houseNumber(0)
+                        .unitMembers(null)
+                        .solvingTechnique(FIFTY_FIFTY)
+                        .solvingTechniqueVariant(null)
+                        .changes(List.of(fiftyFiftyChange))
+                        .build();
                 changeLogs.add(log);
                 ///
 //				System.out.println("------------------------------------------------------------------------------------------------------------------");
@@ -71,8 +98,22 @@ public class FiftyFifty {
                 AttemptResult attempt2 = attempt5050(optionB, hypotheticalSequenceNumbers2, speculationRow, speculationCol);
 
                 if (attempt2.change != null) {
-                    Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                    ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
+                    Change fiftyFiftyChange = Change.builder()
+                            .solvingTechnique(FIFTY_FIFTY)
+                            .house(null)
+                            .row(speculationRow)
+                            .col(speculationCol)
+                            .number(optionB)
+                            .build();
+                    ChangeLog log = ChangeLog.builder()
+                            .unitExamined(null)
+                            .house(null)
+                            .houseNumber(0)
+                            .unitMembers(null)
+                            .solvingTechnique(FIFTY_FIFTY)
+                            .solvingTechniqueVariant(null)
+                            .changes(List.of(fiftyFiftyChange))
+                            .build();
                     changeLogs.add(log);
                     ///
 //					System.out.println("------------------------------------------------------------------------------------------------------------------");
@@ -111,8 +152,22 @@ public class FiftyFifty {
 
                     if (!recursiveResults.contains(null)) {
                         changeLogs.addAll(recursiveResults);
-                        Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                        ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
+                        Change fiftyFiftyChange = Change.builder()
+                                .solvingTechnique(FIFTY_FIFTY)
+                                .house(null)
+                                .row(speculationRow)
+                                .col(speculationCol)
+                                .number(optionB)
+                                .build();
+                        ChangeLog log = ChangeLog.builder()
+                                .unitExamined(null)
+                                .house(null)
+                                .houseNumber(0)
+                                .unitMembers(null)
+                                .solvingTechnique(FIFTY_FIFTY)
+                                .solvingTechniqueVariant(null)
+                                .changes(List.of(fiftyFiftyChange))
+                                .build();
                         changeLogs.add(log);
                     } else {
                         changeLogs.add(null);
@@ -138,24 +193,72 @@ public class FiftyFifty {
             List<ChangeLog> recursiveResults = new ArrayList<>(fiftyFiftyResults.getChangeLogs());
             if (!recursiveResults.contains(null)) {
                 changeLogs.addAll(recursiveResults);
-                Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionA);
-                ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
+                Change fiftyFiftyChange = Change.builder()
+                        .solvingTechnique(FIFTY_FIFTY)
+                        .house(null)
+                        .row(speculationRow)
+                        .col(speculationCol)
+                        .number(optionA)
+                        .build();
+                ChangeLog log = ChangeLog.builder()
+                        .unitExamined(null)
+                        .house(null)
+                        .houseNumber(0)
+                        .unitMembers(null)
+                        .solvingTechnique(FIFTY_FIFTY)
+                        .solvingTechniqueVariant(null)
+                        .changes(List.of(fiftyFiftyChange))
+                        .build();
                 changeLogs.add(log);
             } else {
                 if (cyclesCount == 2) {
-                    Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                    ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange));
+                    Change fiftyFiftyChange = Change.builder()
+                            .solvingTechnique(FIFTY_FIFTY)
+                            .house(null)
+                            .row(speculationRow)
+                            .col(speculationCol)
+                            .number(optionB)
+                            .build();
+                    ChangeLog log = ChangeLog.builder()
+                            .unitExamined(null)
+                            .house(null)
+                            .houseNumber(0)
+                            .unitMembers(null)
+                            .solvingTechnique(FIFTY_FIFTY)
+                            .solvingTechniqueVariant(null)
+                            .changes(List.of(fiftyFiftyChange))
+                            .build();
                     changeLogs.add(log);
                 } else {
                     List<Integer> hypotheticalSequenceNumbers2 = new ArrayList<>(sudoku.getNumbers());
-                    Change fiftyFiftyChange = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
+                    Change fiftyFiftyChange = Change.builder()
+                            .solvingTechnique(FIFTY_FIFTY)
+                            .house(null)
+                            .row(speculationRow)
+                            .col(speculationCol)
+                            .number(optionB)
+                            .build();
                     hypotheticalSequenceNumbers2 = Utils.setDeductedNumber(hypotheticalSequenceNumbers2, fiftyFiftyChange);
 
                     AttemptResult attempt2 = attempt5050(optionB, hypotheticalSequenceNumbers2, speculationRow, speculationCol);
 
                     if (attempt2.change != null) {
-                        Change fiftyFiftyChange2 = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                        ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange2));
+                        Change fiftyFiftyChange2 = Change.builder()
+                                .solvingTechnique(FIFTY_FIFTY)
+                                .house(null)
+                                .row(speculationRow)
+                                .col(speculationCol)
+                                .number(optionB)
+                                .build();
+                        ChangeLog log = ChangeLog.builder()
+                                .unitExamined(null)
+                                .house(null)
+                                .houseNumber(0)
+                                .unitMembers(null)
+                                .solvingTechnique(FIFTY_FIFTY)
+                                .solvingTechniqueVariant(null)
+                                .changes(List.of(fiftyFiftyChange2))
+                                .build();
                         changeLogs.add(log);
                     } else if (attempt2.bugs != null) {
                         changeLogs.add(null);
@@ -169,8 +272,22 @@ public class FiftyFifty {
 
                         if (!recursiveResults2.contains(null)) {
                             changeLogs.addAll(recursiveResults2);
-                            Change fiftyFiftyChange2 = new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, optionB);
-                            ChangeLog log = new ChangeLog(null, null, 0, null, FIFTY_FIFTY, null, Collections.singletonList(fiftyFiftyChange2));
+                            Change fiftyFiftyChange2 = Change.builder()
+                                    .solvingTechnique(FIFTY_FIFTY)
+                                    .house(null)
+                                    .row(speculationRow)
+                                    .col(speculationCol)
+                                    .number(optionB)
+                                    .build();
+                            ChangeLog log = ChangeLog.builder()
+                                    .unitExamined(null)
+                                    .house(null)
+                                    .houseNumber(0)
+                                    .unitMembers(null)
+                                    .solvingTechnique(FIFTY_FIFTY)
+                                    .solvingTechniqueVariant(null)
+                                    .changes(List.of(fiftyFiftyChange2))
+                                    .build();
                             changeLogs.add(log);
                         } else {
                             changeLogs.add(null);
@@ -203,7 +320,14 @@ public class FiftyFifty {
 //			}
         } else {
             if (Collections.frequency(attempt.getNumbers(), 0) == 0) {
-                attemptResult.setChange(new Change(FIFTY_FIFTY, null, speculationRow, speculationCol, option));
+                Change fiftyFiftyChange = Change.builder()
+                        .solvingTechnique(FIFTY_FIFTY)
+                        .house(null)
+                        .row(speculationRow)
+                        .col(speculationCol)
+                        .number(option)
+                        .build();
+                attemptResult.setChange(fiftyFiftyChange);
             } else {
 
                 List<ChangeLog> changeLogs = new LinkedList<>(standardTechniquesOnly.getChangeLogs());

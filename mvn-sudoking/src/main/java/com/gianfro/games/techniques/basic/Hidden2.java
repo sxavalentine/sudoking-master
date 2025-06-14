@@ -44,7 +44,7 @@ public class Hidden2 {
                     int occurences = 0;
                     List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                     for (Tab tab : houseTabs) {
-                        if (tab.getNumbers().contains(number)) {
+                        if (tab.getCandidates().contains(number)) {
                             occurences++;
                         }
                     }
@@ -59,8 +59,8 @@ public class Hidden2 {
                         List<Tab> shamTabs = new ArrayList<>();
                         List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                         for (Tab tab : houseTabs) {
-                            if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possiblePair, 1)) {
-                                if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possiblePair, 2)) {
+                            if (Utils.containsAtLeastXCandidates(tab.getCandidates(), possiblePair, 1)) {
+                                if (Utils.containsAtLeastXCandidates(tab.getCandidates(), possiblePair, 2)) {
                                     pairTabs.add(tab);
                                 } else {
                                     shamTabs.add(tab);
@@ -71,22 +71,32 @@ public class Hidden2 {
                             List<Change> unitSkimmings = new ArrayList<>();
                             for (ChangeLogUnitMember unitMember : pairTabs) {
                                 Tab tab = (Tab) unitMember;
-                                List<Integer> candidatesToBeRemoved = tab.getNumbers().stream().filter(x -> !possiblePair.contains(x)).collect(Collectors.toList());
-                                tab.getNumbers().removeAll(candidatesToBeRemoved);
+                                List<Integer> candidatesToBeRemoved = tab.getCandidates().stream().filter(x -> !possiblePair.contains(x)).collect(Collectors.toList());
+                                tab.getCandidates().removeAll(candidatesToBeRemoved);
                                 if (!candidatesToBeRemoved.isEmpty()) {
-                                    Skimming skimming = new Skimming(HIDDEN_PAIR, house, tab, candidatesToBeRemoved);
+                                    Skimming skimming = Skimming.builder()
+                                            .solvingTechnique(HIDDEN_PAIR)
+                                            .house(null)
+                                            .row(tab.getRow())
+                                            .col(tab.getCol())
+                                            .number(0)
+                                            .tab(tab)
+                                            .removedCandidates(candidatesToBeRemoved)
+                                            .build();
                                     unitSkimmings.add(skimming);
                                 }
                             }
                             if (!unitSkimmings.isEmpty()) {
-                                changeLogs.add(new ChangeLog(
-                                        possiblePair,
-                                        house,
-                                        houseNumber,
-                                        pairTabs,
-                                        HIDDEN_PAIR,
-                                        null,
-                                        unitSkimmings));
+                                ChangeLog changeLog = ChangeLog.builder()
+                                        .unitExamined(possiblePair)
+                                        .house(house)
+                                        .houseNumber(houseNumber)
+                                        .unitMembers(pairTabs)
+                                        .solvingTechnique(HIDDEN_PAIR)
+                                        .solvingTechniqueVariant(null)
+                                        .changes(unitSkimmings)
+                                        .build();
+                                changeLogs.add(changeLog);
                             }
                         }
                     }

@@ -6,7 +6,6 @@ import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,9 +34,9 @@ public class WWing {
         List<ChangeLog> changeLogs = new LinkedList<>();
 
         try {
-            List<Tab> biValueCells = tabs.stream().filter(t -> t.getNumbers().size() == 2).toList();
+            List<Tab> biValueCells = tabs.stream().filter(t -> t.getCandidates().size() == 2).toList();
             for (Tab t1 : biValueCells) {
-                List<Tab> sameCandidatesTabs = tabs.stream().filter(t -> !t.equals(t1) && t.getNumbers().equals(t1.getNumbers())).toList();
+                List<Tab> sameCandidatesTabs = tabs.stream().filter(t -> !t.equals(t1) && t.getCandidates().equals(t1.getCandidates())).toList();
                 for (Tab t4 : sameCandidatesTabs) {
                     List<Link> chain;
                     List<Tab> t1SeenTabs = ChainUtils.getSeenCells(t1, tabs.stream().filter(t -> !t.equals(t4)).collect(Collectors.toList()));
@@ -48,12 +47,12 @@ public class WWing {
                             // I search for two tabs (one that can see t1, one that can see t4), that see each other
                             if (ChainUtils.cellsSeeEachOther(t2, t3)) {
                                 // if they do, I check what candidate they share that is also a t1 candidate (and consequentially t4)
-                                Integer middleLinksCandidate = t2.getNumbers().stream().filter(i -> t1.getNumbers().contains(i)).findFirst().orElse(null);
+                                Integer middleLinksCandidate = t2.getCandidates().stream().filter(i -> t1.getCandidates().contains(i)).findFirst().orElse(null);
                                 // then, I check what House they share, so that I can check they are the only two cells in that house with that candidate
                                 House sharedHouse = ChainUtils.getSharedHouse(t2, t3);
                                 List<Tab> sharedHouseTabs = tabs.stream().
                                         filter(t ->
-                                                t.getNumbers().contains(middleLinksCandidate) &&
+                                                t.getCandidates().contains(middleLinksCandidate) &&
                                                         (sharedHouse.equals(House.BOX) ? t.getBox() == t2.getBox() :
                                                                 sharedHouse.equals(House.ROW) ? t.getRow() == t2.getRow() :
                                                                         t.getCol() == t2.getCol()))
@@ -65,27 +64,36 @@ public class WWing {
                                     Link l4 = new Link(t4, true, middleLinksCandidate);
                                     chain = Arrays.asList(l1, l2, l3, l4);
 
-                                    Integer outerLinksCandidate = t1.getNumbers().stream().filter(n -> !n.equals(middleLinksCandidate)).findFirst().orElse(null);
+                                    Integer outerLinksCandidate = t1.getCandidates().stream().filter(n -> !n.equals(middleLinksCandidate)).findFirst().orElse(null);
                                     List<Change> skimmings = new LinkedList<>();
 
                                     for (Tab tab : tabs) {
                                         if (ChainUtils.seesCell(tab, t1, outerLinksCandidate) && ChainUtils.seesCell(tab, t4, outerLinksCandidate)) {
-                                            tab.getNumbers().remove(outerLinksCandidate);
-                                            Skimming skimming = new Skimming(W_WING, null, tab, Collections.singletonList(outerLinksCandidate));
+                                            tab.getCandidates().remove(outerLinksCandidate);
+                                            Skimming skimming = Skimming.builder()
+                                                    .solvingTechnique(W_WING)
+                                                    .house(null)
+                                                    .row(tab.getRow())
+                                                    .col(tab.getCol())
+                                                    .number(0)
+                                                    .tab(tab)
+                                                    .removedCandidates(List.of(outerLinksCandidate))
+                                                    .build();
                                             skimmings.add(skimming);
                                         }
                                     }
 
                                     if (!skimmings.isEmpty()) {
                                         List<ChangeLogUnitMember> unitMembers = new LinkedList<>(chain);
-                                        ChangeLog changeLog = new ChangeLog(
-                                                Collections.singletonList(outerLinksCandidate),
-                                                null,
-                                                0,
-                                                unitMembers,
-                                                W_WING,
-                                                null,
-                                                skimmings);
+                                        ChangeLog changeLog = ChangeLog.builder()
+                                                .unitExamined(List.of(outerLinksCandidate))
+                                                .house(null)
+                                                .houseNumber(0)
+                                                .unitMembers(unitMembers)
+                                                .solvingTechnique(W_WING)
+                                                .solvingTechniqueVariant(null)
+                                                .changes(skimmings)
+                                                .build();
                                         changeLogs.add(changeLog);
                                     }
                                 }

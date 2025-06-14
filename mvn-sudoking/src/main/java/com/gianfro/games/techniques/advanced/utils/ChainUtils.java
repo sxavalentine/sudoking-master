@@ -52,7 +52,7 @@ public class ChainUtils {
     // dati due tabs, stabilisce se il primo differisce dal secondo, lo vede (ovvero ha in comune almeno una casa con esso) e se contiene il candidato passato come parametro
     // (per ora usato solo da Chain.findNegativeChain) rendere un metodo private della classe ?
     public static boolean seesCell(Tab tab, Tab toBeSeen, int candidate) {
-        if (tab.getNumbers().contains(candidate) && tab != toBeSeen) {
+        if (tab.getCandidates().contains(candidate) && tab != toBeSeen) {
             return
                     tab.getBox() == toBeSeen.getBox() ||
                             tab.getRow() == toBeSeen.getRow() ||
@@ -75,7 +75,7 @@ public class ChainUtils {
      * Given two Tab, returns the List of candidates they share
      */
     public static List<Integer> getSharedCandidates(Tab t1, Tab t2) {
-        return t1.getNumbers().stream().filter(candidate -> t2.getNumbers().contains(candidate)).collect(Collectors.toList());
+        return t1.getCandidates().stream().filter(candidate -> t2.getCandidates().contains(candidate)).collect(Collectors.toList());
     }
 
     /**

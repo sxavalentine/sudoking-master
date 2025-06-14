@@ -44,7 +44,7 @@ public class Hidden3 {
                     int occurences = 0;
                     List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                     for (Tab tab : houseTabs) {
-                        if (tab.getNumbers().contains(number)) {
+                        if (tab.getCandidates().contains(number)) {
                             occurences++;
                         }
                     }
@@ -59,8 +59,8 @@ public class Hidden3 {
                         List<Tab> shamTabs = new ArrayList<>();
                         List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                         for (Tab tab : houseTabs) {
-                            if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleTriple, 1)) {
-                                if (Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleTriple, 2)) {
+                            if (Utils.containsAtLeastXCandidates(tab.getCandidates(), possibleTriple, 1)) {
+                                if (Utils.containsAtLeastXCandidates(tab.getCandidates(), possibleTriple, 2)) {
                                     tripleTabs.add(tab);
                                 } else {
                                     shamTabs.add(tab);
@@ -71,21 +71,31 @@ public class Hidden3 {
                             List<Change> unitSkimmings = new ArrayList<>();
                             for (ChangeLogUnitMember unitMember : tripleTabs) {
                                 Tab tab = (Tab) unitMember;
-                                List<Integer> candidatesToBeRemoved = tab.getNumbers().stream().filter(x -> !possibleTriple.contains(x)).collect(Collectors.toList());
-                                tab.getNumbers().removeAll(candidatesToBeRemoved);
+                                List<Integer> candidatesToBeRemoved = tab.getCandidates().stream().filter(x -> !possibleTriple.contains(x)).collect(Collectors.toList());
+                                tab.getCandidates().removeAll(candidatesToBeRemoved);
                                 if (!candidatesToBeRemoved.isEmpty()) {
-                                    unitSkimmings.add(new Skimming(HIDDEN_TRIPLE, house, tab, candidatesToBeRemoved));
+                                    Skimming skimming = Skimming.builder()
+                                            .solvingTechnique(HIDDEN_TRIPLE)
+                                            .house(house)
+                                            .row(tab.getRow())
+                                            .col(tab.getCol())
+                                            .number(0)
+                                            .tab(tab)
+                                            .removedCandidates(candidatesToBeRemoved)
+                                            .build();
                                 }
                             }
                             if (!unitSkimmings.isEmpty()) {
-                                changeLogs.add(new ChangeLog(
-                                        possibleTriple,
-                                        house,
-                                        houseNumber,
-                                        tripleTabs,
-                                        HIDDEN_TRIPLE,
-                                        null,
-                                        unitSkimmings));
+                                ChangeLog changeLog = ChangeLog.builder()
+                                        .unitExamined(possibleTriple)
+                                        .house(house)
+                                        .houseNumber(houseNumber)
+                                        .unitMembers(tripleTabs)
+                                        .solvingTechnique(HIDDEN_TRIPLE)
+                                        .solvingTechniqueVariant(null)
+                                        .changes(unitSkimmings)
+                                        .build();
+                                changeLogs.add(changeLog);
                             }
                         }
                     }

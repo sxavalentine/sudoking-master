@@ -5,7 +5,10 @@ import com.gianfro.games.entities.House;
 import com.gianfro.games.entities.Sudoku;
 import com.gianfro.games.utils.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ControlloRigheQuadrati {
 
@@ -14,7 +17,7 @@ public class ControlloRigheQuadrati {
         for (int boxNumber = 0; boxNumber < 9; boxNumber++) {
             List<Integer> box = sudoku.getBoxes().get(boxNumber);
             List<Integer> boxNumbers = new ArrayList<>(box);
-            boxNumbers.removeAll(Arrays.asList(0));
+            boxNumbers.removeAll(List.of(0));
             List<Integer> missingNumbers = new LinkedList<>();
             for (int number : Utils.NUMBERS) {
                 if (!boxNumbers.contains(number)) {
@@ -59,11 +62,13 @@ public class ControlloRigheQuadrati {
                     }
                     if (welcomingBoxColumns.size() == 1) {
                         int columnIndex = columnsIndexes.get(0) + 1;
-                        Change change = new Change(
-                                "CRQ", House.ROW,
-                                rowIndex + (3 * (boxNumber / 3)),
-                                columnIndex + (3 * variable),
-                                number);
+                        Change change = Change.builder()
+                                .solvingTechnique("CRQ")
+                                .house(House.ROW)
+                                .row(rowIndex + (3 * (boxNumber / 3)))
+                                .col(columnIndex + (3 * variable))
+                                .number(number)
+                                .build();
                         changes.add(change);
                     }
                 }

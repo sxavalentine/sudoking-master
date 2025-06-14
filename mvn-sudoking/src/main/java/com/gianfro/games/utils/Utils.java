@@ -1,7 +1,6 @@
 package com.gianfro.games.utils;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.exceptions.NoCandidatesLeftException;
 import com.gianfro.games.exceptions.SudokuBuildException;
 import org.paukov.combinatorics3.Generator;
 
@@ -157,16 +156,33 @@ public class Utils {
                     missingNumbers.removeAll(sudoku.getColumns().get(column - 1));
                     Tab tab = new Tab(row, column, missingNumbers);
                     List<Integer> boxNumbers = sudoku.getBoxes().get(tab.getBox() - 1);
-                    tab.getNumbers().removeAll(boxNumbers);
+                    tab.getCandidates().removeAll(boxNumbers);
                     tabs.add(tab);
                 }
             }
         }
-        List<Tab> emptyTabs = tabs.stream().filter(t -> t.getNumbers().isEmpty()).toList();
-        if (!emptyTabs.isEmpty()) {
-            throw new NoCandidatesLeftException(sudoku, null, null, tabs, emptyTabs);
-        }
         return tabs;
+    }
+
+    /**
+     * Check if there are tabs who have no candidates left.generated have no Tabs without candidates (which is an error).
+     */
+    public static List<Tab> checkForNoCandidates(List<Tab> tabs) {
+        return tabs.stream().filter(t -> t.getCandidates().isEmpty()).toList();
+    }
+
+    /**
+     * Check if there are two or more tabs from the same house that have the same single candidate (which is an error).
+     * Eg: cell A1 and cell A2 (who are both from Row A) have both 1 as the only the candidate left.
+     * Placing the candidate 1 in either of those cells would result in the other one being empty with no candidates available,
+     * so it would be impossible to solve the Sudoku.
+     */
+    //TODO: Finire di implementare, non sono nemmeno sicuro di usarlo
+    public static List<Tab> checkForSameSingleCandidate(List<Tab> tabs) {
+        Set<Tab> sameSingleCandidateTabs = new HashSet<>();
+        List<Tab> singleCandidateTabs = tabs.stream().filter(t -> t.getCandidates().size() == 1).toList();
+
+        return new LinkedList<>(sameSingleCandidateTabs);
     }
 
 
@@ -235,7 +251,7 @@ public class Utils {
      * @return true: if the tuple is equal or a subset of Tab's candidates
      */
     public static boolean candidatesAreSameOrSubset(Tab tab, List<Integer> tuple) {
-        for (Integer numero : tab.getNumbers()) {
+        for (Integer numero : tab.getCandidates()) {
             if (!tuple.contains(numero)) {
                 return false;
             }
@@ -327,7 +343,7 @@ public class Utils {
         Set<String> bugs = new HashSet<>();
         for (Tab tab : tabs) {
             int sudokuSquare = ((9 * (tab.getRow() - 1))) + (tab.getCol() - 1);
-            if (tab.getNumbers().isEmpty() && sudoku.getNumbers().get(sudokuSquare) == 0) {
+            if (tab.getCandidates().isEmpty() && sudoku.getNumbers().get(sudokuSquare) == 0) {
                 bugs.add("Cell (" + ROWS_LETTERS.get(tab.getRow() - 1) + tab.getCol() + ") is empty but has no candidates");
             }
         }
@@ -386,7 +402,7 @@ public class Utils {
                 if (number == 0) {
                     for (Tab skimmedTab : skimmedTabs) {
                         if (skimmedTab.getRow() == row && skimmedTab.getCol() == col) {
-                            tab = new Tab(row, col, skimmedTab.getNumbers());
+                            tab = new Tab(row, col, skimmedTab.getCandidates());
                         }
                     }
                 } else {
@@ -433,7 +449,7 @@ public class Utils {
                     missingNumbers.removeAll(sudoku.getColumns().get(col - 1));
                     tab = new Tab(row, col, missingNumbers);
                     List<Integer> boxNumbers = sudoku.getBoxes().get(tab.getBox() - 1);
-                    tab.getNumbers().removeAll(boxNumbers);
+                    tab.getCandidates().removeAll(boxNumbers);
                 } else {
                     tab = new Tab(row, col, Collections.singletonList(number));
                 }
@@ -466,7 +482,7 @@ public class Utils {
     // usato dai due metodi printTabs e printSkimmedTabs
     private static String printCandidates(Tab tab) {
         StringBuilder candidates = new StringBuilder();
-        for (int candidate : tab.getNumbers()) {
+        for (int candidate : tab.getCandidates()) {
             candidates.append(candidate);
         }
         while (candidates.length() < 9) {
@@ -504,7 +520,7 @@ public class Utils {
         for (Integer number : NUMBERS) {
             int cellCount = 0;
             for (Tab t : tabs) {
-                if (t.getNumbers().contains(number)) cellCount++;
+                if (t.getCandidates().contains(number)) cellCount++;
             }
             map.put(number, cellCount);
         }
@@ -557,7 +573,7 @@ public class Utils {
                         Tab currentCellTab = rowTabs.stream().filter(t -> t.getCol() == cellColumn + 1).findFirst().orElse(null);
                         if (currentCellTab != null) {
                             for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {
-                                gridString.append(" ").append(currentCellTab.getNumbers().contains(number) ? number : " ").append(" ");
+                                gridString.append(" ").append(currentCellTab.getCandidates().contains(number) ? number : " ").append(" ");
                             }
                             gridString.append(endLineBox);
                         }
@@ -580,7 +596,7 @@ public class Utils {
                         Tab currentCellTab = rowTabs.stream().filter(t -> t.getCol() == cellColumn + 1).findFirst().orElse(null);
                         if (currentCellTab != null) {
                             for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {
-                                gridString.append(" ").append(currentCellTab.getNumbers().contains(number) ? number : " ").append(" ");
+                                gridString.append(" ").append(currentCellTab.getCandidates().contains(number) ? number : " ").append(" ");
                             }
                             gridString.append(endLineBox);
                         }

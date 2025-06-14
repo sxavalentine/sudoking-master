@@ -25,7 +25,7 @@ public class ExplainerHidden3 {
             sb.append(String.format(
                     "%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
                     SudokuExplainer.getCell(skimming),
-                    skimming.getTab().getNumbers(),
+                    skimming.getTab().getCandidates(),
                     skimming.getRemovedCandidates()));
             sb.append("\n");
         });

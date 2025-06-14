@@ -2,14 +2,19 @@ package com.gianfro.games.sudoku.solver;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.exceptions.UnsolvableException;
-import com.gianfro.games.techniques.basic.Hidden1;
-import com.gianfro.games.techniques.basic.Naked1;
 import com.gianfro.games.techniques.StandardSolvingTechnique;
 import com.gianfro.games.techniques.advanced.*;
+import com.gianfro.games.techniques.basic.Hidden1;
+import com.gianfro.games.techniques.basic.Naked1;
 import com.gianfro.games.utils.Utils;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
+@Slf4j
 public class SudokuSolver {
 
     public static SolutionOutput getSolution(Sudoku sudoku) {
@@ -115,11 +120,15 @@ public class SudokuSolver {
         SkimmingResult result;
 
         result = Naked1.check(tabs);
-        Set<ChangeLog> changeLogs = new HashSet<>(result.getChangeLogs());
+        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
         tabs = result.getTabs();
 
         result = Hidden1.check(tabs);
-        changeLogs.addAll(result.getChangeLogs());
+        result.getChangeLogs().forEach(cl -> {
+            if (!changeLogs.contains(cl)) {
+                changeLogs.add(cl);
+            }
+        });
         tabs = result.getTabs();
 
         // skimmings
@@ -127,7 +136,11 @@ public class SudokuSolver {
             int solvingTechniqueIndex = 2;
             while (solvingTechniqueIndex < StandardSolvingTechnique.values().length) {
                 result = StandardSolvingTechnique.values()[solvingTechniqueIndex].check(tabs);
-                changeLogs.addAll(result.getChangeLogs());
+                result.getChangeLogs().forEach(cl -> {
+                    if (!changeLogs.contains(cl)) {
+                        changeLogs.add(cl);
+                    }
+                });
                 tabs = result.getTabs();
                 solvingTechniqueIndex++;
             }

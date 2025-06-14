@@ -20,8 +20,8 @@ public class ControlloTerzettiRighe {
                         List<List<Integer>> boxRows = Utils.getBoxRows(boxesTrio.get(box));
                         for (int row : Utils.INDEXES_02) {
                             if (boxRows.get(row).contains(number)) {
-                                welcomingRows.remove(new Integer(row));
-                                welcomingBoxes.remove(new Integer(box));
+                                welcomingRows.remove(Integer.valueOf(row));
+                                welcomingBoxes.remove(Integer.valueOf(box));
                             }
                         }
                     }
@@ -30,38 +30,56 @@ public class ControlloTerzettiRighe {
                         List<List<Integer>> welcomingBoxRows = Utils.getBoxRows(welcomingBox);
                         if (Collections.frequency(welcomingBoxRows.get(welcomingRows.get(0)), 0) == 1) {
                             int indexBlankSquare = welcomingBoxRows.get(welcomingRows.get(0)).indexOf(0);
-                            Change change = new Change(
-                                    "CTR",
-                                    House.ROW,
-                                    ((3 * rowsTrio) + welcomingRows.get(0) + 1),
-                                    ((3 * welcomingBoxes.get(0) + (indexBlankSquare + 1))),
-                                    number);
-                            changeLogs.add(new ChangeLog(null, null, 0, Arrays.asList(), "CTR", null, Arrays.asList(change)));
+                            Change change = Change.builder()
+                                    .solvingTechnique("CTR")
+                                    .house(House.ROW)
+                                    .row(((3 * rowsTrio) + welcomingRows.get(0) + 1))
+                                    .col(((3 * welcomingBoxes.get(0) + (indexBlankSquare + 1))))
+                                    .number(number)
+                                    .build();
+                            ChangeLog changeLog = ChangeLog.builder()
+                                    .unitExamined(null)
+                                    .house(null)
+                                    .houseNumber(0)
+                                    .unitMembers(List.of())
+                                    .solvingTechnique("CTR")
+                                    .solvingTechniqueVariant(null)
+                                    .changes(List.of(change))
+                                    .build();
+                            changeLogs.add(changeLog);
                         } else {
                             List<Integer> welcomingBoxCols = new ArrayList<>(Utils.INDEXES_02);
                             int columnCount = 0;
                             for (int element : welcomingBoxRows.get(welcomingRows.get(0))) {
                                 if (element != 0) {
-                                    welcomingBoxCols.remove(new Integer(columnCount));
+                                    welcomingBoxCols.remove(Integer.valueOf(columnCount));
                                 } else {
                                     if (sudoku.getColumns().get((3 * welcomingBoxes.get(0)) + columnCount).contains(number)) {
-                                        welcomingBoxCols.remove(new Integer(columnCount));
+                                        welcomingBoxCols.remove(Integer.valueOf(columnCount));
                                     }
                                 }
                                 columnCount++;
                             }
                             if (welcomingBoxCols.size() == 1) {
-                                Change change = new Change(
-                                        "CTR",
-                                        House.ROW,
-                                        ((3 * rowsTrio) + welcomingRows.get(0) + 1),
-                                        (3 * welcomingBoxes.get(0) + welcomingBoxCols.get(0) + 1),
-                                        number);
-                                changeLogs.add(new ChangeLog(null, null, 0, Arrays.asList(), "CTR", null, Arrays.asList(change)));
-                                ///
-                                //                        	System.out.println(change);
-                                //                        	Utils.grid(sudoku);
-                                ///
+                                Change change = Change.builder()
+                                        .solvingTechnique("CTR")
+                                        .house(House.ROW)
+                                        .row(((3 * rowsTrio) + welcomingRows.get(0) + 1))
+                                        .col((3 * welcomingBoxes.get(0) + welcomingBoxCols.get(0) + 1))
+                                        .number(number)
+                                        .build();
+                                ChangeLog changeLog = ChangeLog.builder()
+                                        .unitExamined(null)
+                                        .house(null)
+                                        .houseNumber(0)
+                                        .unitMembers(List.of())
+                                        .solvingTechnique("CTR")
+                                        .solvingTechniqueVariant(null)
+                                        .changes(List.of(change))
+                                        .build();
+                                changeLogs.add(changeLog);
+//                                System.out.println(change);
+//                                Utils.grid(sudoku);
                             }
                         }
                     }

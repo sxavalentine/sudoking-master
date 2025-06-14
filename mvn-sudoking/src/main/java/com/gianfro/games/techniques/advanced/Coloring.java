@@ -5,7 +5,10 @@ import com.gianfro.games.sudoku.solver.SudokuSolver;
 import com.gianfro.games.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.utils.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Coloring {
@@ -46,7 +49,7 @@ public class Coloring {
                 for (int houseNumber : Utils.NUMBERS) {
                     if (fullColorMap == null) {
                         // gets the house tabs that contain the number as candidate
-                        List<Tab> welcomingTabs = Utils.getHouseTabs(house, houseNumber, tabs).stream().filter(t -> t.getNumbers().contains(number)).toList();
+                        List<Tab> welcomingTabs = Utils.getHouseTabs(house, houseNumber, tabs).stream().filter(t -> t.getCandidates().contains(number)).toList();
                         if (welcomingTabs.size() == 2) {
 
                             List<Link> colorMap = new ArrayList<>();
@@ -88,8 +91,16 @@ public class Coloring {
                                 }
                                 if (colorWrapA) {
                                     for (Tab t : colorA) {
-                                        t.getNumbers().remove(Integer.valueOf(number));
-                                        Skimming skimming = new Skimming(COLOR_WRAP, house, t, Collections.singletonList(number));
+                                        t.getCandidates().remove(Integer.valueOf(number));
+                                        Skimming skimming = Skimming.builder()
+                                                .solvingTechnique(COLOR_WRAP)
+                                                .house(house)
+                                                .row(t.getRow())
+                                                .col(t.getCol())
+                                                .number(0)
+                                                .tab(t)
+                                                .removedCandidates(List.of(number))
+                                                .build();
                                         colorWrapSkimmings.add(skimming);
                                     }
                                 } else {
@@ -106,8 +117,16 @@ public class Coloring {
                                     }
                                     if (colorWrapB) {
                                         for (Tab t : colorB) {
-                                            t.getNumbers().remove(Integer.valueOf(number));
-                                            Skimming skimming = new Skimming(COLOR_WRAP, house, t, Collections.singletonList(number));
+                                            t.getCandidates().remove(Integer.valueOf(number));
+                                            Skimming skimming = Skimming.builder()
+                                                    .solvingTechnique(COLOR_WRAP)
+                                                    .house(house)
+                                                    .row(t.getRow())
+                                                    .col(t.getCol())
+                                                    .number(0)
+                                                    .tab(t)
+                                                    .removedCandidates(List.of(number))
+                                                    .build();
                                             colorWrapSkimmings.add(skimming);
                                         }
                                     }
@@ -116,41 +135,51 @@ public class Coloring {
 
                                 //COLOR TRAP
                                 // check among the tabs that are not part of the colorMap
-                                List<Tab> tabsNotInColorMap = tabs.stream().filter(t -> t.getNumbers().contains(number) && !colorA.contains(t) && !colorB.contains(t)).toList();
-                                for (Tab tab : tabsNotInColorMap) {
-                                    List<Tab> seenColorA = ChainUtils.getSeenCells(tab, colorA);
-                                    List<Tab> seenColorB = ChainUtils.getSeenCells(tab, colorB);
+                                List<Tab> tabsNotInColorMap = tabs.stream().filter(t -> t.getCandidates().contains(number) && !colorA.contains(t) && !colorB.contains(t)).toList();
+                                for (Tab t : tabsNotInColorMap) {
+                                    List<Tab> seenColorA = ChainUtils.getSeenCells(t, colorA);
+                                    List<Tab> seenColorB = ChainUtils.getSeenCells(t, colorB);
 
                                     // if a cell can see two or more cells with different colors, then we can remove the number from its candidate
                                     if (!seenColorA.isEmpty() && !seenColorB.isEmpty()) {
-                                        tab.getNumbers().remove(Integer.valueOf(number));
+                                        t.getCandidates().remove(Integer.valueOf(number));
 
-                                        Skimming skimming = new Skimming(COLOR_TRAP, house, tab, Collections.singletonList(number));
+                                        Skimming skimming = Skimming.builder()
+                                                .solvingTechnique(COLOR_TRAP)
+                                                .house(house)
+                                                .row(t.getRow())
+                                                .col(t.getCol())
+                                                .number(0)
+                                                .tab(t)
+                                                .removedCandidates(List.of(number))
+                                                .build();
                                         colorTrapSkimmings.add(skimming);
                                     }
                                 }
 
                                 if (!colorWrapSkimmings.isEmpty()) {
-                                    ChangeLog changeLog = new ChangeLog(
-                                            Collections.singletonList(number),
-                                            house,
-                                            houseNumber,
-                                            unitMembers,
-                                            COLORING,
-                                            COLOR_WRAP,
-                                            colorWrapSkimmings);
+                                    ChangeLog changeLog = ChangeLog.builder()
+                                            .unitExamined(List.of(number))
+                                            .house(house)
+                                            .houseNumber(houseNumber)
+                                            .unitMembers(unitMembers)
+                                            .solvingTechnique(COLORING)
+                                            .solvingTechniqueVariant(COLOR_WRAP)
+                                            .changes(colorWrapSkimmings)
+                                            .build();
                                     changeLogs.add(changeLog);
                                 }
 
                                 if (!colorTrapSkimmings.isEmpty()) {
-                                    ChangeLog changeLog = new ChangeLog(
-                                            Collections.singletonList(number),
-                                            house,
-                                            houseNumber,
-                                            unitMembers,
-                                            COLORING,
-                                            COLOR_TRAP,
-                                            colorTrapSkimmings);
+                                    ChangeLog changeLog = ChangeLog.builder()
+                                            .unitExamined(List.of(number))
+                                            .house(house)
+                                            .houseNumber(houseNumber)
+                                            .unitMembers(unitMembers)
+                                            .solvingTechnique(COLORING)
+                                            .solvingTechniqueVariant(COLOR_TRAP)
+                                            .changes(colorTrapSkimmings)
+                                            .build();
                                     changeLogs.add(changeLog);
                                 }
                             }
@@ -171,13 +200,13 @@ public class Coloring {
 
         for (Link link : lastLinksAdded) {
             // returns the list of the other tabs seen by the link that contains the number as candidate and are not already part of colorMap
-            List<Tab> seenTabs = ChainUtils.getSeenCells(link.getTab(), tabs).stream().filter(t -> !colorMapTabs.contains(t) && t.getNumbers().contains(number)).toList();
+            List<Tab> seenTabs = ChainUtils.getSeenCells(link.getTab(), tabs).stream().filter(t -> !colorMapTabs.contains(t) && t.getCandidates().contains(number)).toList();
             for (Tab t : seenTabs) {
                 // we look for which house they share
                 House sharedHouse = ChainUtils.getSharedHouse(t, link.getTab());
                 // we then look for all tabs in the shared house that contain the candidate number
                 List<Tab> houseTabs = tabs.stream()
-                        .filter(ht -> ht.getNumbers().contains(number) &&
+                        .filter(ht -> ht.getCandidates().contains(number) &&
                                 (sharedHouse.equals(House.BOX) ? ht.getBox() == link.getBox() : sharedHouse.equals(House.ROW) ? ht.getRow() == link.getRow() : ht.getCol() == link.getCol()))
                         .toList();
                 // if there are only 2 tabs (the link and the seen tab)

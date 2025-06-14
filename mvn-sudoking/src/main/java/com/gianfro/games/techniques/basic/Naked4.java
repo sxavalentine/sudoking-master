@@ -45,8 +45,8 @@ public class Naked4 {
                 List<Change> unitSkimmings = new ArrayList<>();
                 boolean deductionsDone = false;
                 for (Tab tab : houseTabs) {
-                    if (tab.getNumbers().size() == 4) {
-                        quadruples.add(tab.getNumbers());
+                    if (tab.getCandidates().size() == 4) {
+                        quadruples.add(tab.getCandidates());
                     }
                 }
                 for (List<Integer> quad : quadruples) {
@@ -54,23 +54,33 @@ public class Naked4 {
                     if (quadTabs.size() == 4) {
                         for (Tab tab : houseTabs) {
                             if (!quadTabs.contains(tab)) {
-                                List<Integer> candidatesToBeRemoved = quad.stream().filter(x -> tab.getNumbers().remove(x)).collect(Collectors.toList());
+                                List<Integer> candidatesToBeRemoved = quad.stream().filter(x -> tab.getCandidates().remove(x)).collect(Collectors.toList());
                                 if (!candidatesToBeRemoved.isEmpty()) {
-                                    Skimming skimming = new Skimming(NAKED_QUAD, house, tab, candidatesToBeRemoved);
+                                    Skimming skimming = Skimming.builder()
+                                            .solvingTechnique(NAKED_QUAD)
+                                            .house(house)
+                                            .row(tab.getRow())
+                                            .col(tab.getCol())
+                                            .number(0)
+                                            .tab(tab)
+                                            .removedCandidates(candidatesToBeRemoved)
+                                            .build();
                                     unitSkimmings.add(skimming);
                                     deductionsDone = true;
                                 }
                             }
                         }
                         if (deductionsDone) {
-                            changeLogs.add(new ChangeLog(
-                                    quad,
-                                    house,
-                                    houseNumber,
-                                    quadTabs,
-                                    NAKED_QUAD,
-                                    null,
-                                    unitSkimmings));
+                            ChangeLog changeLog = ChangeLog.builder()
+                                    .unitExamined(quad)
+                                    .house(house)
+                                    .houseNumber(houseNumber)
+                                    .unitMembers(quadTabs)
+                                    .solvingTechnique(NAKED_QUAD)
+                                    .solvingTechniqueVariant(null)
+                                    .changes(unitSkimmings)
+                                    .build();
+                            changeLogs.add(changeLog);
                         }
                     }
                 }

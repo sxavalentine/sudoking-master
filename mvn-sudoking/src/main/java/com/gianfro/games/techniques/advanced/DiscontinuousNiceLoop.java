@@ -7,7 +7,6 @@ import com.gianfro.games.techniques.advanced.utils.ChainUtils;
 import com.gianfro.games.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,7 +67,7 @@ public class DiscontinuousNiceLoop {
                     List<Tab> welcomingTabs = new ArrayList<>();
                     List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                     for (Tab tab : houseTabs) {
-                        if (tab.getNumbers().contains(number)) {
+                        if (tab.getCandidates().contains(number)) {
                             welcomingTabs.add(tab);
                         }
                     }
@@ -88,15 +87,22 @@ public class DiscontinuousNiceLoop {
                             chain = findNegativeChain(chain, link2, link1, tabs, number);
                             if (chain.get(chain.size() - 1).getTab() == link1.getTab()) {
                                 unitMembers.addAll(chain);
-                                Change change = new Change(CHAIN, house, tab1.getRow(), tab1.getCol(), number);
-                                ChangeLog changeLog = new ChangeLog(
-                                        Collections.singletonList(number),
-                                        house,
-                                        houseNumber,
-                                        unitMembers,
-                                        CHAIN,
-                                        DISCONTINUOUS_NICE_LOOP_FALSE,
-                                        Collections.singletonList(change));
+                                Change change = Change.builder()
+                                        .solvingTechnique(CHAIN)
+                                        .house(house)
+                                        .row(tab1.getRow())
+                                        .col(tab1.getCol())
+                                        .number(number)
+                                        .build();
+                                ChangeLog changeLog = ChangeLog.builder()
+                                        .unitExamined(List.of(number))
+                                        .house(house)
+                                        .houseNumber(houseNumber)
+                                        .unitMembers(unitMembers)
+                                        .solvingTechnique(CHAIN)
+                                        .solvingTechniqueVariant(DISCONTINUOUS_NICE_LOOP_FALSE)
+                                        .changes(List.of(change))
+                                        .build();
                                 changeLogs.add(changeLog);
                                 return new SkimmingResult(tabs, changeLogs);
                             }
@@ -117,15 +123,22 @@ public class DiscontinuousNiceLoop {
                                 reverseChain = findNegativeChain(reverseChain, link1, link2, tabs, number);
                                 if (reverseChain.get(reverseChain.size() - 1).getTab() == link2.getTab()) {
                                     unitMembers.addAll(reverseChain);
-                                    Change change = new Change(CHAIN, house, tab2.getRow(), tab2.getCol(), number);
-                                    ChangeLog changeLog = new ChangeLog(
-                                            Collections.singletonList(number),
-                                            house,
-                                            houseNumber,
-                                            unitMembers,
-                                            CHAIN,
-                                            DISCONTINUOUS_NICE_LOOP_FALSE,
-                                            Collections.singletonList(change));
+                                    Change change = Change.builder()
+                                            .solvingTechnique(CHAIN)
+                                            .house(house)
+                                            .row(tab2.getRow())
+                                            .col(tab2.getCol())
+                                            .number(number)
+                                            .build();
+                                    ChangeLog changeLog = ChangeLog.builder()
+                                            .unitExamined(List.of(number))
+                                            .house(house)
+                                            .houseNumber(houseNumber)
+                                            .unitMembers(unitMembers)
+                                            .solvingTechnique(CHAIN)
+                                            .solvingTechniqueVariant(DISCONTINUOUS_NICE_LOOP_FALSE)
+                                            .changes(List.of(change))
+                                            .build();
                                     changeLogs.add(changeLog);
                                     return new SkimmingResult(tabs, changeLogs);
                                 }
@@ -147,7 +160,7 @@ public class DiscontinuousNiceLoop {
     private static List<Link> findNegativeChain(List<Link> chain, Link lastLink, Link linkBeforeLast, List<Tab> tabs, int candidate) {
         List<Tab> seenTabs = getSeenTabs(lastLink.getTab(), tabs);
         for (Tab tab : seenTabs) {
-            if (tab.getNumbers().contains(candidate) && tab != linkBeforeLast.getTab()) {
+            if (tab.getCandidates().contains(candidate) && tab != linkBeforeLast.getTab()) {
                 if (!ChainUtils.chainContainsTab(chain, tab)) {
                     House sharedHouse = ChainUtils.getSharedHouse(tab, lastLink.getTab());
                     //TODO CHECK, sharedHouse could be null
@@ -174,7 +187,7 @@ public class DiscontinuousNiceLoop {
 
 
     //TODO remove: not used
-    // prova a formare una catena con qualsiasi tab, a prescindere da quanti candidati abbia. Il primo elemento della catena sara' dato per vero
+    // prova a formare una catena con qualsiasi tab, a prescindere da quanti candidati abbia. Il primo elemento della catena sarà dato per vero
 //    private static SkimmingResult chainAll(List<Tab> tabs) {
 //        List<ChangeLog> changeLogs = new LinkedList<>();
 //        for (int number : Utils.NUMBERS) {
@@ -279,9 +292,9 @@ public class DiscontinuousNiceLoop {
         List<Tab> tabsInSameRow = new ArrayList<>(Utils.getHouseTabs(House.ROW, tab.getRow(), tabs));
         List<Tab> tabsInSameCol = new ArrayList<>(Utils.getHouseTabs(House.COL, tab.getCol(), tabs));
 
-        tabsInSameBox = tabsInSameBox.stream().filter(x -> x.getNumbers().contains(candidate) && x != tab).collect(Collectors.toList());
-        tabsInSameRow = tabsInSameRow.stream().filter(x -> x.getNumbers().contains(candidate) && x != tab).collect(Collectors.toList());
-        tabsInSameCol = tabsInSameCol.stream().filter(x -> x.getNumbers().contains(candidate) && x != tab).collect(Collectors.toList());
+        tabsInSameBox = tabsInSameBox.stream().filter(x -> x.getCandidates().contains(candidate) && x != tab).collect(Collectors.toList());
+        tabsInSameRow = tabsInSameRow.stream().filter(x -> x.getCandidates().contains(candidate) && x != tab).collect(Collectors.toList());
+        tabsInSameCol = tabsInSameCol.stream().filter(x -> x.getCandidates().contains(candidate) && x != tab).collect(Collectors.toList());
 
         switch (house) {
             case BOX -> tabsInSameBox.clear();

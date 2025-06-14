@@ -47,7 +47,7 @@ public class Naked3 {
                     int occurences = 0;
                     List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                     for (Tab tab : houseTabs) {
-                        if (tab.getNumbers().contains(number)) {
+                        if (tab.getCandidates().contains(number)) {
                             occurences++;
                         }
                     }
@@ -57,37 +57,47 @@ public class Naked3 {
                 }
                 if (candidatesWithAtLeastTwoOccurences.size() >= 3) {
                     List<List<Integer>> possibleTriples = Utils.findAllPossibleTuples(candidatesWithAtLeastTwoOccurences, 3);
-                    for (List<Integer> possibleTriple : possibleTriples) {
+                    for (List<Integer> triple : possibleTriples) {
                         List<ChangeLogUnitMember> tripleTabs = new ArrayList<>();
                         List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
                         boolean deductionsDone = false;
                         List<Change> unitSkimmings = new ArrayList<>();
                         for (Tab tab : houseTabs) {
-                            if (Utils.candidatesAreSameOrSubset(tab, possibleTriple)
-                                    && Utils.containsAtLeastXCandidates(tab.getNumbers(), possibleTriple, 2)) {
+                            if (Utils.candidatesAreSameOrSubset(tab, triple)
+                                    && Utils.containsAtLeastXCandidates(tab.getCandidates(), triple, 2)) {
                                 tripleTabs.add(tab);
                             }
                         }
                         if (tripleTabs.size() == 3) {
                             for (Tab tab : houseTabs) {
                                 if (!tripleTabs.contains(tab)) {
-                                    List<Integer> candidatesToBeRemoved = possibleTriple.stream().filter(x -> tab.getNumbers().remove(x)).collect(Collectors.toList());
+                                    List<Integer> candidatesToBeRemoved = triple.stream().filter(x -> tab.getCandidates().remove(x)).collect(Collectors.toList());
                                     if (!candidatesToBeRemoved.isEmpty()) {
-                                        Skimming skimming = new Skimming(NAKED_TRIPLE, house, tab, candidatesToBeRemoved);
+                                        Skimming skimming = Skimming.builder()
+                                                .solvingTechnique(NAKED_TRIPLE)
+                                                .house(house)
+                                                .row(tab.getRow())
+                                                .col(tab.getCol())
+                                                .number(0)
+                                                .tab(tab)
+                                                .removedCandidates(candidatesToBeRemoved)
+                                                .build();
                                         unitSkimmings.add(skimming);
                                         deductionsDone = true;
                                     }
                                 }
                             }
                             if (deductionsDone) {
-                                changeLogs.add(new ChangeLog(
-                                        possibleTriple,
-                                        house,
-                                        houseNumber,
-                                        tripleTabs,
-                                        NAKED_TRIPLE,
-                                        null,
-                                        unitSkimmings));
+                                ChangeLog changeLog = ChangeLog.builder()
+                                        .unitExamined(triple)
+                                        .house(house)
+                                        .houseNumber(houseNumber)
+                                        .unitMembers(tripleTabs)
+                                        .solvingTechnique(NAKED_TRIPLE)
+                                        .solvingTechniqueVariant(null)
+                                        .changes(unitSkimmings)
+                                        .build();
+                                changeLogs.add(changeLog);
                             }
                         }
                     }

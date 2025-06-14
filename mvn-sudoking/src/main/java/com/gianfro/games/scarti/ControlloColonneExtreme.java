@@ -25,35 +25,35 @@ public class ControlloColonneExtreme {
                     int contoColonne = 0;
                     for (List<Integer> colonna : colonneQuadrato) {
                         if (colonna.contains(number)) {
-                            colonneQuadratoOspitali.remove(new Integer(contoColonne));
-                            quadratiOspitali.remove(new Integer(quadrato));
+                            colonneQuadratoOspitali.remove(Integer.valueOf(contoColonne));
+                            quadratiOspitali.remove(Integer.valueOf(quadrato));
                             if (colonneTerzettoOspitali.contains(contoColonne)) {
-                                colonneTerzettoOspitali.remove(new Integer(contoColonne));
+                                colonneTerzettoOspitali.remove(Integer.valueOf(contoColonne));
                             }
                         } else {
                             if (sudoku.getColumns().get((3 * terzettoColonne) + contoColonne).contains(number)) {
-                                colonneQuadratoOspitali.remove(new Integer(contoColonne));
+                                colonneQuadratoOspitali.remove(Integer.valueOf(contoColonne));
                                 if (colonneTerzettoOspitali.contains(contoColonne)) {
-                                    colonneTerzettoOspitali.remove(new Integer(contoColonne));
+                                    colonneTerzettoOspitali.remove(Integer.valueOf(contoColonne));
                                 }
                             } else {
                                 if (Collections.frequency(colonna, 0) == 0) {
-                                    colonneQuadratoOspitali.remove(new Integer(contoColonne));
+                                    colonneQuadratoOspitali.remove(Integer.valueOf(contoColonne));
                                 } else {
                                     List<Integer> elementiOspitali = new ArrayList<>(Utils.INDEXES_02);
                                     int contoElementi = 0;
                                     for (int elemento : colonna) {
                                         if (elemento != 0) {
-                                            elementiOspitali.remove(new Integer(contoElementi));
+                                            elementiOspitali.remove(Integer.valueOf(contoElementi));
                                         } else {
                                             if (sudoku.getRows().get((3 * quadrato) + contoElementi).contains(number)) {
-                                                elementiOspitali.remove(new Integer(contoElementi));
+                                                elementiOspitali.remove(Integer.valueOf(contoElementi));
                                             }
                                         }
                                         contoElementi++;
                                     }
                                     if (elementiOspitali.isEmpty()) {
-                                        colonneQuadratoOspitali.remove(new Integer(contoColonne));
+                                        colonneQuadratoOspitali.remove(Integer.valueOf(contoColonne));
                                     }
                                 }
                             }
@@ -69,7 +69,7 @@ public class ControlloColonneExtreme {
                                 }
                             }
                             if (quadratiOspitali.contains(quadrato)) {
-                                quadratiOspitali.remove(new Integer(quadrato));
+                                quadratiOspitali.remove(Integer.valueOf(quadrato));
                             }
                         }
                     }
@@ -79,11 +79,13 @@ public class ControlloColonneExtreme {
                     List<List<Integer>> colonneQuadratoLibero = Utils.getBoxColumns(quadratoLibero);
                     if (Collections.frequency(colonneQuadratoLibero.get(colonneTerzettoOspitali.get(0)), 0) == 1) {
                         int indiceRiga = colonneQuadratoLibero.get(colonneTerzettoOspitali.get(0)).indexOf(0);
-                        Change change = new Change(
-                                "CCE", House.COL,
-                                (3 * quadratiOspitali.get(0)) + (indiceRiga + 1),
-                                (3 * terzettoColonne) + (colonneTerzettoOspitali.get(0) + 1),
-                                number);
+                        Change change = Change.builder()
+                                .solvingTechnique("CCE")
+                                .house(House.COL)
+                                .row((3 * quadratiOspitali.get(0)) + (indiceRiga + 1))
+                                .col((3 * terzettoColonne) + (colonneTerzettoOspitali.get(0) + 1))
+                                .number(number)
+                                .build();
                         changes.add(change);
                         ///
 //						System.out.println(change);
@@ -94,20 +96,22 @@ public class ControlloColonneExtreme {
                         int contoRighe = 0;
                         for (int elemento : colonneQuadratoLibero.get(colonneTerzettoOspitali.get(0))) {
                             if (elemento != 0) {
-                                righeQuadratoOspitali.remove(new Integer(contoRighe));
+                                righeQuadratoOspitali.remove(Integer.valueOf(contoRighe));
                             } else {
                                 if (sudoku.getRows().get((3 * quadratiOspitali.get(0)) + contoRighe).contains(number)) {
-                                    righeQuadratoOspitali.remove(new Integer(contoRighe));
+                                    righeQuadratoOspitali.remove(Integer.valueOf(contoRighe));
                                 }
                             }
                             contoRighe++;
                         }
                         if (righeQuadratoOspitali.size() == 1) {
-                            Change change = new Change(
-                                    "CCE", House.COL,
-                                    (3 * quadratiOspitali.get(0)) + (righeQuadratoOspitali.get(0) + 1),
-                                    (3 * terzettoColonne) + (colonneTerzettoOspitali.get(0) + 1),
-                                    number);
+                            Change change = Change.builder()
+                                    .solvingTechnique("CCE")
+                                    .house(House.COL)
+                                    .row((3 * quadratiOspitali.get(0)) + (righeQuadratoOspitali.get(0) + 1))
+                                    .col((3 * terzettoColonne) + (colonneTerzettoOspitali.get(0) + 1))
+                                    .number(number)
+                                    .build();
                             changes.add(change);
                             ///
 //							System.out.println(change);

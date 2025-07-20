@@ -1,8 +1,10 @@
 package com.gianfro.games.entities;
 
+import com.gianfro.games.entities.deductions.CellChange;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 
@@ -10,6 +12,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Data
+//TODO: Usa solo i campi specificati. NON scrivere equals/hashCode manuali! FONDAMENTALE !!!
+@EqualsAndHashCode(of = "changes", callSuper = false)
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Builder
 public class ChangeLog {
@@ -22,25 +26,12 @@ public class ChangeLog {
     String solvingTechnique;
     @Nullable
     String solvingTechniqueVariant;
-    List<Change> changes;
+    List<CellChange> changes;
     @NonFinal
     String explanation;
 
     @Override
     public String toString() {
         return solvingTechniqueVariant != null ? solvingTechniqueVariant : solvingTechnique;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ChangeLog cl) {
-            return cl.changes.equals(this.changes);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return 1;
     }
 }

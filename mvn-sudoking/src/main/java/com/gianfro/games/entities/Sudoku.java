@@ -1,7 +1,7 @@
 package com.gianfro.games.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gianfro.games.utils.Utils;
+import com.gianfro.games.exceptions.SudokuBuildException;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -10,63 +10,109 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Data
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class Sudoku {
 
-    @JsonIgnore
-    @Transient
-    List<Integer> numbers;
-    @JsonIgnore
-    @Transient
-    List<List<Integer>> rows;
-    @JsonIgnore
-    @Transient
-    List<List<Integer>> columns;
-    @JsonIgnore
-    @Transient
-    List<List<Integer>> boxes;
-    @JsonIgnore
-    @Transient
-    List<List<List<Integer>>> rowTrios;
-    @JsonIgnore
-    @Transient
-    List<List<List<Integer>>> colTrios;
+    private static final Pattern SUDOKU_STRING_PATTERN = Pattern.compile("^[0-9]{81}$");
 
-    public Sudoku(List<Integer> inputNumbers) {
-        this.numbers = inputNumbers;
-        this.rows = new ArrayList<>();
-        this.columns = new ArrayList<>();
-        this.rowTrios = new ArrayList<>();
-        this.colTrios = new ArrayList<>();
-        this.boxes = new ArrayList<>();
+    @Transient
+    List<SudokuCell> cells;
 
-        for (int i = 0; i < 81; i += 9) {
-            rows.add(inputNumbers.subList(i, i + 9));
-        }
+    private Sudoku(List<SudokuCell> oldCells) {
+        cells = deepCopyCells(oldCells);
+        updateBasicCandidates();
+    }
 
-        for (int x = 0; x < 9; x++) {
-            columns.add(new ArrayList<>());
-            for (int y = 0; y < 9; y++) {
-                columns.get(x).add(rows.get(y).get(x));
-            }
+    private List<SudokuCell> deepCopyCells(List<SudokuCell> oldCells) {
+        List<SudokuCell> newCells = new ArrayList<>();
+        for (SudokuCell oldCell : oldCells) {
+            newCells.add(SudokuCell.deepCopy(oldCell));
         }
+        return newCells;
+    }
 
-        for (int i = 0; i < 9; i += 3) {
-            rowTrios.add(rows.subList(i, i + 3));
-        }
-        for (int i = 0; i < 9; i += 3) {
-            colTrios.add(columns.subList(i, i + 3));
-        }
+    public void updateBasicCandidates() {
+        // Pre-calcola tutti i valori numerici per righe, colonne e box.
+        // Usiamo Set per un controllo di appartenenza efficiente (O(1) in media).
+        List<List<Integer>> boxesValues = new ArrayList<>();
+        List<List<Integer>> rowsValues = new ArrayList<>();
+        List<List<Integer>> colsValues = new ArrayList<>();
+
+        // Inizializza le liste di Set vuoti
         for (int i = 0; i < 9; i++) {
-            boxes.add(new ArrayList<>());
-            for (int x : Utils.INDEXES_02) {
-                for (int y : Utils.INDEXES_02) {
-                    boxes.get(i).add(rowTrios.get(i / 3).get(x).subList(3 * (i % 3), 3 + (3 * (i % 3))).get(y));
-                }
+            boxesValues.add(new ArrayList<>());
+            rowsValues.add(new ArrayList<>());
+            colsValues.add(new ArrayList<>());
+        }
+
+        // Popola i Set con i valori già presenti nelle celle
+        for (SudokuCell cell : this.cells) {
+            if (cell.getValue() != 0) {
+                rowsValues.get(cell.getRow() - 1).add(cell.getValue());
+                colsValues.get(cell.getCol() - 1).add(cell.getValue());
+                boxesValues.get(cell.getBox() - 1).add(cell.getValue());
             }
         }
+
+        // Ora, per ogni cella vuota, rimuoviamo i candidati usando i valori pre-calcolati.
+        for (SudokuCell cell : this.cells) {
+            if (cell.getValue() == 0) {
+                cell.getCandidates().removeAll(boxesValues.get(cell.getBox() - 1));
+                cell.getCandidates().removeAll(rowsValues.get(cell.getRow() - 1));
+                cell.getCandidates().removeAll(colsValues.get(cell.getCol() - 1));
+            }
+        }
+    }
+
+    public static Sudoku fromCells(List<SudokuCell> cells) {
+        return new Sudoku(cells);
+    }
+
+    /**
+     * Given a string, check if it's a valid string to build a Sudoku.
+     * If it is, return a Sudoku object, if not throws a SudokuBuildException
+     */
+    public static Sudoku fromString(String string) {
+        if (!sudokuStringMatchesPattern(string)) {
+            throw new SudokuBuildException(string);
+        }
+        List<SudokuCell> cells = new ArrayList<>();
+        int cellIndex = 0;
+        String[] values = string.split("");
+        for (String s : values) {
+            SudokuCell cell = SudokuCell.fromNumbers(Integer.parseInt(s), (cellIndex / 9) + 1, (cellIndex % 9) + 1);
+            cells.add(cell);
+            cellIndex++;
+        }
+        return new Sudoku(cells);
+    }
+
+    /**
+     * Given a string, check if it's a valid string to build a sudoku (used by buildSudoku(String stringNumbers))
+     * Checks if the string has exactly 81 characters and consists only of digits ('0'-'9').
+     */
+    private static boolean sudokuStringMatchesPattern(String sudokuString) {
+        if (sudokuString == null || sudokuString.isEmpty()) {
+            return false;
+        }
+        return SUDOKU_STRING_PATTERN.matcher(sudokuString).matches();
+    }
+
+    /**
+     * return the string of numbers forming the sudoku
+     */
+    @Field("numbers")
+    @JsonIgnore
+    public String getStringNumbers() {
+        StringBuilder s = new StringBuilder();
+        for (SudokuCell c : cells) {
+            s.append(c.getValue());
+        }
+        return s.toString();
     }
 
     @Override
@@ -74,13 +120,16 @@ public class Sudoku {
         return getStringNumbers();
     }
 
-    // return the string of numbers forming the sudoku
-    @Field("numbers")
-    public String getStringNumbers() {
-        StringBuilder s = new StringBuilder();
-        for (Integer i : numbers) {
-            s.append(i);
-        }
-        return s.toString();
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Sudoku sudoku = (Sudoku) obj;
+        return this.getStringNumbers().equals(sudoku.getStringNumbers());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getStringNumbers());
     }
 }

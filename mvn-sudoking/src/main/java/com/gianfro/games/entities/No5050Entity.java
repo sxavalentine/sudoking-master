@@ -18,13 +18,13 @@ public class No5050Entity {
     String startingNumbers;
     int impasseDigits;
     String impasseNumbers;
-    List<Tab> tabs;
+    List<SudokuCell> cells;
 
     public No5050Entity(Sudoku sudoku, NoFiftyFiftyException nffe) {
         this.startingDigits = 81 - StringUtils.countMatches(sudoku.getStringNumbers(), "0");
         this.startingNumbers = sudoku.getStringNumbers();
         this.impasseDigits = 81 - StringUtils.countMatches(nffe.getSudokuAtTheTimeOfException().getStringNumbers(), "0");
         this.impasseNumbers = nffe.getSudokuAtTheTimeOfException().getStringNumbers();
-        this.tabs = nffe.getTabs();
+        this.cells = sudoku.getCells();
     }
 }

@@ -1,15 +1,12 @@
 package com.gianfro.games.explainers;
 
 import com.gianfro.games.entities.ChangeLog;
-import com.gianfro.games.entities.SolutionStep;
 import com.gianfro.games.entities.Sudoku;
-import com.gianfro.games.entities.Tab;
-import com.gianfro.games.sudoku.solver.SudokuSolver;
 import com.gianfro.games.techniques.basic.Hidden1;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
-import java.util.List;
+import java.util.Set;
 
 public class ExplainerHidden1 {
 
@@ -18,7 +15,7 @@ public class ExplainerHidden1 {
         changeLog.getChanges().forEach(c -> {
             sb.append(String.format(
                     "CELL %s IN %s IS THE ONLY CELL WITH THE CANDIDATE %s",
-                    SudokuExplainer.getCell(c),
+                    c.getCell().getCoordinates(),
                     Utils.getWelcomingUnit(changeLog),
                     c.getNumber()));
             sb.append("\n");
@@ -31,17 +28,11 @@ public class ExplainerHidden1 {
         System.out.println("------------------------------------- TEST HIDDEN SINGLE -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_HIDDEN_1_BOX);
-        Utils.grid(sudoku);
+        sudoku = Sudoku.fromString(SudokuList.TEST_HIDDEN_1_BOX);
 
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        SolutionStep step = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs);
-        List<ChangeLog> changeLogs =
-                step.getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(Hidden1.HIDDEN_SINGLE))
-                        .toList();
+        Utils.megaGrid(sudoku);
 
-        changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
+        Set<ChangeLog> changeLogs = Hidden1.check(sudoku);
+        changeLogs.forEach(changeLog -> explain(changeLog));
     }
 }

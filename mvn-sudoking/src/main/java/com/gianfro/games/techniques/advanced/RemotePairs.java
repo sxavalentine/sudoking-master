@@ -1,158 +1,131 @@
 package com.gianfro.games.techniques.advanced;
 
-import com.gianfro.games.entities.*;
-import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.techniques.advanced.utils.ChainUtils;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.SudokuCell;
 import com.gianfro.games.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class RemotePairs {
 
-    public static final String REMOTE_PAIRS = "REMOTE PAIRS";
+    /**
+     * If in a Sudoku TODO: complete
+     */
 
-    public static SkimmingResult check(List<Tab> tabs) {
-        SkimmingResult result = chain(tabs);
-        return new SkimmingResult(result.getTabs(), result.getChangeLogs());
+    public static final String REMOTE_PAIRS = "REMOTE_PAIRS";
+
+    public static Set<ChangeLog> check(Sudoku sudoku) {
+        Set<ChangeLog> changeLogs = new LinkedHashSet<>(findRemotePairs(sudoku));
+        return changeLogs;
     }
 
-    private static SkimmingResult chain(List<Tab> tabs) {
+    private static List<ChangeLog> findRemotePairs(Sudoku sudoku) {
         List<ChangeLog> changeLogs = new LinkedList<>();
-        try {
-
-            List<Tab> bivalueCells = tabs.stream().filter(x -> x.getCandidates().size() == 2).toList();
-            List<List<Integer>> bivaluePairs = new ArrayList<>();
-
-            for (Tab tab : bivalueCells) {
-                if (!bivaluePairs.contains(tab.getCandidates())) {
-                    bivaluePairs.add(tab.getCandidates());
-                }
-            }
-
-            for (List<Integer> pair : bivaluePairs) {
-                List<Tab> pairTabs = bivalueCells.stream().filter(x -> x.getCandidates().equals(pair)).collect(Collectors.toList());
-
-                // CHAIN MUST HAVE AT LEAST 4 LINKS TO ELIMINATE SOMETHING
-                if (pairTabs.size() >= 4) {
-                    List<Link> chain = new ArrayList<>();
-                    Tab firstLinkTab = null;
-                    for (Tab tab : pairTabs) {
-                        if (countCellsSeen(tab, pairTabs) == 1) {
-                            firstLinkTab = tab;
-                            break;
-                        }
-                    }
-                    if (firstLinkTab != null) {
-                        Link firstLink = new Link(firstLinkTab, false, pair.get(0));
-                        chain.add(firstLink);
-                        chain = findChain(chain, pairTabs);
-                    }
-
-                    List<Tab> skimmedTabs = new ArrayList<>();
-
-                    // this because the chain must have an even number of links
-                    // with the Sudoku in Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_1, cell C9 is the last link and wouldn't see F7
-                    int trimming = chain.size();
-                    while (chain.size() >= 5 && skimmedTabs.isEmpty()) {
-                        chain = chain.subList(0, trimming);
-
-                        if ((chain.size() % 2) == 0) {
-                            for (Tab t : tabs) {
-                                if (!ChainUtils.chainContainsTab(chain, t)
-                                        && ChainUtils.seesTwoCellsWithDifferentValue(t, chain)) {
-                                    skimmedTabs.add(t);
-                                }
-                            }
-                        }
-                        trimming -= 1;
-                    }
-
-                    if (!skimmedTabs.isEmpty()) {
-                        List<Change> unitSkimmings = new ArrayList<>();
-                        for (Tab tab
-                                : skimmedTabs) {
-                            List<Integer> candidatesToBeRemoved = new ArrayList<>();
-                            for (int candidate : tab.getCandidates()) {
-                                if (pair.contains(candidate)) {
-                                    candidatesToBeRemoved.add(candidate);
-                                }
-                            }
-                            if (tab.getCandidates().removeAll(candidatesToBeRemoved)) {
-                                Skimming skimming = Skimming.builder()
-                                        .solvingTechnique(REMOTE_PAIRS)
-                                        .house(null)
-                                        .row(tab.getRow())
-                                        .col(tab.getCol())
-                                        .number(0)
-                                        .tab(tab)
-                                        .removedCandidates(candidatesToBeRemoved)
-                                        .build();
-                                unitSkimmings.add(skimming);
-                            }
-                        }
-                        ChangeLog changeLog = ChangeLog.builder()
-                                .unitExamined(pair)
-                                .house(null)
-                                .houseNumber(0)
-                                .unitMembers(new ArrayList<>(chain))
-                                .solvingTechnique(REMOTE_PAIRS)
-                                .solvingTechniqueVariant(null)
-                                .changes(unitSkimmings)
-                                .build();
-                        changeLogs.add(changeLog);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Exception in REMOTE PAIRS: " + e.getMessage());
-        }
-        return new SkimmingResult(tabs, changeLogs);
-    }
-
-
-    private static List<Link> findChain(List<Link> chain, List<Tab> tabs) {
-        Link lastLink = chain.get(chain.size() - 1);
-        for (Tab tab : tabs) {
-            if (!ChainUtils.chainContainsTab(chain, tab) && ChainUtils.cellsSeeEachOther(tab, lastLink.getTab())) {
-                chain.add(new Link(tab, !lastLink.isOn(), lastLink.getNumber()));
-                return findChain(chain, tabs);
+        Map<List<Integer>, List<SudokuCell>> biValueCellsMap = new HashMap<>();
+        for (SudokuCell cell : sudoku.getCells()) {
+            if (cell.getCandidates().size() == 2) {
+                biValueCellsMap.computeIfAbsent(cell.getCandidates(), k -> new ArrayList<>()).add(cell);
             }
         }
-        return chain;
+        biValueCellsMap.entrySet().forEach(entry -> {
+            List<SudokuCell> sameTwoCandidatesCells = entry.getValue();
+            if (sameTwoCandidatesCells.size() >= 4) {
+                Map<SudokuCell, Set<SudokuCell>> graph = new HashMap<>();
+                for (SudokuCell cell : sameTwoCandidatesCells) {
+                    graph.put(cell, new HashSet<>());
+                }
+                for (SudokuCell cell : sameTwoCandidatesCells) {
+                    for (SudokuCell otherCell : sameTwoCandidatesCells) {
+                        if (Utils.cellCanSeeOtherCell(cell, otherCell)) {
+                            graph.get(cell).add(otherCell);
+                            graph.get(otherCell).add(cell);
+                        }
+                    }
+                }
+                List<List<SudokuCell>> allChains = new LinkedList<>();
+                for (SudokuCell startNode : graph.keySet()) {
+                    List<SudokuCell> currentPath = new LinkedList<>();
+                    Set<SudokuCell> visitedNodes = new HashSet<>();
+
+                    currentPath.add(startNode);
+                    visitedNodes.add(startNode);
+
+                    // Avvia la DFS per trovare catene Remote Pairs
+                    findRemotePairChain(sudoku, startNode, startNode, currentPath, visitedNodes,
+                            graph, allChains, entry.getKey());
+                }
+            }
+        });
+        return changeLogs;
+    }
+
+    /**
+     * Ricerca ricorsiva DFS per trovare catene Remote Pairs.
+     *
+     * @param sudoku                   L'oggetto Sudoku corrente.
+     * @param startNode                Il nodo di partenza della catena (fisso per questa DFS).
+     * @param currentNode              Il nodo corrente che stiamo esaminando.
+     * @param currentPath              La lista delle celle nel percorso attuale.
+     * @param visitedNodes             Il set dei nodi già visitati in questo percorso per evitare cicli.
+     * @param graph                    La rappresentazione del grafo.
+     * @param allValidRemotePairChains Lista per raccogliere le catene Remote Pairs trovate.
+     * @param candidatesPair           La coppia di candidati che definisce la Remote Pair (es. {1,5}).
+     */
+    private static void findRemotePairChain(
+            Sudoku sudoku,
+            SudokuCell startNode,
+            SudokuCell currentNode,
+            List<SudokuCell> currentPath,
+            Set<SudokuCell> visitedNodes,
+            Map<SudokuCell, Set<SudokuCell>> graph,
+            List<List<SudokuCell>> allValidRemotePairChains,
+            List<Integer> candidatesPair
+    ) {
+        // Condizione di successo per una Remote Pair:
+        // 1. La catena deve avere un numero dispari di nodi (che significa un numero pari di link).
+        //    Esempio: A-B-C (3 nodi, 2 link) -> A e C sono "allineati" sullo stesso candidato.
+        // 2. Il nodo di partenza e il nodo corrente NON devono vedersi (non devono essere nella stessa riga/colonna/blocco).
+        // 3. La catena deve avere almeno 3 nodi per essere significativa.
+        if (currentPath.size() >= 3 && currentPath.size() % 2 == 1) { // Dispari di nodi = pari di link
+            if (!Utils.cellCanSeeOtherCell(startNode, currentNode)) {
+                // Trovata una catena Remote Pair valida.
+                // Aggiungila solo se non è già stata trovata (potrebbe essere raggiunta da percorsi diversi).
+                // Per evitare duplicati di catene invertite (A-B-C vs C-B-A), potresti normalizzare la catena (es. ordinarla).
+                List<SudokuCell> foundChain = new ArrayList<>(currentPath);
+                // Non è necessario controllare se la catena è già stata aggiunta se startNode è iterato esternamente
+                // e la catena è sempre registrata dal suo startNode e dal suo percorso specifico.
+                // Tuttavia, per essere sicuri che non si aggiungano catene duplicate (es. A->B->C e C->B->A)
+                // si potrebbe normalizzare la catena prima di aggiungerla.
+                // Es. Collections.sort(foundChain, Comparator.comparing(SudokuCell::getIndex)); // se SudokuCell ha getIndex()
+                // allValidRemotePairChains.add(foundChain);
+                // Meglio aggiungere la catena come è stata trovata e poi filtrare i duplicati alla fine
+                // o utilizzare un Set<List<SudokuCell>> con un Custom Comparator/hashCode
+                allValidRemotePairChains.add(foundChain);
+            }
+        }
+
+        // Condizione di terminazione per evitare catene eccessivamente lunghe
+//        if (currentPath.size() >= MAX_CHAIN_LENGTH) {
+//            return;
+//        }
+
+        // Esplora i vicini (celle connesse nel grafo)
+        Set<SudokuCell> neighbors = graph.get(currentNode);
+        if (neighbors != null) {
+            for (SudokuCell nextNode : neighbors) {
+                if (!visitedNodes.contains(nextNode)) { // Evita cicli all'interno dello stesso percorso
+                    currentPath.add(nextNode);
+                    visitedNodes.add(nextNode); // Aggiungi ai visitati prima della ricorsione
+                    findRemotePairChain(sudoku, startNode, nextNode, currentPath, visitedNodes,
+                            graph, allValidRemotePairChains, candidatesPair);
+                    // Backtrack: rimuovi dall'attuale percorso e dai visitati
+                    visitedNodes.remove(nextNode);
+                    currentPath.remove(currentPath.size() - 1);
+                }
+            }
+        }
     }
 
 
-    private static int countCellsSeen(Tab tab, List<Tab> tabs) {
-        List<Tab> cellsSeen =
-                tabs
-                        .stream()
-                        .filter(
-                                x -> x != tab
-                                        && (x.getBox() == tab.getBox()
-                                        || x.getRow() == tab.getRow()
-                                        || x.getCol() == tab.getCol()))
-                        .toList();
-        return cellsSeen.size();
-    }
-
-
-    public static void main(String[] args) {
-        System.out.println("------------------------------------- TEST REMOTE PAIRS -----------------------------------------");
-
-        Sudoku sudoku;
-//        sudoku = Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_1);
-//        sudoku = Utils.buildSudoku(SudokuList.TEST_REMOTE_PAIRS_2);
-        sudoku = Utils.buildSudoku("802635017670128350315070826153206780900587231287013065408301572721850603530702108"); //TODO capire se c'è errore
-
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        tabs = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs).getTabs();
-        Utils.megaGrid(sudoku, tabs);
-
-        SkimmingResult result = check(tabs);
-
-        Utils.printChangeLogs(result);
-    }
 }

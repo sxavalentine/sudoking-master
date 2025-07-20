@@ -1,12 +1,11 @@
 package com.gianfro.games.explainers;
 
-import com.gianfro.games.entities.*;
-import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.techniques.advanced.XYChain;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.Link;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.deductions.CellSkimmed;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
-
-import java.util.List;
 
 public class ExplainerXYChain {
 
@@ -28,8 +27,11 @@ public class ExplainerXYChain {
         StringBuilder sb = new StringBuilder("All cells forming the following chain are bi-value cells strongly linked with each other:\n");
         changeLog.getUnitMembers().forEach(c -> {
             Link link = (Link) c;
-            String linkString = link.toString().replace('-', '+');//TODO perchè rimpiazza il "-" ????
-            sb.append(linkString).append("\n");
+            //TODO 18/06/25: rimpiazzo con + solo se is on
+            sb.append(link.isOn() ? link.toString().replace("-", "+") : link);
+            sb.append("\n");
+//            String linkString = link.toString().replace('-', '+');//TODO perchè rimpiazza il "-" ????
+//            sb.append(linkString).append("\n");
         });
         sb.append(String.format(
                 "This ensures that at least one end of the chain contains the candidate %s.",
@@ -40,11 +42,11 @@ public class ExplainerXYChain {
                 changeLog.getUnitExamined().get(0)));
         sb.append("\n");
         changeLog.getChanges().forEach(c -> {
-            Skimming skimming = (Skimming) c;
+            CellSkimmed skimming = (CellSkimmed) c;
             sb.append(String.format(
                     "%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
-                    SudokuExplainer.getCell(skimming),
-                    skimming.getTab().getCandidates(),
+                    skimming.getCell().getCoordinates(),
+                    skimming.getCell().getCandidates(),
                     skimming.getRemovedCandidates()));
             sb.append("\n");
         });
@@ -56,20 +58,13 @@ public class ExplainerXYChain {
         System.out.println("------------------------------------- TEST XY CHAIN -----------------------------------------");
 
         Sudoku sudoku;
-//        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_1);
-//        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_2);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_XY_CHAIN_3);
-        Utils.grid(sudoku);
+//        sudoku = Sudoku.fromString(SudokuList.TEST_XY_CHAIN_1);
+//        sudoku = Sudoku.fromString(SudokuList.TEST_XY_CHAIN_2);
+        sudoku = Sudoku.fromString(SudokuList.TEST_XY_CHAIN_3);
 
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        tabs = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs).getTabs();
-        List<ChangeLog> changeLogs =
-                XYChain.check(tabs)
-                        .getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(XYChain.XY_CHAIN))
-                        .toList();
+        Utils.megaGrid(sudoku);
 
-        changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
+//        List<ChangeLog> changeLogs = XYChain.check(sudoku);
+//        changeLogs.forEach(changeLog -> explain(changeLog));
     }
 }

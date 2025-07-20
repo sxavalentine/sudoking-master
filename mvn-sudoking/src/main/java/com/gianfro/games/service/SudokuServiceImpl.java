@@ -1,6 +1,10 @@
 package com.gianfro.games.service;
 
-import com.gianfro.games.entities.*;
+import com.gianfro.games.entities.GenericError;
+import com.gianfro.games.entities.No5050Entity;
+import com.gianfro.games.entities.SolutionOutput;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.errorsDTO.UnsolvableError;
 import com.gianfro.games.exceptions.NoFiftyFiftyException;
 import com.gianfro.games.exceptions.UnsolvableException;
 import com.gianfro.games.explainers.SudokuExplainer;
@@ -17,10 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.gianfro.games.utils.SudokuList.MIXED_SUDOKUS;
 
 @Service
 public class SudokuServiceImpl implements SudokuService {
@@ -41,32 +43,28 @@ public class SudokuServiceImpl implements SudokuService {
         this.no5050Repository = no5050Repository;
     }
 
-
     @Override
     public SolutionOutput solveSudoku(String stringNumbers) {
+        Sudoku sudoku = Sudoku.fromString(stringNumbers);
+        return solveSudoku(sudoku);
+    }
 
-        Sudoku sudoku = Utils.buildSudoku(stringNumbers);
+    @Override
+    public SolutionOutput solveSudoku(Sudoku sudoku) {
         SolutionOutput solutionOutput;
-
         try {
             solutionOutput = SudokuSolver.getSolution(sudoku);
             try {
                 this.sudokuSolutionsRepository.insert(solutionOutput);
             } catch (DuplicateKeyException dke) {
                 System.out.println("LOOKS LIKE I ALREADY SOLVED THIS SUDOKU: " + dke.getMessage() + " " + solutionOutput.getSolutionNumbers());
-                Utils.grid(Utils.buildSudoku(solutionOutput.getSolutionNumbers()));
-            } catch (Exception e) {
-                System.out.println("OPS: " + e.getClass() + " " + e.getMessage() + " " + sudoku.getStringNumbers());
+                Utils.grid(Sudoku.fromString(solutionOutput.getSolutionNumbers()));
             }
         } catch (NoFiftyFiftyException nffe) {
             System.out.println("THERE ARE NO CELLS WITH ONLY 2 OR LESS CANDIDATES");
             No5050Entity no5050Entity = new No5050Entity(sudoku, nffe);
             this.no5050Repository.insert(no5050Entity);
             throw nffe;
-//            Utils.grid(nffe.getSudokuAtTheTimeOfException());
-//            for (Tab tab : nffe.getTabs()) {
-//                System.out.println(tab);
-//            }
         } catch (UnsolvableException ue) {
             UnsolvableError error = new UnsolvableError(
                     sudoku.getStringNumbers(),
@@ -136,12 +134,6 @@ public class SudokuServiceImpl implements SudokuService {
     }
 
     @Override
-    public List<Tab> getSudokuTabs(String stringNumbers) {
-        Sudoku s = Utils.buildSudoku(stringNumbers);
-        return Utils.getBasicTabs(s);
-    }
-
-    @Override
     public SolutionOutput findSolutionByStartingNumbers(String startingNumbers) {
         return this.sudokuSolutionsRepository.findByStartingNumbers(startingNumbers);
     }
@@ -154,7 +146,7 @@ public class SudokuServiceImpl implements SudokuService {
         AtomicInteger unsolvable = new AtomicInteger();
         unsolvableErrorList.forEach(x -> {
             try {
-                Sudoku s = Utils.buildSudoku(x.getImpasseNumbers());
+                Sudoku s = Sudoku.fromString(x.getImpasseNumbers());
                 solutions.add(SudokuSolver.getSolution(s));
                 counter.getAndIncrement();
             } catch (UnsolvableException ue) {
@@ -163,16 +155,20 @@ public class SudokuServiceImpl implements SudokuService {
                 unsolvable.getAndIncrement();
             }
         });
-        System.out.println("RISOLTI: " + counter.get() + " SU 3920");
-        System.out.println("BLOCCATI: " + unsolvable.get() + " SU 3920");
+        System.out.println("SOLVED: " + counter.get() + " OUT OF " + unsolvableErrorList.size());
+        System.out.println("STUCKED: " + unsolvable.get() + " OUT OF " + unsolvableErrorList.size());
         return solutions;
     }
 
     @Override
     public String getRandomSudoku() {
-//        List<SolutionOutput> all = sudokuSolutionsRepository.findAll();
-//        if (all.isEmpty()) throw new RuntimeException("No records found");
-//        return all.get(new Random().nextInt(all.size())).getStartingNumbers();
-        return MIXED_SUDOKUS.get(new Random().nextInt(MIXED_SUDOKUS.size()));
+        Optional<SolutionOutput> solutionOutput = sudokuSolutionsRepository.findRandomSudoku();
+        if (solutionOutput.isPresent()) {
+            SolutionOutput solution = solutionOutput.get();
+            return solution.getStartingNumbers();
+        } else {
+            return "100032960672000400304570000001200754205000306467009100000025609009000278026790003";
+        }
+
     }
 }

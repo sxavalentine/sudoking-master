@@ -1,85 +1,68 @@
 package com.gianfro.games.techniques.basic;
 
-import com.gianfro.games.entities.*;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.House;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.SudokuCell;
+import com.gianfro.games.entities.deductions.CellSkimmed;
 import com.gianfro.games.utils.Utils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClaimingCandidates {
 
     /**
-     * If in a row (or column) all candidates of a certain digit are confined to one box,
-     * that candidate that be eliminated from all other cells in that box.
+     * If in a Sudoku Row or Column all cells with the candidate X belong to the same Box
+     * then we can remove that candidate X from all the other cells of that Box
      */
 
     public static final String CLAIMING_CANDIDATES = "CLAIMING CANDIDATES";
 
-    public static SkimmingResult check(List<Tab> tabs) {
-        SkimmingResult result;
-
-        result = boxLineReduction(House.ROW, tabs);
-        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        result = boxLineReduction(House.COL, tabs);
-        changeLogs.addAll(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        return new SkimmingResult(tabs, changeLogs);
+    public static Set<ChangeLog> check(Sudoku sudoku) {
+        Set<ChangeLog> changeLogs = new LinkedHashSet<>();
+        changeLogs.addAll(claimingCandidates(sudoku, House.ROW));
+        changeLogs.addAll(claimingCandidates(sudoku, House.COL));
+        return changeLogs;
     }
 
-    private static SkimmingResult boxLineReduction(House house, List<Tab> tabs) {
+    private static List<ChangeLog> claimingCandidates(Sudoku sudoku, House house) {
         List<ChangeLog> changeLogs = new LinkedList<>();
-        try {
-            for (int houseNumber : Utils.NUMBERS) {
-                for (int number : Utils.NUMBERS) {
-                    List<ChangeLogUnitMember> welcomingTabs = new ArrayList<>();
-                    Set<Integer> boxesOfWelcomingTabs = new HashSet<>();
-                    List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                    for (Tab tab : houseTabs) {
-                        if (tab.getCandidates().contains(number)) {
-                            welcomingTabs.add(tab);
-                            boxesOfWelcomingTabs.add(tab.getBox());
+        for (int houseNumber : Utils.NUMBERS) {
+            List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, houseNumber);
+            for (int number : Utils.NUMBERS) {
+                List<SudokuCell> welcomingCells = emptyHouseCells.stream().filter(c -> c.getCandidates().contains(number)).toList();
+                Set<Integer> welcomingBoxes = welcomingCells.stream().map(c -> c.getBox()).collect(Collectors.toSet());
+                if (welcomingBoxes.size() == 1) {
+                    int boxIndex = new ArrayList<>(welcomingBoxes).get(0);
+                    List<SudokuCell> emptyBoxCells = Utils.getEmptyHouseCells(sudoku, House.BOX, boxIndex);
+                    List<SudokuCell> toBeSkimmed = emptyBoxCells.stream().filter(c -> !welcomingCells.contains(c) && c.getCandidates().contains(number)).toList();
+                    if (!toBeSkimmed.isEmpty()) {
+                        Set<CellSkimmed> deductions = new HashSet<>();
+                        List<Integer> removedCandidates = List.of(number);
+                        for (SudokuCell cell : toBeSkimmed) {
+                            deductions.add(
+                                    CellSkimmed.builder()
+                                            .solvingTechnique(CLAIMING_CANDIDATES)
+                                            .house(house)
+                                            .cell(cell)
+                                            .removedCandidates(removedCandidates)
+                                            .build());
                         }
-                    }
-                    if (boxesOfWelcomingTabs.size() == 1) {
-                        int welcomingBox = new ArrayList<>(boxesOfWelcomingTabs).get(0);
-                        List<Change> unitSkimmings = new ArrayList<>();
-                        boolean deductionsDone = false;
-                        for (Tab tab : tabs) {
-                            if (tab.getHouseNumber(house) != houseNumber && tab.getBox() == welcomingBox && tab.getCandidates().contains(number)) {
-                                tab.getCandidates().remove(Integer.valueOf(number));
-                                Skimming skimming = Skimming.builder()
-                                        .solvingTechnique(CLAIMING_CANDIDATES)
-                                        .house(house)
-                                        .row(tab.getRow())
-                                        .col(tab.getCol())
-                                        .number(0)
-                                        .tab(tab)
-                                        .removedCandidates(List.of(number))
-                                        .build();
-                                unitSkimmings.add(skimming);
-                                deductionsDone = true;
-                            }
-                        }
-                        if (deductionsDone) {
-                            ChangeLog changeLog = ChangeLog.builder()
-                                    .unitExamined(List.of(number))
-                                    .house(house)
-                                    .houseNumber(houseNumber)
-                                    .unitMembers(welcomingTabs)
-                                    .solvingTechnique(CLAIMING_CANDIDATES)
-                                    .solvingTechniqueVariant(null)
-                                    .changes(unitSkimmings)
-                                    .build();
-                            changeLogs.add(changeLog);
-                        }
+                        ChangeLog changeLog = ChangeLog.builder()
+                                .unitExamined(removedCandidates)
+                                .house(house)
+                                .houseNumber(houseNumber)
+                                .unitMembers(new ArrayList<>(welcomingCells))
+                                .solvingTechnique(CLAIMING_CANDIDATES)
+                                .changes(new ArrayList<>(deductions))//TODO: sort by cell.index
+                                .build();
+                        changeLogs.add(changeLog);
                     }
                 }
             }
-        } catch (Exception e) {
-            System.out.println("Exception in CLAIMING CANDIDATES " + house + ": " + e.getMessage());
         }
-        return new SkimmingResult(tabs, changeLogs);
+        return changeLogs;
     }
+
 }

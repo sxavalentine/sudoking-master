@@ -1,4 +1,4 @@
-package com.gianfro.games.response;
+package com.gianfro.games.entities.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

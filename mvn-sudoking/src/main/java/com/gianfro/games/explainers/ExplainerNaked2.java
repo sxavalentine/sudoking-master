@@ -1,12 +1,13 @@
 package com.gianfro.games.explainers;
 
-import com.gianfro.games.entities.*;
-import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.deductions.CellSkimmed;
 import com.gianfro.games.techniques.basic.Naked2;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
-import java.util.List;
+import java.util.Set;
 
 public class ExplainerNaked2 {
 
@@ -25,10 +26,11 @@ public class ExplainerNaked2 {
                 welcomingUnit));
         sb.append("\n");
         changeLog.getChanges().forEach(c -> {
-            Skimming skimming = (Skimming) c;
-            sb.append(String.format("%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
-                    SudokuExplainer.getCell(skimming),
-                    skimming.getTab().getCandidates(),
+            CellSkimmed skimming = (CellSkimmed) c;
+            sb.append(String.format(
+                    "%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
+                    skimming.getCell().getCoordinates(),
+                    skimming.getCell().getCandidates(),
                     skimming.getRemovedCandidates()));
             sb.append("\n");
         });
@@ -40,18 +42,11 @@ public class ExplainerNaked2 {
         System.out.println("------------------------------------- TEST NAKED PAIR -----------------------------------------");
 
         Sudoku sudoku;
-        sudoku = Utils.buildSudoku(SudokuList.TEST_NAKED_2_ALL);
+        sudoku = Sudoku.fromString(SudokuList.TEST_NAKED_2_ALL);
 
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        Utils.grid(sudoku);
+        Utils.megaGrid(sudoku);
 
-        SolutionStep step = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs);
-        List<ChangeLog> changeLogs =
-                step.getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(Naked2.NAKED_PAIR))
-                        .toList();
-
+        Set<ChangeLog> changeLogs = Naked2.check(sudoku);
         changeLogs.forEach(changeLog -> explain(changeLog));
     }
 }

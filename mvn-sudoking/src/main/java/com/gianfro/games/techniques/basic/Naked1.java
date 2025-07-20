@@ -1,38 +1,40 @@
 package com.gianfro.games.techniques.basic;
 
-import com.gianfro.games.entities.Change;
 import com.gianfro.games.entities.ChangeLog;
-import com.gianfro.games.entities.SkimmingResult;
-import com.gianfro.games.entities.Tab;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.SudokuCell;
+import com.gianfro.games.entities.deductions.CellSolved;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public class Naked1 {
 
+    /**
+     * If in a Sudoku there is a cell with only a candidate left
+     * then that candidate is the value of the cell
+     */
+
     public static final String NAKED_SINGLE = "NAKED SINGLE";
 
-    public static SkimmingResult check(List<Tab> tabs) {
-        Set<ChangeLog> changeLogs = new HashSet<>();
+    public static Set<ChangeLog> check(Sudoku sudoku) {
+        Set<ChangeLog> changeLogs = new LinkedHashSet<>();
         try {
-            for (Tab tab : tabs) {
-                if (tab.getCandidates().size() == 1) {
-                    Change change = Change.builder()
+            for (SudokuCell cell : sudoku.getCells()) {
+                if (cell.getCandidates().size() == 1) {
+                    CellSolved change = CellSolved.builder()
                             .solvingTechnique(NAKED_SINGLE)
                             .house(null)
-                            .row(tab.getRow())
-                            .col(tab.getCol())
-                            .number(tab.getCandidates().get(0))
+                            .cell(cell)
+                            .number(cell.getCandidates().get(0))
                             .build();
                     ChangeLog changeLog = ChangeLog.builder()
                             .unitExamined(null)
                             .house(null)
                             .houseNumber(0)
-                            .unitMembers(List.of(tab))
+                            .unitMembers(List.of(cell))
                             .solvingTechnique(NAKED_SINGLE)
-                            .solvingTechniqueVariant(null)
                             .changes(List.of(change))
                             .build();
                     changeLogs.add(changeLog);
@@ -41,6 +43,6 @@ public class Naked1 {
         } catch (Exception e) {
             System.out.println("Exception in NAKED SINGLE: " + e.getMessage());
         }
-        return new SkimmingResult(tabs, new ArrayList<>(changeLogs));
+        return changeLogs;
     }
 }

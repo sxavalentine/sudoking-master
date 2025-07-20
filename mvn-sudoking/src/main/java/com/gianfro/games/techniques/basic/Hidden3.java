@@ -1,12 +1,11 @@
 package com.gianfro.games.techniques.basic;
 
-import com.gianfro.games.entities.*;
-import com.gianfro.games.utils.Utils;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.House;
+import com.gianfro.games.entities.Sudoku;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Hidden3 {
 
@@ -17,93 +16,11 @@ public class Hidden3 {
 
     public static final String HIDDEN_TRIPLE = "HIDDEN TRIPLE";
 
-    public static SkimmingResult check(List<Tab> tabs) {
-        SkimmingResult result;
-
-        result = hiddenTriples(House.BOX, tabs);
-        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        result = hiddenTriples(House.ROW, tabs);
-        changeLogs.addAll(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        result = hiddenTriples(House.COL, tabs);
-        changeLogs.addAll(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        return new SkimmingResult(tabs, changeLogs);
-    }
-
-    private static SkimmingResult hiddenTriples(House house, List<Tab> tabs) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
-        try {
-            for (int houseNumber : Utils.NUMBERS) {
-                List<Integer> candidatesWithAtLeastTwoOccurences = new ArrayList<>();
-                for (int number : Utils.NUMBERS) {
-                    int occurences = 0;
-                    List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                    for (Tab tab : houseTabs) {
-                        if (tab.getCandidates().contains(number)) {
-                            occurences++;
-                        }
-                    }
-                    if (occurences == 2 || occurences == 3) {
-                        candidatesWithAtLeastTwoOccurences.add(number);
-                    }
-                }
-                if (candidatesWithAtLeastTwoOccurences.size() >= 3) {
-                    List<List<Integer>> possibleTriples = Utils.findAllPossibleTuples(candidatesWithAtLeastTwoOccurences, 3);
-                    for (List<Integer> possibleTriple : possibleTriples) {
-                        List<ChangeLogUnitMember> tripleTabs = new ArrayList<>();
-                        List<Tab> shamTabs = new ArrayList<>();
-                        List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                        for (Tab tab : houseTabs) {
-                            if (Utils.containsAtLeastXCandidates(tab.getCandidates(), possibleTriple, 1)) {
-                                if (Utils.containsAtLeastXCandidates(tab.getCandidates(), possibleTriple, 2)) {
-                                    tripleTabs.add(tab);
-                                } else {
-                                    shamTabs.add(tab);
-                                }
-                            }
-                        }
-                        if (tripleTabs.size() == 3 && shamTabs.isEmpty()) {
-                            List<Change> unitSkimmings = new ArrayList<>();
-                            for (ChangeLogUnitMember unitMember : tripleTabs) {
-                                Tab tab = (Tab) unitMember;
-                                List<Integer> candidatesToBeRemoved = tab.getCandidates().stream().filter(x -> !possibleTriple.contains(x)).collect(Collectors.toList());
-                                tab.getCandidates().removeAll(candidatesToBeRemoved);
-                                if (!candidatesToBeRemoved.isEmpty()) {
-                                    Skimming skimming = Skimming.builder()
-                                            .solvingTechnique(HIDDEN_TRIPLE)
-                                            .house(house)
-                                            .row(tab.getRow())
-                                            .col(tab.getCol())
-                                            .number(0)
-                                            .tab(tab)
-                                            .removedCandidates(candidatesToBeRemoved)
-                                            .build();
-                                }
-                            }
-                            if (!unitSkimmings.isEmpty()) {
-                                ChangeLog changeLog = ChangeLog.builder()
-                                        .unitExamined(possibleTriple)
-                                        .house(house)
-                                        .houseNumber(houseNumber)
-                                        .unitMembers(tripleTabs)
-                                        .solvingTechnique(HIDDEN_TRIPLE)
-                                        .solvingTechniqueVariant(null)
-                                        .changes(unitSkimmings)
-                                        .build();
-                                changeLogs.add(changeLog);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Exception in HIDDEN TRIPLE " + house + ": " + e.getMessage());
-        }
-        return new SkimmingResult(tabs, changeLogs);
+    public static Set<ChangeLog> check(Sudoku sudoku) {
+        Set<ChangeLog> changeLogs = new LinkedHashSet<>();
+        changeLogs.addAll(TechniqueUtils.checkHidden(HIDDEN_TRIPLE, sudoku, House.BOX));
+        changeLogs.addAll(TechniqueUtils.checkHidden(HIDDEN_TRIPLE, sudoku, House.ROW));
+        changeLogs.addAll(TechniqueUtils.checkHidden(HIDDEN_TRIPLE, sudoku, House.COL));
+        return changeLogs;
     }
 }

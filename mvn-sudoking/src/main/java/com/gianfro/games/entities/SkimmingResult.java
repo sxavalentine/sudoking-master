@@ -5,13 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Collection;
 import java.util.List;
 
 @Data
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public class SkimmingResult {
-
-    List<Tab> tabs;
-    List<ChangeLog> changeLogs;
+    List<SudokuCell> cells;
+    Collection<ChangeLog> changeLogs;
 }

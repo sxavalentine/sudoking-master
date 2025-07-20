@@ -10,6 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "generic_error")
 public class GenericError {
 
-    private String startingNumbers;
-    private String exceptionMessage;
+    String startingNumbers;
+    String exceptionMessage;
 }

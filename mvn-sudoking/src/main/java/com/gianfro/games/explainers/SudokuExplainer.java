@@ -1,8 +1,10 @@
 package com.gianfro.games.explainers;
 
-import com.gianfro.games.entities.*;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.SolutionOutput;
+import com.gianfro.games.entities.SolutionStep;
+import com.gianfro.games.entities.Sudoku;
 import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.techniques.advanced.XYChain;
 import com.gianfro.games.techniques.basic.*;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
@@ -46,23 +48,15 @@ public class SudokuExplainer {
 //			 case XWing.X_WING :
 //                 ExplainerXWing.explain(changeLog);
 //                 break;
-            case XYChain.XY_CHAIN -> sb.append(ExplainerXYChain.explain(changeLog));
+//            case XYChain.XY_CHAIN -> sb.append(ExplainerXYChain.explain(changeLog));
             default -> {
             }
         }
         return sb.toString();
     }
 
-    public static String getCell(Tab tab) {
-        return Utils.ROWS_LETTERS.get(tab.getRow() - 1) + tab.getCol();
-    }
-
-    public static String getCell(Change change) {
-        return Utils.ROWS_LETTERS.get(change.getRow() - 1) + change.getCol();
-    }
-
     public static void main(String[] args) {
-        SolutionOutput out = SudokuSolver.getSolution(Utils.buildSudoku(SudokuList.EVEREST1));
+        SolutionOutput out = SudokuSolver.getSolution(Sudoku.fromString(SudokuList.EVEREST1));
         List<SolutionStep> steps = out.getSolutionSteps();
         explain(steps);
     }

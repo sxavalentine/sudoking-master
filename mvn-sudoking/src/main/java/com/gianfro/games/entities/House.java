@@ -18,6 +18,6 @@ public enum House {
 
     @Override
     public String toString() {
-        return this.house;
+        return house;
     }
 }

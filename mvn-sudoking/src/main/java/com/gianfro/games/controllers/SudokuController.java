@@ -1,9 +1,8 @@
 package com.gianfro.games.controllers;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.exceptions.NoCandidatesLeftException;
-import com.gianfro.games.explainers.SudokuExplainer;
-import com.gianfro.games.response.RandomSudokuResponse;
+import com.gianfro.games.entities.request.SudokuDTO;
+import com.gianfro.games.entities.response.RandomSudokuResponse;
 import com.gianfro.games.service.SudokuService;
 import com.gianfro.games.utils.Utils;
 import lombok.AccessLevel;
@@ -15,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -29,45 +29,25 @@ public class SudokuController {
     @Autowired
     SudokuService sudokuService;
 
-    @PostMapping(value = "/getTabs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Tab>> getTabs(@NotNull @RequestBody String stringNumbers) {
-        Sudoku s = Utils.buildSudoku(stringNumbers);
-        List<Tab> tabs = Utils.getBasicTabs(s);
-        List<Tab> emptyTabs = Utils.checkForNoCandidates(tabs);
-        if (!emptyTabs.isEmpty()) {
-            throw new NoCandidatesLeftException(s.getStringNumbers(), tabs, emptyTabs);
-        }
-        return ResponseEntity.ok(tabs);
+    @PostMapping(value = "/getSkimmedCells", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SudokuCell>> getTabs(@NotNull @RequestBody String stringNumbers) {
+        Sudoku s = Sudoku.fromString(stringNumbers);
+//        Set<String> emptyCells = Utils.checkForEmptyCellsWithNoCandidates(s);
+//        if (!emptyCells.isEmpty()) {
+//            throw new NoCandidatesLeftException(s, emptyCells);
+//        }
+        return ResponseEntity.ok(s.getCells());
     }
 
-    //TODO: RIVEDERE PARECCHIO, TROPPO SCRITTO MALE
     @PostMapping(value = "/getLittleHelp", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ChangeLog> getLittleHelp(@NotNull @RequestBody String stringNumbers) {
-        ChangeLog changeLog = null;
-        try {
-            SolutionOutput solutionOutput = sudokuService.solveSudoku(stringNumbers);
-            if (!solutionOutput.getSolutionSteps().isEmpty()) {
-                SolutionStep step1 = solutionOutput.getSolutionSteps().get(0);
-                //TODO CHECK
-                changeLog = step1.getChangeLogs().get(0);
-                changeLog.setExplanation(SudokuExplainer.explainChange(changeLog));
-            }
-        } catch (Exception e) {
-            //TODO
-            System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace());
+    public ResponseEntity<Collection<ChangeLog>> getLittleHelp(@NotNull @RequestBody SudokuDTO sudokuDto) {
+        SolutionOutput solutionOutput = sudokuService.solveSudoku(sudokuDto.toEntity());
+        if (!solutionOutput.getSolutionSteps().isEmpty()) {
+            SolutionStep step1 = solutionOutput.getSolutionSteps().get(0);
+            return ResponseEntity.ok(step1.getChangeLogs());
         }
-        return ResponseEntity.ok(changeLog);
+        throw new RuntimeException("EMPTY SOLUTION STEPS");
     }
-
-    //TODO REMOVE
-//    NoCandidatesLeftErrorDTO errorDTO = NoCandidatesLeftErrorDTO.builder()
-//            .sudokuNumbers(s.getStringNumbers())
-//            .cellCoordinates("A1") //TODO per il momento ignora il fatto che sia hardcoded
-//            .numberSet(1) //TODO per il momento ignora il fatto che sia hardcoded
-//            .tabs(tabs)
-//            .emptyTabs(emptyTabs)
-//            .build();
 
     @PostMapping(value = "/solveSudoku", produces = MediaType.APPLICATION_JSON_VALUE)
     public SolutionOutput solveSudoku(@NotNull @RequestBody String stringNumbers) {
@@ -84,22 +64,16 @@ public class SudokuController {
         this.sudokuService.solve50kSudoku();
     }
 
-    @GetMapping(value = "/getTabs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Tab> getSudokuTabs(@NotNull @RequestBody String stringNumbers) {
-        return this.sudokuService.getSudokuTabs(stringNumbers);
-    }
-
     @GetMapping(value = "/printGrid", produces = MediaType.APPLICATION_JSON_VALUE)
     public String printGrid(@NotNull @RequestBody String stringNumbers) {
-        Sudoku s = Utils.buildSudoku(stringNumbers);
+        Sudoku s = Sudoku.fromString(stringNumbers);
         return Utils.grid(s);
     }
 
     @GetMapping(value = "/printMegaGrid", produces = MediaType.APPLICATION_JSON_VALUE)
     public String printMegaGrid(@NotNull @RequestBody String stringNumbers) {
-        Sudoku s = Utils.buildSudoku(stringNumbers);
-        List<Tab> tabs = Utils.getBasicTabs(s);
-        return Utils.megaGrid(s, tabs);
+        Sudoku s = Sudoku.fromString(stringNumbers);
+        return Utils.megaGrid(s);
     }
 
     @GetMapping(value = "/findByStartingNumbers", produces = MediaType.APPLICATION_JSON_VALUE)

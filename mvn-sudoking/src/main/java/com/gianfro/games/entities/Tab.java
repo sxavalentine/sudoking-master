@@ -13,6 +13,14 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
+/**
+ * Represents a Sudoku cell that isn't solved yet.
+ * @field box         -> the row where the cell is set (1 based index)
+ * @field row         -> the row where the cell is set (1 based index)
+ * @field col         -> the column where the cell is set (1 based index)
+ * @field candidates  -> the numbers that can still be put as cell value
+ * @field coordinates -> the alphanumeric coordinates of the cell (eg: A1, I9)
+ */
 public class Tab implements ChangeLogUnitMember {
 
     int box;
@@ -37,14 +45,6 @@ public class Tab implements ChangeLogUnitMember {
         } else {
             return col < 4 ? 7 : col < 7 ? 8 : 9;
         }
-    }
-
-    public int getHouseNumber(House house) {
-        return switch (house) {
-            case BOX -> box;
-            case ROW -> row;
-            case COL -> col;
-        };
     }
 
     @Override

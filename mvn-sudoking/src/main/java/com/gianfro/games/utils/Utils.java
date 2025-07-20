@@ -1,64 +1,33 @@
 package com.gianfro.games.utils;
 
 import com.gianfro.games.entities.*;
-import com.gianfro.games.exceptions.SudokuBuildException;
-import org.paukov.combinatorics3.Generator;
+import com.gianfro.games.entities.deductions.CellChange;
+import com.gianfro.games.entities.deductions.CellSkimmed;
+import com.gianfro.games.exceptions.SudokuBugException;
 
 import java.io.File;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Utils {
 
-    public static final List<String> ROWS_LETTERS = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I");
     public static final List<Integer> NUMBERS = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    public static final List<String> ROWS_LETTERS = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I");
     public static final List<List<Integer>> SPLITTED_NUMBERS = Arrays.asList(NUMBERS.subList(0, 3), NUMBERS.subList(3, 6), NUMBERS.subList(6, 9));
-    public static final List<Integer> INDEXES_02 = Arrays.asList(0, 1, 2);
-    private static final List<Character> CHARACTERS = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-
-    /**
-     * Given a string, check if it's a valid string to build a Sudoku.
-     * If it is, return a Sudoku object, if not throws a SudokuBuildException
-     */
-    public static Sudoku buildSudoku(String stringNumbers) {
-        if (!sudokuStringMatchesPattern(stringNumbers)) {
-            throw new SudokuBuildException(stringNumbers);
-        }
-        List<Integer> numbers = new LinkedList<>();
-        for (int i = 0; i < stringNumbers.length(); i++) {
-            numbers.add(Integer.parseInt(stringNumbers.substring(i, i + 1)));
-        }
-        return new Sudoku(numbers);
-    }
-
-    /**
-     * Given a string, check if it's a valid string to build a sudoku (used by buildSudoku(String stringNumbers))
-     */
-    private static boolean sudokuStringMatchesPattern(String sudokuString) {
-        if (sudokuString.length() != 81) {
-            return false;
-        }
-        for (int i = 0; i < sudokuString.length(); i++) {
-            if (!CHARACTERS.contains(sudokuString.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 
     /**
      * Prints on console an image of the sudoku grid (and returns the String corresponding to that image)
      */
     public static String grid(Sudoku sudoku) {
+        List<SudokuCell> cells = sudoku.getCells();
         StringBuilder sb = new StringBuilder();
         sb.append("    1 2 3   4 5 6   7 8 9").append("\n");
         sb.append("  +-------+-------+-------+").append("\n");
+
         for (int i = 0; i < 9; i++) {
-            List<Integer> row = sudoku.getRows().get(i);
-            sb
-                    .append(ROWS_LETTERS.get(i)).append(" ").append("| ")
+            int finalI = i;
+            List<Integer> row = cells.stream().filter(c -> c.getRow() - 1 == finalI).map(SudokuCell::getValue).toList();
+            sb.append(ROWS_LETTERS.get(i)).append(" ").append("| ")
                     .append(printIfFilled(row.get(0))).append(" ")
                     .append(printIfFilled(row.get(1))).append(" ")
                     .append(printIfFilled(row.get(2))).append(" | ")
@@ -77,274 +46,172 @@ public class Utils {
     }
 
     /**
-     * Prints on console a giant image of the sudoku grid (and returns the String corresponding to that image)
-     */
-    public static String megaGrid(Sudoku sudoku) {
-
-        String ANSI_RESET = "\u001B[0m";
-        String ANSI_RED = "\u001B[31m";
-        String ANSI_GREEN = "\u001B[32m";
-        String newLine = "\n";
-
-        String fourSpaces = "    ";
-        String fiveSpaces = "     ";
-        String elevenSpaces = "          ";
-        String elevenHash = "###########";
-
-
-        StringBuilder numbersRow = new StringBuilder();
-        StringBuilder gridString = new StringBuilder();
-        for (int number : NUMBERS) {
-            numbersRow.append(fiveSpaces).append(ANSI_RED).append(number).append(ANSI_RESET).append(fiveSpaces);
-        }
-
-        gridString.append("  ").append(numbersRow).append(newLine);
-        gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), elevenHash))).append("#").append(newLine);
-
-
-        for (int i = 0; i < NUMBERS.size() * 4; i++) {
-            int sudokuRowIndex = i / 4;
-            List<Integer> correspondingSudokuRow = sudoku.getRows().get(sudokuRowIndex);
-
-            if (((i + 1) % 2) == 0 && ((i + 1) % 4) != 0) {
-                gridString.append(ANSI_RED).append(ROWS_LETTERS.get(i / 4)).append(ANSI_RESET).append(" #");
-                for (int index = 0; index < 9; index++) {
-                    if (!correspondingSudokuRow.get(index).equals(0)) {
-                        gridString.append(fourSpaces).append(ANSI_GREEN).append(correspondingSudokuRow.get(index)).append(ANSI_RESET).append(fiveSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
-                    } else {
-                        gridString.append(fourSpaces).append(" ").append(fiveSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
-                    }
-                }
-                gridString.append(newLine);
-            } else if (((i + 1) % 4) == 0) {
-                if ((i + 1) % 12 == 0) {
-                    gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), elevenHash))).append("#").append(newLine);
-                } else {
-                    gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), "-----------"))).append("#").append(newLine);
-                }
-            } else {
-                gridString.append("  #");
-                for (int index = 0; index < 9; index++) {
-                    gridString.append(elevenSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
-                }
-                gridString.append(newLine);
-            }
-        }
-        System.out.println(gridString);
-        return gridString.toString();
-    }
-
-
-    /**
      * Prints a number only if != 0 (used by grid(Sudoku sudoku))
      */
     private static String printIfFilled(int number) {
         return number != 0 ? String.valueOf(number) : " ";
     }
 
-
     /**
-     * Returns the Tab list (coordinates + list of candidates) of empty cells of Sudoku (based only on present numbers)
+     * Returns a new Sudoku object after applying the Changes found through deductions
+     * IMPORTANT: the changes are always applied to the COPY of the sudoku
+     * after which the Sudoku for nextStep is built from
      */
-    public static List<Tab> getBasicTabs(Sudoku sudoku) {
-        List<Tab> tabs = new LinkedList<>();
-        for (int row : NUMBERS) {
-            for (int column : NUMBERS) {
-                if (sudoku.getRows().get(row - 1).get(column - 1) == 0) {
-                    List<Integer> missingNumbers = new ArrayList<>(NUMBERS);
-                    missingNumbers.removeAll(sudoku.getRows().get(row - 1));
-                    missingNumbers.removeAll(sudoku.getColumns().get(column - 1));
-                    Tab tab = new Tab(row, column, missingNumbers);
-                    List<Integer> boxNumbers = sudoku.getBoxes().get(tab.getBox() - 1);
-                    tab.getCandidates().removeAll(boxNumbers);
-                    tabs.add(tab);
-                }
+    public static Sudoku applyDeductions(Collection<ChangeLog> changeLogs, Sudoku sudoku) {
+
+        List<CellChange> changes = changeLogs.stream()
+                .flatMap(x -> x.getChanges().stream()).distinct().toList();
+
+        for (CellChange change : changes) {
+            SudokuCell impactedCell = sudoku.getCells().get(change.getCell().getIndex());
+            if (change instanceof CellSkimmed skimming) {
+                impactedCell.getCandidates().removeAll(skimming.getRemovedCandidates());
+            } else {
+                impactedCell.setValue(change.getNumber());
             }
         }
-        return tabs;
+        return Sudoku.fromCells(sudoku.getCells());
     }
 
     /**
-     * Check if there are tabs who have no candidates left.generated have no Tabs without candidates (which is an error).
+     * Given a Sudoku, a House and its index, returns the list of all cells in that House
      */
-    public static List<Tab> checkForNoCandidates(List<Tab> tabs) {
-        return tabs.stream().filter(t -> t.getCandidates().isEmpty()).toList();
+    public static List<SudokuCell> getHouseCells(Sudoku sudoku, House house, int index) {
+        return sudoku.getCells().stream()
+                .filter(c -> c.getHouseNumber(house) == index).toList();
     }
 
     /**
-     * Check if there are two or more tabs from the same house that have the same single candidate (which is an error).
-     * Eg: cell A1 and cell A2 (who are both from Row A) have both 1 as the only the candidate left.
-     * Placing the candidate 1 in either of those cells would result in the other one being empty with no candidates available,
-     * so it would be impossible to solve the Sudoku.
+     * Given a Sudoku, a House and its index, returns the list of all SOLVED cells in that House
      */
-    //TODO: Finire di implementare, non sono nemmeno sicuro di usarlo
-    public static List<Tab> checkForSameSingleCandidate(List<Tab> tabs) {
-        Set<Tab> sameSingleCandidateTabs = new HashSet<>();
-        List<Tab> singleCandidateTabs = tabs.stream().filter(t -> t.getCandidates().size() == 1).toList();
-
-        return new LinkedList<>(sameSingleCandidateTabs);
+    public static List<SudokuCell> getSolvedHouseCells(Sudoku sudoku, House house, int index) {
+        return sudoku.getCells().stream()
+                .filter(c -> c.getValue() != 0 && c.getHouseNumber(house) == index).toList();
     }
 
-
     /**
-     * Creates a new list of numbers to create a Sudoku object according to the deduction (Change) given in input
+     * Given a Sudoku, a House and its index, returns the list of all EMPTY cells in that House
      */
-    public static List<Integer> setDeductedNumber(List<Integer> numbersList, Change change) {
-        numbersList.set(((9 * (change.getRow() - 1)) + (change.getCol() - 1)), change.getNumber());
-        return numbersList;
+    public static List<SudokuCell> getEmptyHouseCells(Sudoku sudoku, House house, int index) {
+        return sudoku.getCells().stream()
+                .filter(c -> c.isEmpty() && c.getHouseNumber(house) == index).toList();
     }
 
-
     /**
-     * Given a House and a Tab list, returns the list of tabs related to that House
+     * Given two SudokuCell and an integer quantity, returns true if they share a number of candidates >= quantity
      */
-    public static List<Tab> getHouseTabs(House house, int index, List<Tab> tabs) {
-        List<Tab> houseTabs = new LinkedList<>();
-        for (Tab tab : tabs) {
-            int houseValue = switch (house) {
-                case BOX -> tab.getBox();
-                case ROW -> tab.getRow();
-                case COL -> tab.getCol();
-            };
-            if (houseValue == index) {
-                houseTabs.add(tab);
-            }
-        }
-        return houseTabs;
+    public static boolean cellsShareNCandidates(SudokuCell cellA, SudokuCell cellB, int quantity) {
+        int shared = (int) cellA.getCandidates().stream().filter(c -> cellB.getCandidates().contains(c)).count();
+        return shared >= quantity;
     }
 
-
     /**
-     * Given a list of candidates and a number N, returns all possible tuples with N elements that can be created with that set
-     */
-    public static List<List<Integer>> findAllPossibleTuples(List<Integer> candidatesWithAtLeastTwoOccurences, int n) {
-        return Generator
-                .combination(candidatesWithAtLeastTwoOccurences)
-                .simple(n)
-                .stream()
-                .collect(Collectors.<List<Integer>>toList());
-    }
-
-
-    /**
-     * Given a list of candidates in a Tab and a tuple with N candidates, check if that Tab contains X of those candidates
+     * Returns the list of SudokuCell in a list that are seen by the SudokuCell in input
      *
-     * @param candidates:        the list of candidates of a Tab
-     * @param tuple:             the list of numbers to be checked if they are contained in the Tab candidates
-     * @param minimumCandidates: the number of candidates from the tuple expected to be contained in the Tab's candidates
+     * @param cell    the SudokuCell of which we want to know all seen cells
+     * @param cellSet the pool we want to check from (can be a whole Sudoku or a restricted pool of cells)
      */
-    public static boolean containsAtLeastXCandidates(List<Integer> candidates, List<Integer> tuple, int minimumCandidates) {
-        int count = 0;
-        for (Integer number : candidates) {
-            if (tuple.contains(number)) {
-                count++;
-            }
-        }
-        return count >= minimumCandidates;
+    public static List<SudokuCell> getSeenCells(SudokuCell cell, List<SudokuCell> cellSet) {
+        return cellSet.stream().filter(c -> cellCanSeeOtherCell(cell, c)).toList();
     }
 
     /**
-     * Given a list of candidates in a Tab and a tuple with N candidates, check if that Tab contains X of those candidates
+     * Returns the list of SudokuCell in a Sudoku that are seen by the SudokuCell in input
      *
-     * @param tab:   the tab to be checked
-     * @param tuple: the list of numbers to be checked if they are contained in the Tab candidates
-     * @return true: if the tuple is equal or a subset of Tab's candidates
+     * @param cell      the SudokuCell of which we want to know all seen cells
+     * @param sudoku    the Sudoku we want to check from
+     * @param emptyOnly if true, filters the output returning only the empty cells
      */
-    public static boolean candidatesAreSameOrSubset(Tab tab, List<Integer> tuple) {
-        for (Integer numero : tab.getCandidates()) {
-            if (!tuple.contains(numero)) {
-                return false;
-            }
+    public static List<SudokuCell> getSeenCells(SudokuCell cell, Sudoku sudoku, boolean emptyOnly) {
+        List<SudokuCell> seenCells = getSeenCells(cell, sudoku.getCells());
+        if (emptyOnly) {
+            seenCells = seenCells.stream().filter(c -> c.isEmpty()).toList();
         }
-        return true;
+        return seenCells;
     }
 
-    // restituisce l'array delle tre righe da 3 elementi del quadrato (TODO da scartare in futuro)
-    public static List<List<Integer>> getBoxRows(List<Integer> box) {
-        List<List<Integer>> boxRows = new LinkedList<>();
-        for (int i : INDEXES_02) {
-            boxRows.add(new LinkedList<>(box.subList(3 * i, (3 * i) + 3)));
-        }
-        return boxRows;
+    /**
+     * Given two SudokuCells, returns true if they are two different cells and they share a House (BOX, ROW, COL)
+     */
+    public static boolean cellCanSeeOtherCell(SudokuCell a, SudokuCell b) {
+        return a != b && (a.getBox() == b.getBox() || a.getRow() == b.getRow() || a.getCol() == b.getCol());
     }
 
-
-    // restituisce la lista delle tre colonne da 3 elementi del quadrato (TODO da scartare in futuro)
-    public static List<List<Integer>> getBoxColumns(List<Integer> box) {
-        List<List<Integer>> boxColumns = new LinkedList<>();
-        for (int i : INDEXES_02) {
-            List<Integer> thirdPartOfColumn = new ArrayList<>();
-            for (List<Integer> row : getBoxRows(box)) {
-                thirdPartOfColumn.add(row.get(i));
-            }
-            boxColumns.add(thirdPartOfColumn);
-        }
-        return boxColumns;
+    /**
+     * Given a SudokuCell and a Sudoku, returns the list of all the other empty cells seen by the one passed as parameter
+     */
+    public static List<SudokuCell> getSeenEmptyCells(SudokuCell cell, Sudoku sudoku) {
+        return sudoku.getCells().stream().filter(c -> cellCanSeeOtherCell(c, cell)).toList();
     }
 
-
-    // restituisce l'array dei quadrati del terzetto righe (indice terzetto tra 0 e 2) (TODO da scartare in futuro)
-    public static List<List<Integer>> getRowsTrioBoxes(Sudoku sudoku, int indexRowsTrio) {
-        return sudoku.getBoxes().subList(indexRowsTrio * 3, 3 + (indexRowsTrio * 3));
-    }
-
-
-    // restituisce la lista dei quadrati del terzetto colonne (indice terzetto tra 0 e 2) (TODO da scartare in futuro)
-    public static List<List<Integer>> getColsTrioBoxes(Sudoku sudoku, int indexRowsTrio) {
-        List<List<Integer>> boxesTrio = new LinkedList<>();
-        for (int i : INDEXES_02) {
-            boxesTrio.add(sudoku.getBoxes().get(indexRowsTrio + (3 * i)));
-        }
-        return boxesTrio;
-    }
-
-
-    // controlla per ogni quadrato, riga e colonna se presenta numeriRipetuti (bug che incorre col metodo FIFTY-FIFTY)
-    // TODO rendere un metodo privato della classe ?
-    public static Set<String> checkForBugs(Sudoku attempt) {
+    /**
+     * Perform some basic operations to check if the Sudoku has some logic impossibilities
+     * (which may happen when "guessing" cell values with FiftyFifty method)
+     */
+    public static void checkForBugs(Sudoku sudoku) {
         Set<String> bugs = new HashSet<>();
-        for (List<Integer> box : attempt.getBoxes()) {
-            for (int number : box) {
-                if (number != 0) {
-                    int occurrences = Collections.frequency(box, number);
-                    if (occurrences > 1) {
-                        bugs.add("Box " + box + " has " + occurrences + " times the number " + number);
-                    }
-                }
+        bugs.addAll(checkForEmptyCellsWithNoCandidates(sudoku));
+        bugs.addAll(checkForHouseDuplicates(sudoku));
+        bugs.addAll(checkForHousesWithCellsHavingSameLastCandidate(sudoku));
+        if (!bugs.isEmpty()) {
+            System.out.println("Found the following bugs during solution:");
+            for (String bug : bugs) {
+                System.out.println(bug);
             }
+            throw new SudokuBugException(sudoku, bugs);
         }
-        for (List<Integer> row : attempt.getRows()) {
-            for (int number : row) {
-                if (number != 0) {
-                    int occurrences = Collections.frequency(row, number);
-                    if (occurrences > 1) {
-                        bugs.add("Row " + row + " has " + occurrences + " times the number " + number);
-                    }
-                }
-            }
+    }
+
+    /**
+     * Check if a Sudoku has empty cells with no candidates left (which is an error).
+     */
+    public static Set<String> checkForEmptyCellsWithNoCandidates(Sudoku sudoku) {
+        Set<String> bugs = new HashSet<>();
+        List<SudokuCell> emptyWithNoCandidates = sudoku.getCells().stream().filter(c -> c.isEmpty() && c.getCandidates().isEmpty()).toList();
+        if (!emptyWithNoCandidates.isEmpty()) {
+            bugs.add("The following cells are empty and have no candidates left: " + emptyWithNoCandidates);
         }
-        for (List<Integer> column : attempt.getColumns()) {
-            for (int number : column) {
-                if (number != 0) {
-                    int occurrences = Collections.frequency(column, number);
-                    if (occurrences > 1) {
-                        bugs.add("Column " + column + " has " + occurrences + " times the number " + number);
-                    }
+        return bugs;
+    }
+
+    /**
+     * Check if there are houses with multiple cells with the same value (which is an error).
+     */
+    public static Set<String> checkForHouseDuplicates(Sudoku sudoku) {
+        Set<String> bugs = new HashSet<>();
+        for (House house : House.values()) {
+            for (int houseNumber : NUMBERS) {
+                List<SudokuCell> solvedHouseCells = getSolvedHouseCells(sudoku, house, houseNumber);
+                Map<Integer, List<SudokuCell>> valueMap = new HashMap<>();
+                for (SudokuCell cell : solvedHouseCells) {
+                    int cellValue = cell.getValue();
+                    valueMap.computeIfAbsent(cellValue, k -> new ArrayList<>()).add(cell);
                 }
+                valueMap.forEach((value, cells) -> {
+                    if (cells.size() > 1) {
+                        bugs.add(house.name() + " " + houseNumber + " has " + cells.size() + " cells with value " + value + ": " + cells.stream().map(SudokuCell::getCoordinates).toList());
+                    }
+                });
             }
         }
         return bugs;
     }
 
-
-    // controlla se ci sono caselle che non hanno candidati pur non essendo valorizzate
-    // (bug che incorre col metodo FIFTY-FIFTY) TODO rendere un metodo privato della classe ?
-    public static Set<String> checkForEmptySquaresWithNoCandidates(Sudoku sudoku, List<Tab> tabs) {
+    /**
+     * Check if there are houses with multiple cells that share the same last candidate left (which is an error).
+     */
+    public static Set<String> checkForHousesWithCellsHavingSameLastCandidate(Sudoku sudoku) {
         Set<String> bugs = new HashSet<>();
-        for (Tab tab : tabs) {
-            int sudokuSquare = ((9 * (tab.getRow() - 1))) + (tab.getCol() - 1);
-            if (tab.getCandidates().isEmpty() && sudoku.getNumbers().get(sudokuSquare) == 0) {
-                bugs.add("Cell (" + ROWS_LETTERS.get(tab.getRow() - 1) + tab.getCol() + ") is empty but has no candidates");
+        for (House house : House.values()) {
+            for (Integer houseNumber : NUMBERS) {
+                List<SudokuCell> emptyCells = getEmptyHouseCells(sudoku, house, houseNumber);
+                for (int candidate : NUMBERS) {
+                    List<SudokuCell> welcomingCells = emptyCells.stream().filter(
+                            c -> c.getCandidates().size() == 1 && c.getCandidates().contains(candidate)).toList();
+                    if (welcomingCells.size() > 1) {
+                        bugs.add(house.name() + " " + houseNumber + " has multiple cells having " + candidate + " as last candidate left: " + welcomingCells);
+                    }
+                }
             }
         }
         return bugs;
@@ -361,16 +228,12 @@ public class Utils {
                 System.out.println("It's in " + getWelcomingUnit(changeLog));
             }
             System.out.println("It's tabs are:");
-            for (ChangeLogUnitMember tab : changeLog.getUnitMembers()) {
-                System.out.println(tab);
+            for (ChangeLogUnitMember unitMember : changeLog.getUnitMembers()) {
+                System.out.println(unitMember);
             }
             System.out.println("I then deducted:");
-            for (Change change : changeLog.getChanges()) {
-                if (change instanceof Skimming skimming) {
-                    System.out.println(skimming);
-                } else {
-                    System.out.println(change);
-                }
+            for (CellChange change : changeLog.getChanges()) {
+                System.out.println(change);
             }
             System.out.println();
             System.out.println("-----------------------------------------------------------------------------");
@@ -390,107 +253,6 @@ public class Utils {
         };
     }
 
-    /**
-     * Per debuggare: stampa una griglia del sudoku dove ci sono i tabs di ogni casella (se risolta, tab con un solo candidato)
-     */
-    public static void printSkimmedTabs(Sudoku sudoku, List<Tab> skimmedTabs) {
-        List<Tab> allTabs = new ArrayList<>();
-        for (int row : NUMBERS) {
-            for (int col : NUMBERS) {
-                int number = sudoku.getRows().get(row - 1).get(col - 1);
-                Tab tab = null;
-                if (number == 0) {
-                    for (Tab skimmedTab : skimmedTabs) {
-                        if (skimmedTab.getRow() == row && skimmedTab.getCol() == col) {
-                            tab = new Tab(row, col, skimmedTab.getCandidates());
-                        }
-                    }
-                } else {
-                    tab = new Tab(row, col, Collections.singletonList(number));
-                }
-                allTabs.add(tab);
-            }
-        }
-        int rowCount = 0;
-        System.out.print("       " + "    COL 1    " + "    COL 2    " + "    COL 3    ");
-        System.out.print("       " + "    COL 4    " + "    COL 5    " + "    COL 6    ");
-        System.out.print("       " + "    COL 7    " + "    COL 8    " + "    COL 9    ");
-        for (int i = 0; i < 81; i += 9) {
-            List<Tab> tabsRow = allTabs.subList(i, i + 9);
-            System.out.println();
-            System.out.print("ROW " + (Utils.ROWS_LETTERS.get(rowCount)) + "  ");
-            for (int t = 0; t < 9; t++) {
-                Tab tab = tabsRow.get(t);
-                System.out.print(" " + printCandidates(tab) + " ");
-                if (((t + 1) % 3) == 0 && t < 8) {
-                    System.out.print("       ");
-                }
-            }
-            if (((rowCount + 1) % 3) == 0) {
-                System.out.println();
-            }
-            rowCount++;
-        }
-    }
-
-
-    /**
-     * Per debuggare: identico al metodo di sopra, ma sono tabs semplici, senza scremature *
-     */
-    public static void printTabs(Sudoku sudoku) {
-        List<Tab> allTabs = new ArrayList<>();
-        for (int row : NUMBERS) {
-            for (int col : NUMBERS) {
-                int number = sudoku.getRows().get(row - 1).get(col - 1);
-                Tab tab;
-                if (number == 0) {
-                    List<Integer> missingNumbers = new ArrayList<>(Utils.NUMBERS);
-                    missingNumbers.removeAll(sudoku.getRows().get(row - 1));
-                    missingNumbers.removeAll(sudoku.getColumns().get(col - 1));
-                    tab = new Tab(row, col, missingNumbers);
-                    List<Integer> boxNumbers = sudoku.getBoxes().get(tab.getBox() - 1);
-                    tab.getCandidates().removeAll(boxNumbers);
-                } else {
-                    tab = new Tab(row, col, Collections.singletonList(number));
-                }
-                allTabs.add(tab);
-            }
-        }
-        int rowCount = 0;
-        System.out.print("       " + "    COL A    " + "    COL B    " + "    COL C    ");
-        System.out.print("       " + "    COL D    " + "    COL E    " + "    COL F    ");
-        System.out.print("       " + "    COL G    " + "    COL H    " + "    COL I    ");
-        for (int i = 0; i < 81; i += 9) {
-            List<Tab> tabsRow = allTabs.subList(i, i + 9);
-            System.out.println();
-            System.out.print("ROW " + (rowCount + 1) + "  ");
-            for (int t = 0; t < 9; t++) {
-                Tab tab = tabsRow.get(t);
-                System.out.print(" " + printCandidates(tab) + " ");
-                if (((t + 1) % 3) == 0 && t < 8) {
-                    System.out.print("       ");
-                }
-            }
-            if (((rowCount + 1) % 3) == 0) {
-                System.out.println();
-            }
-            rowCount++;
-        }
-    }
-
-
-    // usato dai due metodi printTabs e printSkimmedTabs
-    private static String printCandidates(Tab tab) {
-        StringBuilder candidates = new StringBuilder();
-        for (int candidate : tab.getCandidates()) {
-            candidates.append(candidate);
-        }
-        while (candidates.length() < 9) {
-            candidates.append(" ");
-        }
-        return "[" + candidates + "]";
-    }
-
     public static List<Sudoku> read50kSudoku() {
         List<Sudoku> allSudoku = new ArrayList<>();
         try {
@@ -501,7 +263,7 @@ public class Utils {
             Scanner myReader = new Scanner(sudokuList);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
-                Sudoku s = Utils.buildSudoku(data);
+                Sudoku s = Sudoku.fromString(data);
                 allSudoku.add(s);
             }
             myReader.close();
@@ -513,35 +275,94 @@ public class Utils {
         return allSudoku;
     }
 
-    // Data una lista di Tab, restituisce il numero con meno celle possibili dove può essere inserito.
+    // Dato un sudoku, restituisce il numero con meno celle possibili dove può essere inserito.
     // Per ora non usato, ma può tornare utile
-    public static Integer getNumberWithLessPossibleCells(List<Tab> tabs) {
+    public static Integer getNumberWithLessPossibleCells(Sudoku sudoku) {
         Map<Integer, Integer> map = new HashMap<>();
         for (Integer number : NUMBERS) {
-            int cellCount = 0;
-            for (Tab t : tabs) {
-                if (t.getCandidates().contains(number)) cellCount++;
-            }
-            map.put(number, cellCount);
+            map.put(number, (int) sudoku.getCells().stream().filter(c -> c.getCandidates().contains(number)).count());
         }
         return map.get(Collections.min(map.values()));
     }
 
     /**
-     * Given a Sudoku and a Tab List, prints a giant grid, where each determined cell has its number set in green.
-     * The remaining cells have show list of candidates still available.
-     * TODO FOR SURE IT CAN BE WRITTEN WAY BETTER
+     * Prints on console a giant image of the sudoku grid (and returns the String corresponding to that image)
      */
-    public static String megaGrid(Sudoku sudoku, List<Tab> tabs) {
+    public static String megaGridNoCandidates(Sudoku sudoku) {
 
         String ANSI_RESET = "\u001B[0m";
-        String ANSI_GREEN = "\u001B[32m";
         String ANSI_RED = "\u001B[31m";
+        String ANSI_GREEN = "\u001B[32m";
         String NEW_LINE = "\n";
 
         String fourSpaces = "    ";
+        String fiveSpaces = "     ";
+        String elevenSpaces = "          ";
+        String elevenHash = "###########";
+
+
+        StringBuilder numbersRow = new StringBuilder();
+        StringBuilder gridString = new StringBuilder();
+        for (int number : NUMBERS) {
+            numbersRow.append(fiveSpaces).append(ANSI_RED).append(number).append(ANSI_RESET).append(fiveSpaces);
+        }
+
+        gridString.append("  ").append(numbersRow).append(NEW_LINE);
+        gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), elevenHash))).append("#").append(NEW_LINE);
+
+
+        for (int i = 0; i < NUMBERS.size() * 4; i++) {
+            int sudokuRowIndex = i / 4;
+            List<SudokuCell> rowCells = getHouseCells(sudoku, House.ROW, sudokuRowIndex + 1);
+            List<Integer> rowNumbers = rowCells.stream().map(SudokuCell::getValue).toList();
+
+            if (((i + 1) % 2) == 0 && ((i + 1) % 4) != 0) {
+                gridString.append(ANSI_RED).append(ROWS_LETTERS.get(i / 4)).append(ANSI_RESET).append(" #");
+                for (int index = 0; index < 9; index++) {
+                    if (!rowNumbers.get(index).equals(0)) {
+                        gridString.append(fourSpaces).append(ANSI_GREEN).append(rowNumbers.get(index)).append(ANSI_RESET).append(fiveSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
+                    } else {
+                        gridString.append(fourSpaces).append(" ").append(fiveSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
+                    }
+                }
+                gridString.append(NEW_LINE);
+            } else if (((i + 1) % 4) == 0) {
+                if ((i + 1) % 12 == 0) {
+                    gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), elevenHash))).append("#").append(NEW_LINE);
+                } else {
+                    gridString.append("  ").append(String.join("", Collections.nCopies(NUMBERS.size(), "-----------"))).append("#").append(NEW_LINE);
+                }
+            } else {
+                gridString.append("  #");
+                for (int index = 0; index < 9; index++) {
+                    gridString.append(elevenSpaces).append((index + 1) % 3 == 0 ? "#" : "|");
+                }
+                gridString.append(NEW_LINE);
+            }
+        }
+        System.out.println(gridString);
+        return gridString.toString();
+    }
+
+    /**
+     * Given a Sudoku, prints a giant grid, where each determined cell has its number set in green.
+     * The remaining cells have show list of candidates still available.
+     * TODO FOR SURE IT CAN BE WRITTEN WAY BETTER
+     */
+    public static String megaGrid(Sudoku sudoku) {
+
+        String ANSI_RESET = "\u001B[0m";
+        String ANSI_RED = "\u001B[31m";
+        String ANSI_GREEN = "\u001B[32m";
+        String NEW_LINE = "\n";
+
+        String fourSpaces = "    ";
+        String fiveSpaces = "     ";
         String nineSpaces = "         ";
+        String elevenSpaces = "          ";
         String tenHash = "##########";
+        String elevenHash = "###########";
+
         String midColumnSeparator = "---------#---------#---------" + ANSI_RED + "#" + ANSI_RESET;
 
         StringBuilder numbersRow = new StringBuilder();
@@ -555,7 +376,8 @@ public class Utils {
 
         for (int i = 0; i < NUMBERS.size() * 4; i++) {
             int sudokuRowIndex = i / 4;
-            List<Integer> correspondingSudokuRow = sudoku.getRows().get(sudokuRowIndex);
+            List<SudokuCell> rowCells = getHouseCells(sudoku, House.ROW, sudokuRowIndex + 1);
+            List<Integer> rowNumbers = rowCells.stream().map(SudokuCell::getValue).toList();
             int candidatesRowIndex = i;
             while (candidatesRowIndex >= 4) {
                 candidatesRowIndex -= 4;
@@ -565,15 +387,13 @@ public class Utils {
                 gridString.append(ROWS_LETTERS.get(i / 4)).append(ANSI_RED).append(" #").append(ANSI_RESET);
                 for (int index = 0; index < 9; index++) {
                     String endLineBox = (index + 1) % 3 == 0 ? ANSI_RED + "#" + ANSI_RESET : "|";
-                    if (!correspondingSudokuRow.get(index).equals(0)) {
-                        gridString.append(fourSpaces).append(ANSI_GREEN).append(correspondingSudokuRow.get(index)).append(ANSI_RESET).append(fourSpaces).append(endLineBox);
+                    if (!rowNumbers.get(index).equals(0)) {
+                        gridString.append(fourSpaces).append(ANSI_GREEN).append(rowNumbers.get(index)).append(ANSI_RESET).append(fourSpaces).append(endLineBox);
                     } else {
-                        int cellColumn = index;
-                        List<Tab> rowTabs = tabs.stream().filter(t -> t.getRow() == sudokuRowIndex + 1).toList();
-                        Tab currentCellTab = rowTabs.stream().filter(t -> t.getCol() == cellColumn + 1).findFirst().orElse(null);
-                        if (currentCellTab != null) {
+                        SudokuCell currentCell = rowCells.get(index);
+                        if (currentCell != null) {
                             for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {
-                                gridString.append(" ").append(currentCellTab.getCandidates().contains(number) ? number : " ").append(" ");
+                                gridString.append(" ").append(currentCell.getCandidates().contains(number) ? number : " ").append(" ");
                             }
                             gridString.append(endLineBox);
                         }
@@ -590,16 +410,12 @@ public class Utils {
                 gridString.append(ANSI_RED).append("  #").append(ANSI_RESET);
                 for (int index = 0; index < 9; index++) {
                     String endLineBox = (index + 1) % 3 == 0 ? ANSI_RED + "#" + ANSI_RESET : "|";
-                    if (correspondingSudokuRow.get(index).equals(0)) {
-                        int cellColumn = index;
-                        List<Tab> rowTabs = tabs.stream().filter(t -> t.getRow() == sudokuRowIndex + 1).toList();
-                        Tab currentCellTab = rowTabs.stream().filter(t -> t.getCol() == cellColumn + 1).findFirst().orElse(null);
-                        if (currentCellTab != null) {
-                            for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {
-                                gridString.append(" ").append(currentCellTab.getCandidates().contains(number) ? number : " ").append(" ");
-                            }
-                            gridString.append(endLineBox);
+                    if (rowNumbers.get(index).equals(0)) {
+                        SudokuCell currentCell = rowCells.get(index);
+                        for (Integer number : SPLITTED_NUMBERS.get(candidatesRowIndex)) {
+                            gridString.append(" ").append(currentCell.getCandidates().contains(number) ? number : " ").append(" ");
                         }
+                        gridString.append(endLineBox);
                     } else {
                         gridString.append(nineSpaces).append(endLineBox);
                     }
@@ -608,15 +424,14 @@ public class Utils {
             }
         }
         System.out.println(gridString);
-        return gridString.toString();
+
+        return gridString.toString().replace(ANSI_GREEN, "").replace(ANSI_RED, "").replace(ANSI_RESET, "");
     }
 
     public static void main(String[] args) {
-        Sudoku sudoku = buildSudoku("000000206000080109900700000000030090056000000029000000000106500400000030000203000");
-        List<Tab> tabs = getBasicTabs(sudoku);
-
+        Sudoku sudoku = Sudoku.fromString("000000206000080109900700000000030090056000000029000000000106500400000030000203000");
         grid(sudoku);
-        megaGrid(sudoku, tabs);
-        printTabs(sudoku);
+        String s = megaGrid(sudoku);
+        System.out.println(s);
     }
 }

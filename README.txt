@@ -1,10 +1,14 @@
-SudoKing is an application that not only can solve most of Sudokus grids, but for every Sudoku solved is able to generate a step by step explanation of the solution process,
-telling which solving tecnique it's been used for that specific step and generating a written explanation.
+SudoKing is an application that not only can solve most of Sudoku grids,
+but for every Sudoku solved is able to generate a step by step explanation of the solution process,
+telling which solving technique it's been used for that specific step and generating a written explanation.
 The results are then stored into a MongoDB collection, and so are the errors of those that couldn't be solved.
 To test it, i used a txt file containing 49.151 Sudoku (each line representing a different grid).
-They are all MINIMAL SUDOKUS (grids with only 17 starting digits: according to an MIT study, 17 is the minimum number of digits needed to be solvable AND have only a possible solution).
+They are all MINIMAL SUDOKUS
+(grids with only 17 starting digits: according to a study,
+17 is the minimum number of digits needed to be solvable AND have only a possible solution).
 So far the program can solve 45.231 of them in about 10 minutes (11 milliseconds per grid)
-It's still a work in progress (many techniques are hard to implement and test), but so far it can solve most of them (only 3920 that should be done once the new techniques are implemented).
+It's still a work in progress (many techniques are hard to implement and test),
+but so far it can solve most of them (only 3920 that should be done once the new techniques are implemented).
 Here is an example of a SolutionOutput.
 
 ---------- STEP 1 ----------

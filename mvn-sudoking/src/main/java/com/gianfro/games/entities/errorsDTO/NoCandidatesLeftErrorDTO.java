@@ -1,6 +1,6 @@
 package com.gianfro.games.entities.errorsDTO;
 
-import com.gianfro.games.entities.Tab;
+import com.gianfro.games.entities.SudokuCell;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +18,6 @@ public class NoCandidatesLeftErrorDTO {
     String sudokuNumbers;
     Integer numberSet;
     String cellCoordinates;
-    List<Tab> tabs;
-    List<Tab> emptyTabs;
+    List<SudokuCell> cells;
+    List<SudokuCell> emptyCells;
 }

@@ -1,12 +1,14 @@
 package com.gianfro.games.explainers;
 
-import com.gianfro.games.entities.*;
-import com.gianfro.games.sudoku.solver.SudokuSolver;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.SudokuCell;
+import com.gianfro.games.entities.deductions.CellSkimmed;
 import com.gianfro.games.techniques.basic.PointingCandidates;
 import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
-import java.util.List;
+import java.util.Set;
 
 public class ExplainerPointingCandidates {
 
@@ -26,11 +28,11 @@ public class ExplainerPointingCandidates {
                 boxWelcomingUnit));
         sb.append("\n");
         changeLog.getChanges().forEach(c -> {
-            Skimming skimming = (Skimming) c;
+            CellSkimmed skimming = (CellSkimmed) c;
             sb.append(String.format(
                     "%s --> CANDIDATES REMAINING: %s; CANDIDATES REMOVED: %s",
-                    SudokuExplainer.getCell(skimming),
-                    skimming.getTab().getCandidates(),
+                    skimming.getCell().getCoordinates(),
+                    skimming.getCell().getCandidates(),
                     skimming.getRemovedCandidates()));
             sb.append("\n");
         });
@@ -39,12 +41,12 @@ public class ExplainerPointingCandidates {
     }
 
     private static String getBoxWelcomingUnit(ChangeLog changeLog) {
-        Tab tab1 = (Tab) changeLog.getUnitMembers().get(0);
-        Tab tab2 = (Tab) changeLog.getUnitMembers().get(1);
-        if (tab1.getRow() == tab2.getRow()) {
-            return "ROW " + Utils.ROWS_LETTERS.get(tab1.getRow() - 1);
+        SudokuCell c1 = (SudokuCell) changeLog.getUnitMembers().get(0);
+        SudokuCell c2 = (SudokuCell) changeLog.getUnitMembers().get(1);
+        if (c1.getRow() == c2.getRow()) {
+            return "ROW " + Utils.ROWS_LETTERS.get(c1.getRow() - 1);
         } else {
-            return "COL " + tab1.getCol();
+            return "COL " + c1.getCol();
         }
     }
 
@@ -52,21 +54,13 @@ public class ExplainerPointingCandidates {
         System.out.println("------------------------------------- TEST POINTING CANDIDATES -----------------------------------------");
 
         Sudoku sudoku;
-//        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_ROW);
-//        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_COL);
-        sudoku = Utils.buildSudoku(SudokuList.TEST_POINTING_CANDIDATES_TRIPLE);
+        sudoku = Sudoku.fromString(SudokuList.TEST_POINTING_CANDIDATES_ROW);
+//        sudoku = Sudoku.fromString(SudokuList.TEST_POINTING_CANDIDATES_COL);
+//        sudoku = Sudoku.fromString(SudokuList.TEST_POINTING_CANDIDATES_TRIPLE);
 
-        List<Tab> tabs = Utils.getBasicTabs(sudoku);
-        Utils.grid(sudoku);
-        Utils.megaGrid(sudoku, tabs);
+        Utils.megaGrid(sudoku);
 
-        SolutionStep step = SudokuSolver.useStandardSolvingTechniques(sudoku, tabs);
-        List<ChangeLog> changeLogs =
-                step.getChangeLogs()
-                        .stream()
-                        .filter(x -> x.getSolvingTechnique().equals(PointingCandidates.POINTING_CANDIDATES))
-                        .toList();
-
-        changeLogs.forEach(changeLog -> System.out.println(explain(changeLog)));
+        Set<ChangeLog> changeLogs = PointingCandidates.check(sudoku);
+        changeLogs.forEach(changeLog -> explain(changeLog));
     }
 }

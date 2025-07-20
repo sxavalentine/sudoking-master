@@ -1,96 +1,27 @@
 package com.gianfro.games.techniques.basic;
 
-import com.gianfro.games.entities.*;
-import com.gianfro.games.utils.Utils;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.House;
+import com.gianfro.games.entities.Sudoku;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Naked2 {
 
     /**
-     * If you can find two cells, both in the same house, that have only the same two candidates left,
-     * you can eliminate that two candidates from all other cells in that house.
+     * If in a Sudoku House (BOX, ROW, COL) there is a group of exactly 2 cells containing only a certain pair of candidates (eg: [1,2])
+     * then we can remove those candidates from all other cells of that House.
      */
 
     public static final String NAKED_PAIR = "NAKED PAIR";
 
-    public static SkimmingResult check(List<Tab> tabs) {
-        SkimmingResult result;
-
-        result = nakedPairs(House.BOX, tabs);
-        List<ChangeLog> changeLogs = new LinkedList<>(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        result = nakedPairs(House.ROW, tabs);
-        changeLogs.addAll(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        result = nakedPairs(House.COL, tabs);
-        changeLogs.addAll(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        return new SkimmingResult(tabs, changeLogs);
+    public static Set<ChangeLog> check(Sudoku sudoku) {
+        Set<ChangeLog> changeLogs = new LinkedHashSet<>();
+        changeLogs.addAll(TechniqueUtils.checkNaked(NAKED_PAIR, sudoku, House.BOX));
+        changeLogs.addAll(TechniqueUtils.checkNaked(NAKED_PAIR, sudoku, House.ROW));
+        changeLogs.addAll(TechniqueUtils.checkNaked(NAKED_PAIR, sudoku, House.COL));
+        return changeLogs;
     }
 
-    private static SkimmingResult nakedPairs(House house, List<Tab> tabs) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
-        try {
-            for (int houseNumber : Utils.NUMBERS) {
-                Set<List<Integer>> pairsSet = new HashSet<>();
-                List<List<Integer>> pairsList = new ArrayList<>();
-                List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                for (Tab tab : houseTabs) {
-                    if (tab.getCandidates().size() == 2) {
-                        pairsSet.add(tab.getCandidates());
-                        pairsList.add(tab.getCandidates());
-                    }
-                }
-                List<List<Integer>> pairs = new ArrayList<>(pairsSet);
-                for (List<Integer> pair : pairs) {
-                    List<ChangeLogUnitMember> pairTabs = new ArrayList<>();
-                    if (Collections.frequency(pairsList, pair) == 2) {
-                        List<Tab> houseTabs2 = Utils.getHouseTabs(house, houseNumber, tabs);
-                        boolean deductionsDone = false;
-                        List<Change> unitSkimmings = new ArrayList<>();
-                        for (Tab tab : houseTabs2) {
-                            if (!tab.getCandidates().equals(pair)) {
-                                List<Integer> candidatesToBeRemoved = pair.stream().filter(x -> tab.getCandidates().remove(x)).collect(Collectors.toList());
-                                if (!candidatesToBeRemoved.isEmpty()) {
-                                    Skimming skimming = Skimming.builder()
-                                            .solvingTechnique(NAKED_PAIR)
-                                            .house(house)
-                                            .row(tab.getRow())
-                                            .col(tab.getCol())
-                                            .number(0)
-                                            .tab(tab)
-                                            .removedCandidates(candidatesToBeRemoved)
-                                            .build();
-                                    unitSkimmings.add(skimming);
-                                    deductionsDone = true;
-                                }
-                            } else {
-                                pairTabs.add(tab);
-                            }
-                        }
-                        if (deductionsDone) {
-                            ChangeLog changeLog = ChangeLog.builder()
-                                    .unitExamined(pair)
-                                    .house(house)
-                                    .houseNumber(houseNumber)
-                                    .unitMembers(pairTabs)
-                                    .solvingTechnique(NAKED_PAIR)
-                                    .solvingTechniqueVariant(null)
-                                    .changes(unitSkimmings)
-                                    .build();
-                            changeLogs.add(changeLog);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Exception in NAKED PAIR " + house + ": " + e.getMessage());
-        }
-        return new SkimmingResult(tabs, changeLogs);
-    }
 }

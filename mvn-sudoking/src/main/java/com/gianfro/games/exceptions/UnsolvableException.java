@@ -2,7 +2,6 @@ package com.gianfro.games.exceptions;
 
 import com.gianfro.games.entities.SolutionStep;
 import com.gianfro.games.entities.Sudoku;
-import com.gianfro.games.entities.Tab;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -18,7 +17,6 @@ public class UnsolvableException extends RuntimeException {
     Sudoku startingSudoku;
     Sudoku blockedSudoku;
     List<SolutionStep> solutionSteps;
-    List<Tab> tabs;
     String message;
 
 

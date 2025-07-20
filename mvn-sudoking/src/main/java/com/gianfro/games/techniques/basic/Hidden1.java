@@ -1,88 +1,64 @@
 package com.gianfro.games.techniques.basic;
 
-import com.gianfro.games.entities.*;
+import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.House;
+import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.SudokuCell;
+import com.gianfro.games.entities.deductions.CellSolved;
 import com.gianfro.games.utils.Utils;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 public class Hidden1 {
 
     /**
-     * Hidden Single means that for a given digit and house only one cell is left to place that digit.
-     * The cell itself has more than one candidate left, the correct digit is thus hidden amongst the rest.
+     * If in a Sudoku House (BOX, ROW, COL) there is only a cell with the candidate X
+     * then the value of that cell is exactly X
      */
 
     public static final String HIDDEN_SINGLE = "HIDDEN SINGLE";
 
-    public static SkimmingResult check(List<Tab> tabs) {
-        SkimmingResult result;
-
-        result = hiddenSingle(House.BOX, tabs);
-        Set<ChangeLog> changeLogs = new HashSet<>(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        result = hiddenSingle(House.ROW, tabs);
-        changeLogs.addAll(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        result = hiddenSingle(House.COL, tabs);
-        changeLogs.addAll(result.getChangeLogs());
-        tabs = result.getTabs();
-
-        return new SkimmingResult(tabs, new ArrayList<>(changeLogs));
+    public static Set<ChangeLog> check(Sudoku sudoku) {
+        Set<ChangeLog> changeLogs = new HashSet<>();
+        changeLogs.addAll(hiddenSingle(sudoku, House.BOX));
+        changeLogs.addAll(hiddenSingle(sudoku, House.ROW));
+        changeLogs.addAll(hiddenSingle(sudoku, House.COL));
+        return changeLogs;
     }
 
-    private static SkimmingResult hiddenSingle(House house, List<Tab> tabs) {
+    private static List<ChangeLog> hiddenSingle(Sudoku sudoku, House house) {
         List<ChangeLog> changeLogs = new LinkedList<>();
         try {
             for (int houseNumber : Utils.NUMBERS) {
                 for (int number : Utils.NUMBERS) {
-                    if (!getHouseNumbers(house, houseNumber, tabs).contains(number)) {
-                        List<Tab> houseTabs = Utils.getHouseTabs(house, houseNumber, tabs);
-                        List<Tab> welcomingTabs = houseTabs.stream().filter(x -> x.getCandidates().contains(number)).toList();
-
-                        if (welcomingTabs.size() == 1) {
-
-                            Tab tab = welcomingTabs.get(0);
-                            Change change = Change.builder()
-                                    .solvingTechnique(HIDDEN_SINGLE)
-                                    .house(house)
-                                    .row(tab.getRow())
-                                    .col(tab.getCol())
-                                    .number(number)
-                                    .build();
-                            ChangeLog changeLog = ChangeLog.builder()
-                                    .unitExamined(null)
-                                    .house(house)
-                                    .houseNumber(houseNumber)
-                                    .unitMembers(List.of(tab))
-                                    .solvingTechnique(HIDDEN_SINGLE)
-                                    .solvingTechniqueVariant(null)
-                                    .changes(List.of(change))
-                                    .build();
-                            changeLogs.add(changeLog);
-                        }
+                    List<SudokuCell> welcomingCells = sudoku.getCells().stream().filter(c ->
+                            c.getHouseNumber(house) == houseNumber && c.getCandidates().contains(number)).toList();
+                    if (welcomingCells.size() == 1) {
+                        SudokuCell cell = welcomingCells.get(0);
+                        CellSolved change = CellSolved.builder()
+                                .solvingTechnique(HIDDEN_SINGLE)
+                                .house(house)
+                                .cell(cell)
+                                .number(number)
+                                .build();
+                        ChangeLog changeLog = ChangeLog.builder()
+                                .unitExamined(null)
+                                .house(house)
+                                .houseNumber(houseNumber)
+                                .unitMembers(List.of(cell))
+                                .solvingTechnique(HIDDEN_SINGLE)
+                                .changes(List.of(change))
+                                .build();
+                        changeLogs.add(changeLog);
                     }
                 }
             }
         } catch (Exception e) {
             System.out.println("Exception in HIDDEN SINGLE " + house + ": " + e.getMessage());
         }
-        return new SkimmingResult(tabs, changeLogs);
-    }
-
-    private static List<Integer> getHouseNumbers(House house, int houseNumberInput, List<Tab> tabs) {
-        List<Integer> houseNumbers = new ArrayList<>(Utils.NUMBERS);
-        for (Tab tab : tabs) {
-            int houseNumber = switch (house) {
-                case BOX -> tab.getBox();
-                case ROW -> tab.getRow();
-                case COL -> tab.getCol();
-            };
-            if (houseNumber == houseNumberInput) {
-                houseNumbers.removeAll(tab.getCandidates());
-            }
-        }
-        return houseNumbers;
+        return changeLogs;
     }
 }

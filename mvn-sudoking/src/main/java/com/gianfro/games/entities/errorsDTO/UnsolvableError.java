@@ -1,5 +1,6 @@
-package com.gianfro.games.entities;
+package com.gianfro.games.entities.errorsDTO;
 
+import com.gianfro.games.entities.SolutionStep;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;

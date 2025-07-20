@@ -8,27 +8,32 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class Link implements ChangeLogUnitMember {
 
-    Tab tab;
+    SudokuCell cell;
     boolean on;
     int number;
 
     @Override
     public int getBox() {
-        return tab.getBox();
+        return cell.getBox();
     }
 
     @Override
     public int getRow() {
-        return tab.getRow();
+        return cell.getRow();
     }
 
     @Override
     public int getCol() {
-        return tab.getCol();
+        return cell.getCol();
+    }
+
+    @Override
+    public String getCoordinates() {
+        return cell.getCoordinates();
     }
 
     @Override
     public String toString() {
-        return tab.getCoordinates() + " (" + (on ? "+" : "-") + number + ")";
+        return cell.getCoordinates() + " (" + (on ? "+" : "-") + number + ")";
     }
 }

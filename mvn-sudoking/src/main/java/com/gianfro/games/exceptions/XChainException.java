@@ -1,7 +1,7 @@
 package com.gianfro.games.exceptions;
 
 import com.gianfro.games.entities.Link;
-import com.gianfro.games.entities.Tab;
+import com.gianfro.games.entities.SudokuCell;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,5 +25,5 @@ public class XChainException extends RuntimeException {
     static final long serialVersionUID = 1L;
 
     List<Link> chain;
-    List<Tab> tabs;
+    List<SudokuCell> cells;
 }

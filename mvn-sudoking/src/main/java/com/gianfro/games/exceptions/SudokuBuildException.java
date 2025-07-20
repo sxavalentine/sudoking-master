@@ -10,13 +10,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-public class SudokuBuildException extends RuntimeException {
+public class SudokuBuildException extends GenericSudokuException {
 
-	static final long serialVersionUID = 1L;
-	String sudokuString;
+    static final long serialVersionUID = 1L;
+    String sudokuString;
 
-	@Override
-	public String getMessage() {
-		return "The string " + sudokuString + " does not match the correct pattern to build a Sudoku (81 characters between 0 and 9)";
-	}
+    @Override
+    public String getMessage() {
+        return "The string " + sudokuString + " does not match the correct pattern to build a Sudoku (81 characters between 0 and 9)";
+    }
 }

@@ -23,8 +23,7 @@ public class GlobalExceptionHandler {
 
         body.put("message", ex.getMessage());
         body.put("sudokuNumbers", ex.getSudokuNumbers());
-        body.put("tabs", ex.getTabs());
-        body.put("emptyTabs", ex.getEmptyTabs());
+        body.put("emptyTabs", ex.getEmptyCells());
 
         return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
     }

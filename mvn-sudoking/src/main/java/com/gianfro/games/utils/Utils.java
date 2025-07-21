@@ -106,6 +106,17 @@ public class Utils {
     }
 
     /**
+     * Given a SudokuCell and a Sudoku of which the cell is part of, returns the list of the 20 SudokuCell peers of the input cell
+     */
+    public static List<SudokuCell> getCellPeers(SudokuCell cell, Sudoku sudoku) {
+        return sudoku.getCells().stream().filter(
+                c -> ((c.getBox() == cell.getBox() ||
+                        c.getRow() == cell.getRow() ||
+                        c.getCol() == cell.getCol())
+                        && c != cell)).toList();
+    }
+
+    /**
      * Returns the list of SudokuCell in a list that are seen by the SudokuCell in input
      *
      * @param cell    the SudokuCell of which we want to know all seen cells

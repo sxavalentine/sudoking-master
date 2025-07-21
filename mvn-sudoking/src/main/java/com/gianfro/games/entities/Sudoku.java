@@ -22,8 +22,8 @@ public class Sudoku {
     @Transient
     List<SudokuCell> cells;
 
-    private Sudoku(List<SudokuCell> oldCells) {
-        cells = deepCopyCells(oldCells);
+    private Sudoku(List<SudokuCell> cells) {
+        this.cells = deepCopyCells(cells);
         updateBasicCandidates();
     }
 

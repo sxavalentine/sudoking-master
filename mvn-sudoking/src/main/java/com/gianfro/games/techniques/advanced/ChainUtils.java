@@ -18,10 +18,12 @@ public class ChainUtils {
         List<SudokuCell> strongLinks = new LinkedList<>();
         for (House house : House.values()) {
             List<SudokuCell> houseCells = Utils.getHouseCells(sudoku, house, cell.getHouseNumber(house));
-            houseCells = houseCells.stream().filter(
-                    c -> c.getCandidates().contains(candidate) && c != cell).toList();
-            if (houseCells.size() == 1) {
-                strongLinks.addAll(houseCells);
+            List<SudokuCell> welcomingCells = houseCells.stream().filter(c ->
+                            c.getCandidates().contains(candidate) &&
+                                    c != cell)
+                    .toList();
+            if (welcomingCells.size() == 1) {
+                strongLinks.addAll(welcomingCells);
             }
         }
         return strongLinks;

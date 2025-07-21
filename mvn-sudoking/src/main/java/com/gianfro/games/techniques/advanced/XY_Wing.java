@@ -23,8 +23,8 @@ public class XY_Wing {
         List<ChangeLog> changeLogs = new LinkedList<>();
         List<SudokuCell> bivalueCells = sudoku.getCells().stream().filter(c -> c.getCandidates().size() == 2).toList();
         for (SudokuCell pivot : bivalueCells) {
-            List<SudokuCell> potentialPincersX = findStrongLinksOnCandidate(pivot, sudoku, pivot.getCandidates().get(0));
-            List<SudokuCell> potentialPincersY = findStrongLinksOnCandidate(pivot, sudoku, pivot.getCandidates().get(1));
+            List<SudokuCell> potentialPincersX = findXYStrongLinksOnCandidate(pivot, sudoku, pivot.getCandidates().get(0));
+            List<SudokuCell> potentialPincersY = findXYStrongLinksOnCandidate(pivot, sudoku, pivot.getCandidates().get(1));
 
             List<List<SudokuCell>> pincers = findPincersSharingCandidateZ(potentialPincersX, potentialPincersY, pivot.getCandidates());
             for (List<SudokuCell> pairOfPincers : pincers) {
@@ -64,7 +64,7 @@ public class XY_Wing {
      * Given a SudokuCell, a Sudoku (of which the cell is part of), and a candidate,
      * returns the list of bivalue SudokuCell that share a strong link with the input cell
      */
-    private static List<SudokuCell> findStrongLinksOnCandidate(SudokuCell cell, Sudoku sudoku, int candidate) {
+    private static List<SudokuCell> findXYStrongLinksOnCandidate(SudokuCell cell, Sudoku sudoku, int candidate) {
         List<SudokuCell> strongLinks = new LinkedList<>();
         for (House house : House.values()) {
             List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, cell.getHouseNumber(house));

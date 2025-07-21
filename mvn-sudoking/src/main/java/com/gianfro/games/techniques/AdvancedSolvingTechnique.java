@@ -18,7 +18,8 @@ public enum AdvancedSolvingTechnique {
     W_WING(3),
     BASIC_FISH(4),
     SKYSCRAPER(5),
-    TWO_STRING_KITE(6);
+    TWO_STRING_KITE(6),
+    COLORING(7);
     int index;
 
     AdvancedSolvingTechnique(int index) {
@@ -34,6 +35,7 @@ public enum AdvancedSolvingTechnique {
             case 4 -> BasicFish.check(sudoku);
             case 5 -> Skyscraper.check(sudoku);
             case 6 -> TwoStringKite.check(sudoku);
+            case 7 -> Coloring.check(sudoku);
             default -> null;
         };
     }

@@ -22,9 +22,9 @@ public class Skyscraper {
     }
 
     private static List<ChangeLog> findSkyscraper(Sudoku sudoku, House house) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         for (int candidate : Utils.NUMBERS) {
-            List<List<SudokuCell>> housesWithTwoWelcomingCells = new LinkedList<>();
+            List<List<SudokuCell>> housesWithTwoWelcomingCells = new ArrayList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 List<SudokuCell> welcomingCells = Utils.getEmptyHouseCells(sudoku, house, houseNumber).stream().filter(
                         cell -> cell.getCandidates().contains(candidate)).toList();
@@ -48,7 +48,7 @@ public class Skyscraper {
                 if (sharedCrossAxe != 0) {
                     // at this point is sure there is a skyscraper, we just need to understand how it's oriented
                     int skyscraperRoofsIndex = skyscraperBasesIndex == 0 ? 1 : 0;
-                    List<SudokuCell> changeLogUnitMembers = new LinkedList<>();
+                    List<SudokuCell> changeLogUnitMembers = new ArrayList<>();
                     changeLogUnitMembers.add(housesWithTwoWelcomingCells.get(0).get(skyscraperRoofsIndex));
                     changeLogUnitMembers.add(housesWithTwoWelcomingCells.get(0).get(skyscraperBasesIndex));
                     changeLogUnitMembers.add(housesWithTwoWelcomingCells.get(1).get(skyscraperBasesIndex));
@@ -56,8 +56,8 @@ public class Skyscraper {
 
                     List<SudokuCell> toBeSkimmed = sudoku.getCells().stream().filter(c ->
                                     c.getCandidates().contains(candidate) &&
-                                            Utils.cellCanSeeOtherCell(c, changeLogUnitMembers.get(0)) &&
-                                            Utils.cellCanSeeOtherCell(c, changeLogUnitMembers.get(3)))
+                                            c.canSeeOther(changeLogUnitMembers.get(0)) &&
+                                            c.canSeeOther(changeLogUnitMembers.get(3)))
                             .toList();
 
                     if (!toBeSkimmed.isEmpty()) {

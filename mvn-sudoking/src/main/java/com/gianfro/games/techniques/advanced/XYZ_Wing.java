@@ -20,7 +20,7 @@ public class XYZ_Wing {
     }
 
     private static List<ChangeLog> findXYZ_wings(Sudoku sudoku) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         List<SudokuCell> triValueCells = sudoku.getCells().stream().filter(c -> c.getCandidates().size() == 3).toList();
         for (SudokuCell pivot : triValueCells) {
             //Finds potential pincers X (cells with only 2 candidates left, both included in pivot candidates
@@ -31,7 +31,7 @@ public class XYZ_Wing {
                 //Find potential pincers Y (cells with only 2 candidates left, both included in pivot candidates, but one is different from link X)
                 List<SudokuCell> potentialPincersY = findPotentialPincerY(pivot, sudoku, candidateY);
 
-                List<List<SudokuCell>> pincers = new LinkedList<>();
+                List<List<SudokuCell>> pincers = new ArrayList<>();
                 for (SudokuCell pincerY : potentialPincersY) {
                     int candidateZ = pincerX.getCandidates().stream().filter(z -> pincerY.getCandidates().contains(z)).findFirst().orElse(0);
                     if (candidateZ != 0) {
@@ -43,10 +43,10 @@ public class XYZ_Wing {
 
                     List<SudokuCell> toBeSkimmed = sudoku.getCells().stream().filter(
                                     c -> c.getCandidates().contains(candidateZ) &&
-                                            Utils.cellCanSeeOtherCell(c, pivot) &&
-                                            Utils.cellCanSeeOtherCell(c, pincer.get(0)) &&
-                                            Utils.cellCanSeeOtherCell(c, pincer.get(1))).
-                            toList();
+                                            c.canSeeOther(pivot) &&
+                                            c.canSeeOther(pincer.get(0)) &&
+                                            c.canSeeOther(pincer.get(1)))
+                            .toList();
                     if (!toBeSkimmed.isEmpty()) {
                         Set<CellSkimmed> deductions = new HashSet<>();
                         List<Integer> removedCandidates = List.of(candidateZ);
@@ -78,7 +78,7 @@ public class XYZ_Wing {
      * returns the list of bivalue SudokuCell that contain all candidates of the pivot
      */
     private static List<SudokuCell> findPotentialPincerX(SudokuCell pivot, Sudoku sudoku) {
-        List<SudokuCell> strongLinks = new LinkedList<>();
+        List<SudokuCell> strongLinks = new ArrayList<>();
         for (House house : House.values()) {
             List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, pivot.getHouseNumber(house));
             List<SudokuCell> houseStrongLinks = emptyHouseCells.stream().filter(c ->
@@ -99,7 +99,7 @@ public class XYZ_Wing {
      * returns the list of bivalue SudokuCell that contain the candidate Y and have both candidates in common with the pivot
      */
     private static List<SudokuCell> findPotentialPincerY(SudokuCell pivot, Sudoku sudoku, int candidateY) {
-        List<SudokuCell> strongLinks = new LinkedList<>();
+        List<SudokuCell> strongLinks = new ArrayList<>();
         for (House house : House.values()) {
             List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, pivot.getHouseNumber(house));
             List<SudokuCell> houseStrongLinks = emptyHouseCells.stream().filter(c ->

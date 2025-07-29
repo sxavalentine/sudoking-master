@@ -12,9 +12,9 @@ import lombok.experimental.FieldDefaults;
 import javax.annotation.Nullable;
 
 @Data
-//TODO: Usa solo i campi specificati. NON scrivere equals/hashCode manuali! FONDAMENTALE !!!
-@EqualsAndHashCode(of = {"cell", "number"}, callSuper = false)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+//TODO: Usa solo i campi specificati. NON scrivere equals/hashCode manuali! FONDAMENTALE !!!
+@EqualsAndHashCode(of = {"cell", "cellB", "number", "numberB"}, callSuper = false)
 @Builder
 public class CellGuessed implements CellChange {
 

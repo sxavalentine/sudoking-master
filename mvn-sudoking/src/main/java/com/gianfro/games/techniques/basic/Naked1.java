@@ -30,7 +30,7 @@ public class Naked1 {
                             .number(cell.getCandidates().get(0))
                             .build();
                     ChangeLog changeLog = ChangeLog.builder()
-                            .unitExamined(null)
+                            .unitExamined(List.of(cell.getCandidates().get(0)))
                             .house(null)
                             .houseNumber(0)
                             .unitMembers(List.of(cell))

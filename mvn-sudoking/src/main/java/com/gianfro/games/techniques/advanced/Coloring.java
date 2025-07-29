@@ -2,8 +2,6 @@ package com.gianfro.games.techniques.advanced;
 
 import com.gianfro.games.entities.*;
 import com.gianfro.games.entities.deductions.CellSkimmed;
-import com.gianfro.games.sudoku.solver.SudokuSolver;
-import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 
 import java.util.*;
@@ -15,8 +13,8 @@ public class Coloring {
      * We then proceed coloring all others strongly linked cells until the map is completed.
      * The cells with a certain color must be all true or all false (aka: containing or not containing a certain candidates).
      * We can then draw two types of conclusions:
-     * 1) if an uncolored SudokuCell can see two different colors, we can remove the candidate X from its candidates
-     * 2) if a colored SudokuCell can see another cell of the same color, we can remove the candidate X from all the cells with that color.
+     * 1) if an uncolored SudokuCell can see two different colors, we can remove the candidate X from its candidates (COLOR WRAP).
+     * 2) if a colored SudokuCell can see another cell of the same color, we can remove the candidate X from all the cells with that color (COLOR TRAP).
      */
 
     public static final String COLORING = "COLORING";
@@ -31,12 +29,111 @@ public class Coloring {
     }
 
     private static List<ChangeLog> colorGrid(Sudoku sudoku) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
+//        Map<Integer, List<StrongLink>> strongLinksMap = ChainUtils.getStrongLinksMap(sudoku);
+//        for (Integer candidate : strongLinksMap.keySet()) {
+//
+//            List<StrongLink> strongLinks = strongLinksMap.get(candidate);
+//            List<SudokuCell> stronglyLinksCells = strongLinks.stream().flatMap(
+//                    sl -> List.of(sl.getLinkA(), sl.getLinkB()).stream()).toList();
+//
+//            Set<SudokuCell> colorA = new HashSet<>();
+//            colorA.add(strongLinks.get(0).getLinkA());
+//
+//            Set<SudokuCell> colorB = new HashSet<>();
+//            colorB.add(strongLinks.get(0).getLinkB());
+//
+//            boolean isColorA = false;
+//            Set<SudokuCell> additions = new HashSet<>(colorB);
+//            while (!additions.isEmpty()) {
+//                Set<SudokuCell> oppositeColor = isColorA ? colorB : colorA;
+//                Set<SudokuCell> newAdditions = new HashSet<>();
+//                for (SudokuCell colorCell : additions) {
+//                    List<SudokuCell> stronglyLinked = stronglyLinksCells.stream().filter(c -> Utils.cellCanSeeOtherCell(c, colorCell)).toList();
+//                    for (SudokuCell link : stronglyLinked) {
+//                        if (oppositeColor.add(link)) {
+//                            newAdditions.add(link);
+//                        }
+//                    }
+//                }
+//                isColorA = !isColorA;
+//                additions = newAdditions;
+//            }
+//            //at this point colorA and colorB are completely filled. We need to check if we can eliminate something
+//            List<ChangeLogUnitMember> unitMembers = new ArrayList<>();
+//            unitMembers.addAll(colorA.stream().map(a -> new Link(a, true, candidate)).toList());
+//            unitMembers.addAll(colorB.stream().map(b -> new Link(b, false, candidate)).toList());
+//
+//            List<Integer> removedCandidates = List.of(candidate);
+//
+//            // COLOR WRAP
+//            List<SudokuCell> colorWrapped = sudoku.getCells().stream().filter(
+//                    c -> c.getCandidates().contains(candidate) &&
+//                            !colorA.contains(c) &&
+//                            !colorB.contains(c) &&
+//                            !colorA.stream().filter(a -> Utils.cellCanSeeOtherCell(a, c)).toList().isEmpty() &&
+//                            !colorB.stream().filter(b -> Utils.cellCanSeeOtherCell(b, c)).toList().isEmpty()
+//            ).toList();
+//            if (!colorWrapped.isEmpty()) {
+//                Set<CellSkimmed> deductions = new HashSet<>();
+//                for (SudokuCell cell : colorWrapped) {
+//                    deductions.add(
+//                            CellSkimmed.builder()
+//                                    .solvingTechnique(COLOR_WRAP)
+//                                    .cell(cell)
+//                                    .removedCandidates(removedCandidates)
+//                                    .build());
+//                }
+//                ChangeLog changeLog = ChangeLog.builder()
+//                        .unitExamined(removedCandidates)
+//                        .unitMembers(unitMembers)
+//                        .solvingTechnique(COLORING)
+//                        .solvingTechniqueVariant(COLOR_WRAP)
+//                        .changes(new ArrayList<>(deductions))//TODO: sort by cell.index
+//                        .build();
+//                changeLogs.add(changeLog);
+//            }
+//            // COLOR TRAP
+//            List<SudokuCell> colorTrapped = new ArrayList<>();
+//            for (SudokuCell aCell : colorA) {
+//                if (!colorA.stream().filter(c -> Utils.cellCanSeeOtherCell(c, aCell)).toList().isEmpty()) {
+//                    colorTrapped = colorA.stream().toList();
+//                    break;
+//                }
+//            }
+//            for (SudokuCell bCell : colorB) {
+//                if (!colorB.stream().filter(c -> Utils.cellCanSeeOtherCell(c, bCell)).toList().isEmpty()) {
+//                    colorTrapped = colorB.stream().toList();
+//                    break;
+//                }
+//            }
+//            if (!colorTrapped.isEmpty()) {
+//                Set<CellSkimmed> deductions = new HashSet<>();
+//                for (SudokuCell cell : colorTrapped) {
+//                    deductions.add(
+//                            CellSkimmed.builder()
+//                                    .solvingTechnique(COLOR_TRAP)
+//                                    .cell(cell)
+//                                    .removedCandidates(removedCandidates)
+//                                    .build());
+//                }
+//                ChangeLog changeLog = ChangeLog.builder()
+//                        .unitExamined(removedCandidates)
+//                        .unitMembers(unitMembers)
+//                        .solvingTechnique(COLORING)
+//                        .solvingTechniqueVariant(COLOR_TRAP)
+//                        .changes(new ArrayList<>(deductions))//TODO: sort by cell.index
+//                        .build();
+//                changeLogs.add(changeLog);
+//            }
+//        }
+//        return changeLogs;
+
         for (Integer candidate : Utils.NUMBERS) {
             Set<SudokuCell> colorA = new HashSet<>();
             Set<SudokuCell> colorB = new HashSet<>();
-            for (SudokuCell cell : sudoku.getCells().stream().filter(c -> c.isEmpty()).toList()) {
-                List<SudokuCell> strongLinks = findStrongLinksOnCandidate(cell, sudoku, candidate);
+            for (SudokuCell cell : sudoku.getCells().stream().filter(SudokuCell::isEmpty).toList()) {
+                List<SudokuCell> strongLinks = ChainUtils.findStrongLinksOnCandidate(cell, sudoku, candidate);
                 if (!strongLinks.isEmpty()) {
                     colorA.add(cell);
                     colorB.addAll(strongLinks);
@@ -47,11 +144,10 @@ public class Coloring {
                 boolean isColorA = false;
                 Set<SudokuCell> additions = new HashSet<>(colorB);
                 while (!additions.isEmpty()) {
-//                    Set<SudokuCell> currentColor = isColorA ? colorA : colorB;
                     Set<SudokuCell> oppositeColor = isColorA ? colorB : colorA;
                     Set<SudokuCell> newAdditions = new HashSet<>();
                     for (SudokuCell colorCell : additions) {
-                        List<SudokuCell> strongLinks = findStrongLinksOnCandidate(colorCell, sudoku, candidate);
+                        List<SudokuCell> strongLinks = ChainUtils.findStrongLinksOnCandidate(colorCell, sudoku, candidate);
                         if (!strongLinks.isEmpty()) {
                             for (SudokuCell link : strongLinks) {
                                 if (oppositeColor.add(link)) {
@@ -64,9 +160,9 @@ public class Coloring {
                     additions = newAdditions;
                 }
                 //at this point colorA and colorB are completely filled. We need to check if we can eliminate something
-                List<ChangeLogUnitMember> unitMembers = new LinkedList<>();
-                unitMembers.addAll(colorA.stream().map(a -> new Link(a, true, candidate)).toList());
-                unitMembers.addAll(colorB.stream().map(b -> new Link(b, false, candidate)).toList());
+                List<ChangeLogUnitMember> unitMembers = new ArrayList<>();
+                unitMembers.addAll(colorA.stream().map(a -> new Link(a, candidate, 0)).toList());
+                unitMembers.addAll(colorB.stream().map(b -> new Link(b, 0, candidate)).toList());
 
                 List<Integer> removedCandidates = List.of(candidate);
 
@@ -75,8 +171,8 @@ public class Coloring {
                         c -> c.getCandidates().contains(candidate) &&
                                 !colorA.contains(c) &&
                                 !colorB.contains(c) &&
-                                !colorA.stream().filter(a -> Utils.cellCanSeeOtherCell(a, c)).toList().isEmpty() &&
-                                !colorB.stream().filter(b -> Utils.cellCanSeeOtherCell(b, c)).toList().isEmpty()
+                                !colorA.stream().filter(a -> a.canSeeOther(c)).toList().isEmpty() &&
+                                !colorB.stream().filter(b -> b.canSeeOther(c)).toList().isEmpty()
                 ).toList();
                 if (!colorWrapped.isEmpty()) {
                     Set<CellSkimmed> deductions = new HashSet<>();
@@ -98,15 +194,15 @@ public class Coloring {
                     changeLogs.add(changeLog);
                 }
                 // COLOR TRAP
-                List<SudokuCell> colorTrapped = new LinkedList<>();
+                List<SudokuCell> colorTrapped = new ArrayList<>();
                 for (SudokuCell aCell : colorA) {
-                    if (!colorA.stream().filter(c -> Utils.cellCanSeeOtherCell(c, aCell)).toList().isEmpty()) {
+                    if (!colorA.stream().filter(c -> c.canSeeOther(aCell)).toList().isEmpty()) {
                         colorTrapped = colorA.stream().toList();
                         break;
                     }
                 }
                 for (SudokuCell bCell : colorB) {
-                    if (!colorB.stream().filter(c -> Utils.cellCanSeeOtherCell(c, bCell)).toList().isEmpty()) {
+                    if (!colorB.stream().filter(c -> c.canSeeOther(bCell)).toList().isEmpty()) {
                         colorTrapped = colorB.stream().toList();
                         break;
                     }
@@ -134,33 +230,4 @@ public class Coloring {
         }
         return changeLogs;
     }
-
-    /**
-     * Given a SudokuCell, a Sudoku (of which the cell is part of), and a candidate,
-     * returns the list of bivalue SudokuCell that share a strong link with the input cell
-     */
-    private static List<SudokuCell> findStrongLinksOnCandidate(SudokuCell cell, Sudoku sudoku, int candidate) {
-        List<SudokuCell> strongLinks = new LinkedList<>();
-        for (House house : House.values()) {
-            List<SudokuCell> houseCells = Utils.getHouseCells(sudoku, house, cell.getHouseNumber(house));
-            List<SudokuCell> welcomingCells = houseCells.stream().filter(c ->
-                            c.getCandidates().contains(candidate) &&
-                                    c != cell)
-                    .toList();
-            if (welcomingCells.size() == 1) {
-                strongLinks.addAll(welcomingCells);
-            }
-        }
-        return strongLinks;
-    }
-
-    public static void main(String[] args) {
-        Sudoku sudoku = Sudoku.fromString(SudokuList.COLOR_TRAP);
-        SolutionStep solutionStep = SudokuSolver.useBasicSolvingTechniques(sudoku);
-        Sudoku newSudoku = Utils.applyDeductions(solutionStep.getChangeLogs(), sudoku);
-        Utils.megaGrid(newSudoku);
-        Coloring.check(newSudoku);
-    }
-
-
 }

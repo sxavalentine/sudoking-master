@@ -1,25 +1,20 @@
 package com.gianfro.games.sudoku.solver;
 
-import com.gianfro.games.entities.ChangeLog;
-import com.gianfro.games.entities.SolutionOutput;
-import com.gianfro.games.entities.SolutionStep;
-import com.gianfro.games.entities.Sudoku;
+import com.gianfro.games.entities.*;
 import com.gianfro.games.entities.deductions.CellChange;
 import com.gianfro.games.entities.deductions.CellGuessed;
 import com.gianfro.games.exceptions.NoFiftyFiftyException;
 import com.gianfro.games.exceptions.UnsolvableException;
 import com.gianfro.games.techniques.AdvancedSolvingTechnique;
 import com.gianfro.games.techniques.BasicSolvingTechnique;
+import com.gianfro.games.techniques.advanced.ChainUtils;
 import com.gianfro.games.techniques.basic.Hidden1;
 import com.gianfro.games.techniques.basic.Naked1;
 import com.gianfro.games.techniques.custom.FiftyFifty;
 import com.gianfro.games.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 public class SudokuSolver {
@@ -29,7 +24,7 @@ public class SudokuSolver {
         Utils.grid(sudoku);
 
         long start = System.currentTimeMillis();
-        List<SolutionStep> stepRisolutivi = solve(sudoku, true, new LinkedList<>());
+        List<SolutionStep> stepRisolutivi = solve(sudoku, true, new ArrayList<>());
         long end = System.currentTimeMillis();
         int tempoImpiegato = (int) (end - start);
 
@@ -39,13 +34,13 @@ public class SudokuSolver {
         return new SolutionOutput(sudoku, stepRisolutivi, tempoImpiegato);
     }
 
-    public static List<SolutionStep> solve(Sudoku sudoku, boolean isFirstIteration, LinkedList<CellGuessed> guesses) {
+    public static List<SolutionStep> solve(Sudoku sudoku, boolean isFirstIteration, List<CellGuessed> guesses) {
 
         if (!guesses.isEmpty()) {
             Utils.checkForBugs(sudoku);
         }
 
-        List<SolutionStep> result = new LinkedList<>();
+        List<SolutionStep> result = new ArrayList<>();
         Set<ChangeLog> changeLogs = new LinkedHashSet<>();
 
         if (!sudoku.getStringNumbers().contains("0")) {
@@ -55,7 +50,7 @@ public class SudokuSolver {
                 Sudoku step = Sudoku.fromCells(sudoku.getCells());
                 SolutionStep solutionStep = useBasicSolvingTechniques(step);
                 if (solutionStep.getChangeLogs().isEmpty()) {
-                    solutionStep = useAdvancedSolvingTechniques(step); //TODO scommentare e fixare
+                    solutionStep = useAdvancedSolvingTechniques(step);
                 }
                 if (solutionStep.getChangeLogs().isEmpty()) {
                     try {
@@ -107,51 +102,13 @@ public class SudokuSolver {
     private static SolutionStep useAdvancedSolvingTechniques(Sudoku sudoku) {
         Set<ChangeLog> changeLogs = new LinkedHashSet<>();
         int solvingTechniqueIndex = 0;
+        Map<Integer, List<StrongLink>> strongLinksMap = ChainUtils.getStrongLinksMap(sudoku);
         while (solvingTechniqueIndex < AdvancedSolvingTechnique.values().length) {
-            Set<ChangeLog> newDeductions = AdvancedSolvingTechnique.values()[solvingTechniqueIndex].check(sudoku);
+            Set<ChangeLog> newDeductions = AdvancedSolvingTechnique.values()[solvingTechniqueIndex].check(sudoku, strongLinksMap);
             changeLogs.addAll(newDeductions);
             solvingTechniqueIndex++;
         }
         return new SolutionStep(sudoku, changeLogs);
-//        SkimmingResult result;
-//
-//        // X WING
-//        result = XWing.check(sudoku);
-//        Set<ChangeLog> changeLogs = new LinkedHashSet<>(result.getChangeLogs());
-////        tabs = result.getTabs();
-//
-//        // REMOTE PAIRS
-//        result = RemotePairs.check(sudoku);
-//        changeLogs.addAll(result.getChangeLogs());
-////        tabs = result.getTabs();
-//
-//        // DISCINTINUOUS NICE LOOP
-//        result = DiscontinuousNiceLoop.check(sudoku);
-//        changeLogs.addAll(result.getChangeLogs());
-////        tabs = result.getTabs();
-//
-//        // X CHAIN
-//        result = XChain.check(sudoku);
-//        changeLogs.addAll(result.getChangeLogs());
-////        tabs = result.getTabs();
-//
-//        // COLORING
-//        result = Coloring.check(sudoku);
-//        changeLogs.addAll(result.getChangeLogs());
-////        tabs = result.getTabs();
-//
-//        // XY CHAIN
-//        // TODO (da rivedere in toto, al momento non va)
-////        result = XYChain.check(tabs);
-////        changeLogs.addAll(result.getChangeLogs());
-////        tabs = result.getTabs();
-//
-//        SolutionStep solutionStep = useStandardSolvingTechniques(sudoku);
-//        changeLogs.addAll(solutionStep.getChangeLogs());
-////        tabs = solutionStep.getTabs();
-//
-//
-//        return new SolutionStep(sudoku, changeLogs);
     }
 
 
@@ -159,7 +116,7 @@ public class SudokuSolver {
      * Shows Sudoku solution, prints the final grid and returns the solved Sudoku entity
      */
     public static Sudoku showSolution(Sudoku sudoku) {
-        List<SolutionStep> allSteps = solve(sudoku, true, new LinkedList<>());
+        List<SolutionStep> allSteps = solve(sudoku, true, new ArrayList<>());
         SolutionStep finalStep = allSteps.get(allSteps.size() - 1);
         Sudoku solvedSudoku = finalStep.getSudokuInstance();
         System.out.println("SUDOKU SOLUTION");

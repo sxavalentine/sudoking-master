@@ -74,27 +74,58 @@ public class Utils {
     }
 
     /**
-     * Given a Sudoku, a House and its index, returns the list of all cells in that House
+     * Given a Sudoku, returns the list of all empty cells in it
      */
-    public static List<SudokuCell> getHouseCells(Sudoku sudoku, House house, int index) {
-        return sudoku.getCells().stream()
-                .filter(c -> c.getHouseNumber(house) == index).toList();
+    public static List<SudokuCell> getEmptyCells(Sudoku sudoku) {
+        List<SudokuCell> emptyCells = new ArrayList<>();
+        for (SudokuCell cell : sudoku.getCells()) {
+            if (cell.isEmpty()) {
+                emptyCells.add(cell);
+            }
+        }
+        return emptyCells;
     }
 
     /**
-     * Given a Sudoku, a House and its index, returns the list of all SOLVED cells in that House
+     * Given a Sudoku, a House and its index, returns the list of all cells in that House
      */
-    public static List<SudokuCell> getSolvedHouseCells(Sudoku sudoku, House house, int index) {
-        return sudoku.getCells().stream()
-                .filter(c -> c.getValue() != 0 && c.getHouseNumber(house) == index).toList();
+    public static List<SudokuCell> getHouseCells(Sudoku sudoku, House house, int index) {
+        List<SudokuCell> houseCells = new ArrayList<>();
+        for (SudokuCell cell : sudoku.getCells()) {
+            if (cell.getHouseNumber(house) == index) {
+                houseCells.add(cell);
+            }
+        }
+        return houseCells;
+//        return sudoku.getCells().stream().filter(c -> c.getHouseNumber(house) == index).toList();
     }
 
     /**
      * Given a Sudoku, a House and its index, returns the list of all EMPTY cells in that House
      */
     public static List<SudokuCell> getEmptyHouseCells(Sudoku sudoku, House house, int index) {
-        return sudoku.getCells().stream()
-                .filter(c -> c.isEmpty() && c.getHouseNumber(house) == index).toList();
+        List<SudokuCell> emptyHouseCells = new ArrayList<>();
+        for (SudokuCell cell : sudoku.getCells()) {
+            if (cell.isEmpty() && cell.getHouseNumber(house) == index) {
+                emptyHouseCells.add(cell);
+            }
+        }
+        return emptyHouseCells;
+//        return sudoku.getCells().stream().filter(c -> c.isEmpty() && c.getHouseNumber(house) == index).toList();
+    }
+
+    /**
+     * Given a Sudoku, a House and its index, returns the list of all SOLVED cells in that House
+     */
+    public static List<SudokuCell> getSolvedHouseCells(Sudoku sudoku, House house, int index) {
+        List<SudokuCell> solvedHouseCells = new ArrayList<>();
+        for (SudokuCell cell : sudoku.getCells()) {
+            if (!cell.isEmpty() && cell.getHouseNumber(house) == index) {
+                solvedHouseCells.add(cell);
+            }
+        }
+        return solvedHouseCells;
+//        return sudoku.getCells().stream().filter(c -> c.getValue() != 0 && c.getHouseNumber(house) == index).toList();
     }
 
     /**
@@ -106,24 +137,20 @@ public class Utils {
     }
 
     /**
-     * Given a SudokuCell and a Sudoku of which the cell is part of, returns the list of the 20 SudokuCell peers of the input cell
-     */
-    public static List<SudokuCell> getCellPeers(SudokuCell cell, Sudoku sudoku) {
-        return sudoku.getCells().stream().filter(
-                c -> ((c.getBox() == cell.getBox() ||
-                        c.getRow() == cell.getRow() ||
-                        c.getCol() == cell.getCol())
-                        && c != cell)).toList();
-    }
-
-    /**
      * Returns the list of SudokuCell in a list that are seen by the SudokuCell in input
      *
      * @param cell    the SudokuCell of which we want to know all seen cells
      * @param cellSet the pool we want to check from (can be a whole Sudoku or a restricted pool of cells)
      */
     public static List<SudokuCell> getSeenCells(SudokuCell cell, List<SudokuCell> cellSet) {
-        return cellSet.stream().filter(c -> cellCanSeeOtherCell(cell, c)).toList();
+        List<SudokuCell> seenCells = new ArrayList<>();
+        for (SudokuCell otherCell : cellSet) {
+            if (cell.canSeeOther(otherCell)) {
+                seenCells.add(otherCell);
+            }
+        }
+        return seenCells;
+//        return cellSet.stream().filter(c -> c.canSeeOther(cell)).toList();
     }
 
     /**
@@ -134,25 +161,20 @@ public class Utils {
      * @param emptyOnly if true, filters the output returning only the empty cells
      */
     public static List<SudokuCell> getSeenCells(SudokuCell cell, Sudoku sudoku, boolean emptyOnly) {
-        List<SudokuCell> seenCells = getSeenCells(cell, sudoku.getCells());
-        if (emptyOnly) {
-            seenCells = seenCells.stream().filter(c -> c.isEmpty()).toList();
+        List<SudokuCell> seenCells = new ArrayList<>();
+        for (SudokuCell otherCell : sudoku.getCells()) {
+            if (cell.canSeeOther(otherCell) && (emptyOnly ? otherCell.isEmpty() : true)) {
+                seenCells.add(otherCell);
+            }
         }
         return seenCells;
     }
 
     /**
-     * Given two SudokuCells, returns true if they are two different cells and they share a House (BOX, ROW, COL)
+     * Given a ChangeLogUnitMember(SudokuCell or Link) and a Sudoku, returns the list of all the other empty cells seen by the one passed as parameter
      */
-    public static boolean cellCanSeeOtherCell(SudokuCell a, SudokuCell b) {
-        return a != b && (a.getBox() == b.getBox() || a.getRow() == b.getRow() || a.getCol() == b.getCol());
-    }
-
-    /**
-     * Given a SudokuCell and a Sudoku, returns the list of all the other empty cells seen by the one passed as parameter
-     */
-    public static List<SudokuCell> getSeenEmptyCells(SudokuCell cell, Sudoku sudoku) {
-        return sudoku.getCells().stream().filter(c -> cellCanSeeOtherCell(c, cell)).toList();
+    public static List<SudokuCell> getSeenEmptyCells(ChangeLogUnitMember cell, Sudoku sudoku) {
+        return sudoku.getCells().stream().filter(c -> c.canSeeOther(cell) && c.isEmpty()).toList();
     }
 
     /**

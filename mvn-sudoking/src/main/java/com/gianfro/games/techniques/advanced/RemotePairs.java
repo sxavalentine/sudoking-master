@@ -1,9 +1,9 @@
 package com.gianfro.games.techniques.advanced;
 
 import com.gianfro.games.entities.ChangeLog;
+import com.gianfro.games.entities.Link;
 import com.gianfro.games.entities.Sudoku;
 import com.gianfro.games.entities.SudokuCell;
-import com.gianfro.games.utils.Utils;
 
 import java.util.*;
 
@@ -21,7 +21,7 @@ public class RemotePairs {
     }
 
     private static List<ChangeLog> findRemotePairs(Sudoku sudoku) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         Map<List<Integer>, List<SudokuCell>> biValueCellsMap = new HashMap<>();
         for (SudokuCell cell : sudoku.getCells()) {
             if (cell.getCandidates().size() == 2) {
@@ -31,29 +31,32 @@ public class RemotePairs {
         biValueCellsMap.entrySet().forEach(entry -> {
             List<SudokuCell> sameTwoCandidatesCells = entry.getValue();
             if (sameTwoCandidatesCells.size() >= 4) {
+                List<List<Link>> allChains = new ArrayList<>();
+
+                for (SudokuCell cell : sameTwoCandidatesCells) {
+                    List<Link> chain = new ArrayList<>();
+                }
+
                 Map<SudokuCell, Set<SudokuCell>> graph = new HashMap<>();
                 for (SudokuCell cell : sameTwoCandidatesCells) {
                     graph.put(cell, new HashSet<>());
                 }
                 for (SudokuCell cell : sameTwoCandidatesCells) {
                     for (SudokuCell otherCell : sameTwoCandidatesCells) {
-                        if (Utils.cellCanSeeOtherCell(cell, otherCell)) {
+                        if (cell.canSeeOther(otherCell)) {
                             graph.get(cell).add(otherCell);
                             graph.get(otherCell).add(cell);
                         }
                     }
                 }
-                List<List<SudokuCell>> allChains = new LinkedList<>();
+
                 for (SudokuCell startNode : graph.keySet()) {
-                    List<SudokuCell> currentPath = new LinkedList<>();
+                    List<SudokuCell> currentPath = new ArrayList<>();
                     Set<SudokuCell> visitedNodes = new HashSet<>();
 
                     currentPath.add(startNode);
                     visitedNodes.add(startNode);
 
-                    // Avvia la DFS per trovare catene Remote Pairs
-                    findRemotePairChain(sudoku, startNode, startNode, currentPath, visitedNodes,
-                            graph, allChains, entry.getKey());
                 }
             }
         });
@@ -88,7 +91,7 @@ public class RemotePairs {
         // 2. Il nodo di partenza e il nodo corrente NON devono vedersi (non devono essere nella stessa riga/colonna/blocco).
         // 3. La catena deve avere almeno 3 nodi per essere significativa.
         if (currentPath.size() >= 3 && currentPath.size() % 2 == 1) { // Dispari di nodi = pari di link
-            if (!Utils.cellCanSeeOtherCell(startNode, currentNode)) {
+            if (!startNode.canSeeOther(currentNode)) {
                 // Trovata una catena Remote Pair valida.
                 // Aggiungila solo se non è già stata trovata (potrebbe essere raggiunta da percorsi diversi).
                 // Per evitare duplicati di catene invertite (A-B-C vs C-B-A), potresti normalizzare la catena (es. ordinarla).

@@ -25,7 +25,7 @@ public class PointingCandidates {
     }
 
     private static List<ChangeLog> pointingCandidates(Sudoku sudoku, House house) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         for (int boxNumber : Utils.NUMBERS) {
             List<SudokuCell> emptyBoxCells = Utils.getEmptyHouseCells(sudoku, House.BOX, boxNumber);
             for (int number : Utils.NUMBERS) {

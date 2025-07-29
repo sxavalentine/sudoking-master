@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -98,7 +98,7 @@ public class SudokuServiceImpl implements SudokuService {
     @Override
     public void solve50kSudoku() {
         List<Sudoku> allSudoku = Utils.read50kSudoku();
-        List<Sudoku> noFfeSudoku = new LinkedList<>();
+        List<Sudoku> noFfeSudoku = new ArrayList<>();
         int totalSolutionTime = 0;
         int count = 1;
         int solvedCount = 0;
@@ -141,7 +141,7 @@ public class SudokuServiceImpl implements SudokuService {
     @Override
     public List<SolutionOutput> solveUnsolvableSudokus() {
         List<UnsolvableError> unsolvableErrorList = this.unsolvableErrorRepository.findAll();
-        List<SolutionOutput> solutions = new LinkedList<>();
+        List<SolutionOutput> solutions = new ArrayList<>();
         AtomicInteger counter = new AtomicInteger();
         AtomicInteger unsolvable = new AtomicInteger();
         unsolvableErrorList.forEach(x -> {

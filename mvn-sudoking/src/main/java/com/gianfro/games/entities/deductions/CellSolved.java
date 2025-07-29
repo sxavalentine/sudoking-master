@@ -13,9 +13,9 @@ import lombok.experimental.FieldDefaults;
 import javax.annotation.Nullable;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 //TODO: Usa solo i campi specificati. NON scrivere equals/hashCode manuali! FONDAMENTALE !!!
 @EqualsAndHashCode(of = {"cell", "number"}, callSuper = false)
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class CellSolved implements CellChange {
 

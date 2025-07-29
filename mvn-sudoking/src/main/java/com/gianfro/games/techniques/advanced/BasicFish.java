@@ -37,9 +37,9 @@ public class BasicFish {
 
     private static List<ChangeLog> findFish(String technique, Sudoku sudoku, House house) {
         int size = getSize(technique);
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         for (int candidate : Utils.NUMBERS) {
-            List<List<SudokuCell>> baseSets = new LinkedList<>();
+            List<List<SudokuCell>> baseSets = new ArrayList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, houseNumber);
                 List<SudokuCell> welcomingCells = emptyHouseCells.stream().filter(c -> c.getCandidates().contains(candidate)).toList();

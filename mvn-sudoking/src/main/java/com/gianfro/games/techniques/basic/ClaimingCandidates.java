@@ -27,7 +27,7 @@ public class ClaimingCandidates {
     }
 
     private static List<ChangeLog> claimingCandidates(Sudoku sudoku, House house) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         for (int houseNumber : Utils.NUMBERS) {
             List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, houseNumber);
             for (int number : Utils.NUMBERS) {

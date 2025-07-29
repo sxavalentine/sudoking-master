@@ -20,7 +20,7 @@ public class XY_Wing {
     }
 
     private static List<ChangeLog> findXY_wings(Sudoku sudoku) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         List<SudokuCell> bivalueCells = sudoku.getCells().stream().filter(c -> c.getCandidates().size() == 2).toList();
         for (SudokuCell pivot : bivalueCells) {
             List<SudokuCell> potentialPincersX = findXYStrongLinksOnCandidate(pivot, sudoku, pivot.getCandidates().get(0));
@@ -31,10 +31,10 @@ public class XY_Wing {
                 int candidateZ = pairOfPincers.get(0).getCandidates().stream().filter(z -> !pivot.getCandidates().contains(z)).findFirst().orElse(0);
                 List<SudokuCell> toBeSkimmed = sudoku.getCells().stream().filter(
                                 c -> c.getCandidates().contains(candidateZ) &&
-                                        Utils.cellCanSeeOtherCell(c, pairOfPincers.get(0)) &&
-                                        Utils.cellCanSeeOtherCell(c, pairOfPincers.get(1)) &&
-                                        c != pivot).
-                        toList();
+                                        c.canSeeOther(pairOfPincers.get(0)) &&
+                                        c.canSeeOther(pairOfPincers.get(1)) &&
+                                        c != pivot)
+                        .toList();
                 if (!toBeSkimmed.isEmpty()) {
                     Set<CellSkimmed> deductions = new HashSet<>();
                     List<Integer> removedCandidates = List.of(candidateZ);
@@ -65,7 +65,7 @@ public class XY_Wing {
      * returns the list of bivalue SudokuCell that share a strong link with the input cell
      */
     private static List<SudokuCell> findXYStrongLinksOnCandidate(SudokuCell cell, Sudoku sudoku, int candidate) {
-        List<SudokuCell> strongLinks = new LinkedList<>();
+        List<SudokuCell> strongLinks = new ArrayList<>();
         for (House house : House.values()) {
             List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, cell.getHouseNumber(house));
             List<SudokuCell> houseStrongLinks = emptyHouseCells.stream().filter(c ->
@@ -81,7 +81,7 @@ public class XY_Wing {
     }
 
     private static List<List<SudokuCell>> findPincersSharingCandidateZ(List<SudokuCell> strongLinksX, List<SudokuCell> strongLinksY, List<Integer> xyValues) {
-        List<List<SudokuCell>> pincers = new LinkedList<>();
+        List<List<SudokuCell>> pincers = new ArrayList<>();
         for (SudokuCell x : strongLinksX) {
             int candidateZ = x.getCandidates().stream().filter(z -> !xyValues.contains(z)).findFirst().orElse(0);
             for (SudokuCell y : strongLinksY) {

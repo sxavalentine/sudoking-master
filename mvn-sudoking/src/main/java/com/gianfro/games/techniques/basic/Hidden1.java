@@ -7,8 +7,8 @@ import com.gianfro.games.entities.SudokuCell;
 import com.gianfro.games.entities.deductions.CellSolved;
 import com.gianfro.games.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +30,7 @@ public class Hidden1 {
     }
 
     private static List<ChangeLog> hiddenSingle(Sudoku sudoku, House house) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         try {
             for (int houseNumber : Utils.NUMBERS) {
                 for (int number : Utils.NUMBERS) {
@@ -45,7 +45,7 @@ public class Hidden1 {
                                 .number(number)
                                 .build();
                         ChangeLog changeLog = ChangeLog.builder()
-                                .unitExamined(null)
+                                .unitExamined(List.of(number))
                                 .house(house)
                                 .houseNumber(houseNumber)
                                 .unitMembers(List.of(cell))

@@ -12,16 +12,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FiftyFifty {
 
     public static final String FIFTY_FIFTY = "FIFTY FIFTY";
 
-    public static List<SolutionStep> check(Sudoku sudoku, boolean isFirstIteration, LinkedList<CellGuessed> guesses) {
+    public static List<SolutionStep> check(Sudoku sudoku, boolean isFirstIteration, List<CellGuessed> guesses) {
 
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         Bivalue bivalue = getBivalueOptions(sudoku);
 
         Sudoku attempt1 = Sudoku.fromCells(sudoku.getCells());
@@ -39,7 +39,6 @@ public class FiftyFifty {
                 .numberB(bivalue.optionB)
                 .build();
         guesses.add(guessA);
-        printGuesses(guesses);
 
         List<SolutionStep> solutionSteps;
         try {
@@ -71,9 +70,8 @@ public class FiftyFifty {
                     .cellB(bivalue.cellA)
                     .numberB(bivalue.optionA)
                     .build();
-            guesses.pop();
+            guesses.remove(guesses.size() - 1);
             guesses.add(guessB);
-            printGuesses(guesses);
 
             try {
                 solutionSteps = SudokuSolver.solve(attempt2, isFirstIteration, guesses);
@@ -93,10 +91,10 @@ public class FiftyFifty {
                 System.out.println(sbe2.getMessage());//TODO REMOVE
 
                 if (guesses.size() > 1) {
-                    guesses.pop();
+                    guesses.remove(guesses.size() - 1);
                     throw sbe2;
                 } else {
-                    System.out.println("IMPOSSIBLE TO SOLVE: WRONG INPUT ???");
+                    System.out.println("IMPOSSIBLE TO SOLVE: WRONG INPUT ???");//TODO REMOVE
                     Utils.megaGrid(attempt2);
                     throw new UnsolvableException(null, sudoku, null, null);
                 }
@@ -105,19 +103,6 @@ public class FiftyFifty {
         SolutionStep fiftyFiftyStep = new SolutionStep(sudoku, changeLogs);
         solutionSteps.add(0, fiftyFiftyStep);
         return solutionSteps;
-    }
-
-    @Data
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    @Builder
-    private static class Bivalue {
-        SudokuCell cellA;
-        SudokuCell cellB;
-        int optionA;
-        int optionB;
-        //These two fields have value only when it's a FIFTY-FIFTY STRONG LINK
-        House house;
-        int houseNumber;
     }
 
     /**
@@ -160,11 +145,16 @@ public class FiftyFifty {
         throw new NoFiftyFiftyException(sudoku);
     }
 
-    //TODO: REMOVE (DEBUG ONLY)
-    private static void printGuesses(List<CellGuessed> guesses) {
-        System.out.println("GUESSES:");
-        for (CellGuessed cg : guesses) {
-            System.out.println(cg);
-        }
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    @Builder
+    private static class Bivalue {
+        SudokuCell cellA;
+        SudokuCell cellB;
+        int optionA;
+        int optionB;
+        //These two fields have value only when it's a FIFTY-FIFTY STRONG LINK
+        House house;
+        int houseNumber;
     }
 }

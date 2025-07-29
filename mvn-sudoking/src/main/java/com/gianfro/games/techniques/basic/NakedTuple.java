@@ -42,7 +42,7 @@ public class NakedTuple {
     }
 
     private static List<ChangeLog> checkNaked(String technique, Sudoku sudoku, House house) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         int size = getSize(technique);
         for (int houseNumber = 1; houseNumber < 10; houseNumber++) {
             List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, houseNumber);

@@ -13,9 +13,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 //TODO: Usa solo i campi specificati. NON scrivere equals/hashCode manuali! FONDAMENTALE !!!
 @EqualsAndHashCode(of = {"cell", "removedCandidates"}, callSuper = false)
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class CellSkimmed implements CellChange {
 

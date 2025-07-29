@@ -25,7 +25,7 @@ import java.util.Objects;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@EqualsAndHashCode(of = {"coordinates"})
+@EqualsAndHashCode(of = {"index"})
 public class SudokuCell implements ChangeLogUnitMember {
 
     int box;
@@ -47,8 +47,8 @@ public class SudokuCell implements ChangeLogUnitMember {
         this.candidates = Objects.requireNonNullElseGet(candidates, () -> isEmpty() ? new ArrayList<>(Utils.NUMBERS) : new ArrayList<>());
     }
 
-    public static SudokuCell fromNumbers(int value, int row, int col) {
-        return new SudokuCell(value, row, col, null);
+    public static SudokuCell fromNumbers(int value, int row, int col, List<Integer> candidates) {
+        return new SudokuCell(value, row, col, candidates);
     }
 
     /**

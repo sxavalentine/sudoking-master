@@ -20,10 +20,10 @@ public class TwoStringKite {
     }
 
     public static List<ChangeLog> findKite(Sudoku sudoku) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         for (int candidate : Utils.NUMBERS) {
-            List<List<SudokuCell>> rowsWithTwoWelcomingHouses = new LinkedList<>();
-            List<List<SudokuCell>> colsWithTwoWelcomingHouses = new LinkedList<>();
+            List<List<SudokuCell>> rowsWithTwoWelcomingHouses = new ArrayList<>();
+            List<List<SudokuCell>> colsWithTwoWelcomingHouses = new ArrayList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 List<SudokuCell> welcomingRowCells = Utils.getEmptyHouseCells(sudoku, House.ROW, houseNumber)
                         .stream().filter(c -> c.getCandidates().contains(candidate)).toList();
@@ -42,16 +42,16 @@ public class TwoStringKite {
                     List<SudokuCell> kiteCells;
                     List<SudokuCell> baseCells;
 
-                    if (Utils.cellCanSeeOtherCell(rowCells.get(0), colCells.get(0))) {
+                    if (rowCells.get(0).canSeeOther(colCells.get(0))) {
                         kiteCells = List.of(rowCells.get(0), colCells.get(0));
                         baseCells = List.of(rowCells.get(1), colCells.get(1));
-                    } else if (Utils.cellCanSeeOtherCell(rowCells.get(0), colCells.get(1))) {
+                    } else if (rowCells.get(0).canSeeOther(colCells.get(1))) {
                         kiteCells = List.of(rowCells.get(0), colCells.get(1));
                         baseCells = List.of(rowCells.get(1), colCells.get(0));
-                    } else if (Utils.cellCanSeeOtherCell(rowCells.get(1), colCells.get(0))) {
+                    } else if (rowCells.get(1).canSeeOther(colCells.get(0))) {
                         kiteCells = List.of(rowCells.get(1), colCells.get(0));
                         baseCells = List.of(rowCells.get(0), colCells.get(1));
-                    } else if (Utils.cellCanSeeOtherCell(rowCells.get(1), colCells.get(1))) {
+                    } else if (rowCells.get(1).canSeeOther(colCells.get(1))) {
                         kiteCells = List.of(rowCells.get(1), colCells.get(1));
                         baseCells = List.of(rowCells.get(0), colCells.get(0));
                     } else {
@@ -62,8 +62,8 @@ public class TwoStringKite {
                     if (kiteCells != null) {
                         List<SudokuCell> toBeSkimmed = sudoku.getCells().stream().filter(
                                         c -> c.getCandidates().contains(candidate) &&
-                                                Utils.cellCanSeeOtherCell(c, baseCells.get(0)) &&
-                                                Utils.cellCanSeeOtherCell(c, baseCells.get(1)) &&
+                                                c.canSeeOther(baseCells.get(0)) &&
+                                                c.canSeeOther(baseCells.get(1)) &&
                                                 !kiteCells.contains(c))
                                 .toList();
 

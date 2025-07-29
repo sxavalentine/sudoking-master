@@ -13,8 +13,8 @@ import java.util.List;
 
 @Data
 //TODO: Usa solo i campi specificati. NON scrivere equals/hashCode manuali! FONDAMENTALE !!!
-@EqualsAndHashCode(of = "changes", callSuper = false)
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@EqualsAndHashCode(of = {"changes"}, callSuper = false)
 @Builder
 public class ChangeLog {
 

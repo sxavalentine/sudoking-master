@@ -23,7 +23,7 @@ public class X_Wing {
     }
 
     private static List<ChangeLog> findRectangle(Sudoku sudoku, House house) {
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         // Pointless iterate up to 9, if there is an X-Wing will be found earlier
         for (int houseNumber = 1; houseNumber < 9; houseNumber++) {
             List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, houseNumber);

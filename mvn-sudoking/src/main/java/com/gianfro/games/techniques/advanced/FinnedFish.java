@@ -5,7 +5,6 @@ import com.gianfro.games.entities.House;
 import com.gianfro.games.entities.Sudoku;
 import com.gianfro.games.entities.SudokuCell;
 import com.gianfro.games.entities.deductions.CellSkimmed;
-import com.gianfro.games.utils.SudokuList;
 import com.gianfro.games.utils.Utils;
 import org.paukov.combinatorics3.Generator;
 
@@ -39,10 +38,10 @@ public class FinnedFish {
 
     private static List<ChangeLog> findFinnedFish(String technique, Sudoku sudoku, House house) {
         int size = getSize(technique);
-        List<ChangeLog> changeLogs = new LinkedList<>();
+        List<ChangeLog> changeLogs = new ArrayList<>();
         for (int candidate : Utils.NUMBERS) {
-            List<List<SudokuCell>> regularSets = new LinkedList<>();
-            List<List<SudokuCell>> finnedSets = new LinkedList<>();
+            List<List<SudokuCell>> regularSets = new ArrayList<>();
+            List<List<SudokuCell>> finnedSets = new ArrayList<>();
             for (int houseNumber : Utils.NUMBERS) {
                 List<SudokuCell> emptyHouseCells = Utils.getEmptyHouseCells(sudoku, house, houseNumber);
                 List<SudokuCell> welcomingCells = emptyHouseCells.stream().filter(c -> c.getCandidates().contains(candidate)).toList();
@@ -119,10 +118,5 @@ public class FinnedFish {
             case FINNED_JELLYFISH -> 4;
             default -> throw new IllegalArgumentException("Invalid technique name: " + technique);
         };
-    }
-
-    public static void main(String[] args) {
-        Sudoku sudoku = Sudoku.fromString(SudokuList.TEST_JELLIFISH_ROW);
-        BasicFish.check(sudoku);
     }
 }
